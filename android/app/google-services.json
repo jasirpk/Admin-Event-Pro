@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "491693754365",
+    "project_id": "event-management-f73f5",
+    "storage_bucket": "event-management-f73f5.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:491693754365:android:d176ee56ce7e71d9c5fb94",
+        "android_client_info": {
+          "package_name": "com.example.admineventpro"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCwSDwllBJuUYL2vbTqqUrDM3OHWXyDNL8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
