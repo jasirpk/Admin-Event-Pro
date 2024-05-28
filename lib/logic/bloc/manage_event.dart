@@ -3,7 +3,23 @@ part of 'manage_bloc.dart';
 @immutable
 abstract class ManageEvent {}
 
-class SplashEventStatus extends ManageEvent {}
+// Athentication...loin..!
+
+class CheckLoginStausEvent extends ManageEvent {}
+
+class LoginEvent extends ManageEvent {
+  final String email;
+  final String message;
+
+  LoginEvent({required this.email, required this.message});
+}
+// Athentication...Sign Up..!
+
+class SignUp extends ManageEvent {
+  final AdminModel adminModel;
+
+  SignUp({required this.adminModel});
+}
 
 class TextFieldTextChanged extends ManageEvent {
   final String text;

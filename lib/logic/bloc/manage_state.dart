@@ -5,7 +5,22 @@ abstract class ManageState {}
 
 class ManageInitial extends ManageState {}
 
-class NavigateToWelcomeScreen extends ManageState {}
+//Auth...!
+
+class AuthLoading extends ManageState {}
+
+class Authenticated extends ManageState {
+  final AdminModel admin;
+  Authenticated(this.admin);
+}
+
+class UnAthenticated extends ManageState {}
+
+class AuthenticatedErrors extends ManageState {
+  final String message;
+
+  AuthenticatedErrors({required this.message});
+}
 
 class TextValid extends ManageState {}
 

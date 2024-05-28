@@ -1,25 +1,22 @@
 import 'dart:async';
+import 'package:admineventpro/entities/models/admin_auth.dart';
 import 'package:bloc/bloc.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:meta/meta.dart';
 
 part 'manage_event.dart';
 part 'manage_state.dart';
 
 class ManageBloc extends Bloc<ManageEvent, ManageState> {
+  final FirebaseAuth auth = FirebaseAuth.instance;
   bool isPasswordVisible = false;
 
   ManageBloc() : super(ManageInitial()) {
-    on<SplashEventStatus>(checkLogin);
+    on<CheckLoginStausEvent>(checkLoginEventStatus);
     on<TextFieldTextChanged>(validateTextField);
     on<TextFieldPasswordChanged>(validatePasswordField);
     on<TogglePasswordVisibility>(togglePasswordVisiblity);
     on<ValidateFields>(validateFields);
-  }
-
-  FutureOr<void> checkLogin(
-      SplashEventStatus event, Emitter<ManageState> emit) async {
-    await Future.delayed(Duration(seconds: 2));
-    emit(NavigateToWelcomeScreen());
   }
 
   FutureOr<void> validateTextField(
@@ -65,6 +62,23 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       emit(passwordInvalid(message: 'Enter Valid Password'));
     } else {
       emit(ValidatonSuccess());
+    }
+  }
+
+  FutureOr<void> checkLoginEventStatus(
+      CheckLoginStausEvent event, Emitter<ManageState> emit) async {
+    User? user;
+    try {
+      await Future.delayed(Duration(seconds: 2), () {
+        user = auth.currentUser;
+      });
+      if (user != null) {
+        emit(Authenticated(user as AdminModel));
+      } else {
+        emit(UnAthenticated());
+      }
+    } catch (e) {
+      emit(AuthenticatedErrors(message: e.toString()));
     }
   }
 }
