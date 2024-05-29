@@ -10,8 +10,8 @@ class ManageInitial extends ManageState {}
 class AuthLoading extends ManageState {}
 
 class Authenticated extends ManageState {
-  final AdminModel admin;
-  Authenticated(this.admin);
+  final UserModel user;
+  Authenticated(this.user);
 }
 
 class UnAthenticated extends ManageState {}

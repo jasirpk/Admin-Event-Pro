@@ -53,14 +53,45 @@ class PasswordField extends StatelessWidget {
               errorText: errorText,
               hintStyle: TextStyle(color: Colors.grey[500])),
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-          // validator: (_) {
-          //   if (state is passwordInvalid) {
-          //     return errorText;
-          //   }
-          //   return null;
-          // },
+          validator: (_) {
+            if (state is passwordInvalid) {
+              return errorText;
+            }
+            return null;
+          },
         );
       },
     );
   }
 }
+// import 'package:flutter/material.dart';
+
+// class PasswordField extends StatelessWidget {
+//   final TextEditingController controller;
+//   final String hintText;
+
+//   const PasswordField(
+//       {Key? key, required this.controller, required this.hintText})
+//       : super(key: key);
+
+//   @override
+//   Widget build(BuildContext context) {
+//     return TextFormField(
+//       controller: controller,
+//       obscureText: true,
+//       decoration: InputDecoration(
+//         hintText: hintText,
+//         fillColor: Colors.white,
+//         filled: true,
+//       ),
+//       keyboardType: TextInputType.emailAddress,
+//       style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
+//       validator: (value) {
+//         if (value == null || value.isEmpty) {
+//           return 'Please enter your password';
+//         }
+//         return null;
+//       },
+//     );
+//   }
+// }

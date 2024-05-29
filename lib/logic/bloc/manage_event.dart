@@ -5,20 +5,19 @@ abstract class ManageEvent {}
 
 // Athentication...loin..!
 
-class CheckLoginStausEvent extends ManageEvent {}
+class login extends ManageEvent {}
 
 class LoginEvent extends ManageEvent {
   final String email;
-  final String message;
-
-  LoginEvent({required this.email, required this.message});
+  final String password;
+  LoginEvent({required this.email, required this.password});
 }
 // Athentication...Sign Up..!
 
 class SignUp extends ManageEvent {
-  final AdminModel adminModel;
+  final UserModel userModel;
 
-  SignUp({required this.adminModel});
+  SignUp({required this.userModel});
 }
 
 class TextFieldTextChanged extends ManageEvent {
@@ -40,4 +39,11 @@ class ValidateFields extends ManageEvent {
   final String Password;
 
   ValidateFields({required this.Email, required this.Password});
+}
+
+class Logout extends ManageEvent {}
+
+class AuthenticationError extends ManageEvent {
+  final String errorMessage;
+  AuthenticationError(this.errorMessage);
 }

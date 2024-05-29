@@ -11,25 +11,21 @@ class SplashScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // context.read<ManageBloc>().add(SplashEventStatus());
-    context.read<ManageBloc>().add(CheckLoginStausEvent());
+    context.read<ManageBloc>().add(login());
     return Scaffold(
       body: BlocListener<ManageBloc, ManageState>(
         listener: (context, state) {
           if (state is Authenticated) {
-            Get.off(() => HomeScreen());
+            print('User authenticated, navigating to HomeScreen');
+            Get.offAll(() => HomeScreen());
           } else if (state is UnAthenticated) {
+            print('User not authenticated, navigating to WelcomeAdmin');
             Get.off(() => WelcomeAdmin());
           }
-          //// if (state is NavigateToWelcomeScreen) {
-          //   Get.off(
-          //     () => WelcomeAdmin(),
-          //   );
-          // }
         },
         child: BlocBuilder<ManageBloc, ManageState>(
           builder: (context, state) {
-            if (state is ManageInitial) {
+            if (state is AuthLoading || state is ManageInitial) {
               return Center(
                 child: Lottie.asset(
                   'assets/images/Animation - 1716651896239.json',

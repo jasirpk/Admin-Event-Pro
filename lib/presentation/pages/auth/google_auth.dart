@@ -5,14 +5,14 @@ import 'package:admineventpro/presentation/components/dont_have_account.dart';
 import 'package:admineventpro/presentation/components/pushable_button.dart';
 import 'package:admineventpro/presentation/components/squre_tile.dart';
 import 'package:admineventpro/presentation/components/text_field.dart';
-import 'package:admineventpro/presentation/pages/auth/login.dart';
 import 'package:admineventpro/presentation/pages/auth/signup.dart';
+import 'package:admineventpro/presentation/pages/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 class GoogleAuth extends StatelessWidget {
-  final useremailController = TextEditingController();
+  final userEmailController = TextEditingController();
   final userPasswordController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
@@ -68,14 +68,28 @@ class GoogleAuth extends StatelessWidget {
                           child: Center(
                             child: BlocListener<ManageBloc, ManageState>(
                               listener: (context, state) {
-                                if (state is ValidatonSuccess) {
-                                  Get.to(() => LoginScreen());
+                                if (state is Authenticated) {
+                                  WidgetsBinding.instance
+                                      .addPostFrameCallback((_) {
+                                    Get.off(() => SignupScreen());
+                                  });
+                                } else if (state is ValidatonSuccess) {
+                                  // UserModel user = UserModel(
+                                  //   email: userEmailController.text,
+                                  //   password: userPasswordController.text,
+                                  // );
+                                  context.read<ManageBloc>().add(ValidateFields(
+                                      Email:
+                                          userEmailController.text.toString(),
+                                      Password: userPasswordController.text));
+                                } else if (state is AuthenticatedErrors) {
+                                  Get.snackbar('Error', state.message);
                                 }
                               },
                               child: Column(
                                 children: [
                                   TextFieldWidget(
-                                    Controller: useremailController,
+                                    Controller: userEmailController,
                                     hintText: 'Email',
                                     obscureText: false,
                                   ),
@@ -83,13 +97,15 @@ class GoogleAuth extends StatelessWidget {
                                   PushableButton_widget(
                                     buttonText: 'Continue',
                                     onpressed: () {
-                                      final email = useremailController.text;
-                                      final password =
-                                          userPasswordController.text;
-                                      context.read<ManageBloc>().add(
-                                          ValidateFields(
-                                              Email: email,
-                                              Password: password));
+                                      if (formKey.currentState!.validate()) {
+                                        final email = userEmailController.text;
+                                        final password =
+                                            userPasswordController.text;
+                                        context.read<ManageBloc>().add(
+                                            LoginEvent(
+                                                email: email,
+                                                password: password));
+                                      }
                                     },
                                   ),
                                   SizedBox(height: 10),

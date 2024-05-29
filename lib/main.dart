@@ -10,12 +10,9 @@ import 'package:get/get.dart';
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(
-    options: DefaultFirebaseOptions.currentPlatform,
-  );
-  runApp(BlocProvider(
-    create: (context) => ManageBloc(),
-    child: AdminEventPro(),
-  ));
+      // options: DefaultFirebaseOptions.currentPlatform,
+      );
+  runApp(AdminEventPro());
 }
 
 class AdminEventPro extends StatelessWidget {
@@ -23,17 +20,20 @@ class AdminEventPro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return GetMaterialApp(
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-              textTheme: TextTheme(
-                  bodyLarge: TextStyle(color: Colors.white),
-                  bodyMedium: TextStyle(color: Colors.white)),
-              colorScheme: ColorScheme.fromSeed(seedColor: myColor))
-          .copyWith(
-        scaffoldBackgroundColor: Colors.black,
+    return BlocProvider(
+      create: (context) => ManageBloc(),
+      child: GetMaterialApp(
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+                textTheme: TextTheme(
+                    bodyLarge: TextStyle(color: Colors.white),
+                    bodyMedium: TextStyle(color: Colors.white)),
+                colorScheme: ColorScheme.fromSeed(seedColor: myColor))
+            .copyWith(
+          scaffoldBackgroundColor: Colors.black,
+        ),
+        home: SplashScreen(),
       ),
-      home: SplashScreen(),
     );
   }
 }

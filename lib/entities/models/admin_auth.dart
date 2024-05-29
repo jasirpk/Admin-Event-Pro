@@ -1,6 +1,7 @@
-class AdminModel {
-  final String email;
-  final String password;
+class UserModel {
+  String? email;
+  String? password;
+  String? uid;
 
-  AdminModel({required this.email, required this.password});
+  UserModel({this.email, this.password, this.uid});
 }
