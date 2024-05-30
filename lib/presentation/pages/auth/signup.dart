@@ -2,6 +2,7 @@ import 'dart:ui';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/entities/models/admin_auth.dart';
 import 'package:admineventpro/logic/bloc/manage_bloc.dart';
+import 'package:admineventpro/presentation/components/already_have_account.dart';
 import 'package:admineventpro/presentation/components/back_arrow_button.dart';
 import 'package:admineventpro/presentation/components/password_field.dart';
 import 'package:admineventpro/presentation/components/pushable_button.dart';
@@ -23,6 +24,7 @@ class SignupScreen extends StatelessWidget {
       listener: (context, state) {
         if (state is Authenticated) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
+            Get.snackbar('Error', 'Successfully Registed');
             Get.offAll(() => HomeScreen());
           });
         } else if (state is ValidatonSuccess) {
@@ -32,7 +34,9 @@ class SignupScreen extends StatelessWidget {
           );
           context.read<ManageBloc>().add(SignUp(userModel: user));
         } else if (state is AuthenticatedErrors) {
-          Get.snackbar('Error', state.message);
+          WidgetsBinding.instance.addPostFrameCallback((_) {
+            Get.snackbar('Error', 'Account not Registered');
+          });
         }
       },
       child: SingleChildScrollView(
@@ -59,25 +63,26 @@ class SignupScreen extends StatelessWidget {
                       },
                     ),
                   ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.26),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.24),
                   Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16.0),
                     child: Text('Sign Up',
                         style: TextStyle(
                             fontSize: 40, fontWeight: FontWeight.bold)),
                   ),
-                  SizedBox(height: MediaQuery.of(context).size.height * 0.02),
+                  SizedBox(height: MediaQuery.of(context).size.height * 0.01),
                   ClipRRect(
                     borderRadius: BorderRadius.circular(30),
                     child: BackdropFilter(
                       filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                       child: Container(
-                        padding: EdgeInsets.symmetric(horizontal: 10),
+                        padding: EdgeInsets.symmetric(horizontal: 1),
                         decoration: BoxDecoration(
                           color: Colors.black.withOpacity(0.2),
                           borderRadius: BorderRadius.circular(30),
                         ),
                         width: MediaQuery.of(context).size.width * 0.9,
+                        height: MediaQuery.of(context).size.height * 0.50,
                         child: Form(
                           key: formKey,
                           child: Center(
@@ -137,24 +142,28 @@ class SignupScreen extends StatelessWidget {
                                     ),
                                   ),
                                 ),
-                                SizedBox(height: 10),
                                 Padding(
-                                  padding: EdgeInsets.all(16.0),
+                                  padding: EdgeInsets.only(left: 16, right: 16),
                                   child: PushableButton_widget(
-                                    buttonText: 'Agree and Continue',
-                                    onpressed: () {
-                                      if (formKey.currentState!.validate()) {
-                                        final email = userEmailController.text;
-                                        final password =
-                                            userPasswordController.text;
-                                        context.read<ManageBloc>().add(SignUp(
-                                            userModel: UserModel(
-                                                email: email,
-                                                password: password)));
-                                      }
-                                    },
-                                  ),
+                                      buttonText: 'Agree and Continue',
+                                      onpressed: () {
+                                        if (formKey.currentState!.validate()) {
+                                          final email =
+                                              userEmailController.text;
+                                          final password =
+                                              userPasswordController.text;
+                                          context.read<ManageBloc>().add(SignUp(
+                                                userModel: UserModel(
+                                                    email: email,
+                                                    password: password),
+                                              ));
+                                        }
+                                      }),
                                 ),
+                                SizedBox(height: 10),
+                                AlreadyHaveAccount(onpressed: () {
+                                  Get.back();
+                                })
                               ],
                             ),
                           ),

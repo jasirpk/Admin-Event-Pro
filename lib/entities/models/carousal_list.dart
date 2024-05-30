@@ -1,4 +1,4 @@
 class Category {
-  final String image;
+  String image;
   Category({required this.image});
 }

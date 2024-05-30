@@ -5,7 +5,7 @@ abstract class ManageEvent {}
 
 // Athentication...loin..!
 
-class login extends ManageEvent {}
+// class login extends ManageEvent {}
 
 class LoginEvent extends ManageEvent {
   final String email;
@@ -47,3 +47,6 @@ class AuthenticationError extends ManageEvent {
   final String errorMessage;
   AuthenticationError(this.errorMessage);
 }
+
+// check User...!
+class CheckUserEvent extends ManageEvent {}

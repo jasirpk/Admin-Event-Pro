@@ -47,7 +47,7 @@ class TextFieldWidget extends StatelessWidget {
           style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
           validator: (_) {
             if (state is TextInvalid) {
-              return 'Valid Email Required';
+              return errorText;
             }
             return null;
           },
