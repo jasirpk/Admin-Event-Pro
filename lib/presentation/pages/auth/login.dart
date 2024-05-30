@@ -129,16 +129,7 @@ class LoginScreen extends StatelessWidget {
                                                 0.02),
                                     PushableButton_widget(
                                         buttonText: 'Continue',
-                                        onpressed: () {
-                                          final password =
-                                              userPasswordController.text;
-                                          final email =
-                                              userEmailController.text;
-                                          context.read<ManageBloc>().add(
-                                              ValidateFields(
-                                                  Email: email,
-                                                  Password: password));
-                                        }),
+                                        onpressed: () {}),
                                     SizedBox(
                                         height:
                                             MediaQuery.of(context).size.height *

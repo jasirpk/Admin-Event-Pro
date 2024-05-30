@@ -3,8 +3,6 @@ part of 'manage_bloc.dart';
 @immutable
 abstract class ManageEvent {}
 
-// Athentication...loin..!
-
 // class login extends ManageEvent {}
 
 class LoginEvent extends ManageEvent {
@@ -20,6 +18,12 @@ class SignUp extends ManageEvent {
   SignUp({required this.userModel});
 }
 
+// logout..!
+
+class Logout extends ManageEvent {}
+
+// Form validation...!
+
 class TextFieldTextChanged extends ManageEvent {
   final String text;
 
@@ -32,16 +36,9 @@ class TextFieldPasswordChanged extends ManageEvent {
   TextFieldPasswordChanged({required this.password});
 }
 
+// view Password...!
+
 class TogglePasswordVisibility extends ManageEvent {}
-
-class ValidateFields extends ManageEvent {
-  final String Email;
-  final String Password;
-
-  ValidateFields({required this.Email, required this.Password});
-}
-
-class Logout extends ManageEvent {}
 
 class AuthenticationError extends ManageEvent {
   final String errorMessage;

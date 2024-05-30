@@ -116,16 +116,6 @@ class GoogleAuth extends StatelessWidget {
                                           authBloc.add(LoginEvent(
                                               email: email,
                                               password: password));
-                                          // if (formKey.currentState!
-                                          //     .validate()) {
-                                          //   final email =
-                                          //       userEmailController.text.trim();
-                                          //   final password = '';
-                                          //   context.read<ManageBloc>().add(
-                                          //       LoginEvent(
-                                          //           email: email,
-                                          //           password: password));
-                                          // }
                                         }),
                                     SizedBox(height: 10),
                                     Text(

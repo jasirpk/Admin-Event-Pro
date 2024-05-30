@@ -1,3 +1,4 @@
+import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/logic/bloc/manage_bloc.dart';
 import 'package:admineventpro/presentation/pages/auth/google_auth.dart';
 import 'package:flutter/material.dart';
@@ -12,6 +13,7 @@ class HomeScreen extends StatelessWidget {
     context.read<ManageBloc>().add(Logout());
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: myColor,
         actions: [
           IconButton(
             onPressed: () {

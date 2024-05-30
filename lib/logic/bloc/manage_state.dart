@@ -5,7 +5,7 @@ abstract class ManageState {}
 
 class ManageInitial extends ManageState {}
 
-//Auth...!
+//Authentiacation...!
 
 class AuthLoading extends ManageState {}
 
@@ -14,6 +14,8 @@ class Authenticated extends ManageState {
   Authenticated(this.user);
 }
 
+class ValidatonSuccess extends ManageState {}
+
 class UnAthenticated extends ManageState {}
 
 class AuthenticatedErrors extends ManageState {
@@ -21,6 +23,8 @@ class AuthenticatedErrors extends ManageState {
 
   AuthenticatedErrors({required this.message});
 }
+
+// validation...!
 
 class TextValid extends ManageState {}
 
@@ -38,10 +42,10 @@ class passwordInvalid extends ManageState {
   passwordInvalid({required this.message});
 }
 
+// view Password...!
+
 class PasswordVisibilityToggled extends ManageState {
   final bool isVisible;
 
   PasswordVisibilityToggled(this.isVisible);
 }
-
-class ValidatonSuccess extends ManageState {}

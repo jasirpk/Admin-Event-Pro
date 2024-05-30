@@ -56,38 +56,3 @@ class TextFieldWidget extends StatelessWidget {
     );
   }
 }
-// import 'package:flutter/material.dart';
-
-// class TextFieldWidget extends StatelessWidget {
-//   final TextEditingController Controller;
-//   final String hintText;
-//   final bool obscureText;
-
-//   const TextFieldWidget(
-//       {Key? key,
-//       required this.Controller,
-//       required this.hintText,
-//       required this.obscureText})
-//       : super(key: key);
-
-//   @override
-//   Widget build(BuildContext context) {
-//     return TextFormField(
-//       controller: Controller,
-//       obscureText: obscureText,
-//       decoration: InputDecoration(
-//         hintText: hintText,
-//         fillColor: Colors.white,
-//         filled: true,
-//       ),
-//       keyboardType: TextInputType.emailAddress,
-//       style: TextStyle(color: Colors.black, fontWeight: FontWeight.w500),
-//       validator: (value) {
-//         if (value == null || value.isEmpty) {
-//           return 'Please enter your email';
-//         }
-//         return null;
-//       },
-//     );
-//   }
-// }
