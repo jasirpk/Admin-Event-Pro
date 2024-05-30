@@ -1,5 +1,8 @@
 import 'dart:async';
+import 'dart:developer';
 import 'package:admineventpro/entities/models/admin_auth.dart';
+import 'package:admineventpro/presentation/pages/screens/home.dart';
+import 'package:admineventpro/presentation/pages/welcome_pages/welcome_admin.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -25,21 +28,17 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     // Handle login
     on<LoginEvent>((event, emit) async {
       emit(AuthLoading());
+
       try {
         final userCredential = await auth.signInWithEmailAndPassword(
-          email: event.email,
-          password: event.password,
-        );
-        final user = userCredential.user;
-        if (user != null) {
-          print('Account is authenticated');
-          emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email, password: '')));
-        } else {
-          emit(UnAthenticated());
-          Get.snackbar('eror', 'not authenticated');
-          print('Authentication failed');
-        }
+            email: event.email, password: event.password);
+
+        final user = userCredential.user!;
+        await saveAuthState(user.uid, user.email!);
+
+        print('Account is authenticated');
+        emit(Authenticated(
+            UserModel(uid: user.uid, email: user.email, password: '')));
       } catch (e) {
         emit(AuthenticatedErrors(message: 'not authenticated'));
         print('Authentication failed: $e');
@@ -65,9 +64,12 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
             'password': event.userModel.password,
             'createdAt': DateTime.now(),
           });
+          await saveAuthState(user.uid, user.email!);
           print('Account is authenticated');
+          print('Current FirebaseAuth user UID: ${user.uid}');
+          print('Current FirebaseAuth user Email: ${user.email}');
           emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email, password: '')));
+              UserModel(uid: user.uid, email: user.email!, password: '')));
         } else {
           emit(UnAthenticated());
         }
@@ -77,66 +79,66 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       }
     });
 
-    // Handle logout
+// storing data in SharedPreference...!
+
+    on<CheckUserEvent>((event, emit) async {
+      emit(AuthLoading());
+      await Future.delayed(Duration(seconds: 2));
+      final prefs = await SharedPreferences.getInstance();
+      final uid = prefs.getString('uid');
+      final email = prefs.getString('email');
+
+      print('SharedPreferences UID: $uid');
+      print('SharedPreferences Email: $email');
+
+      if (uid != null) {
+        print('User found in SharedPreferences');
+        Get.offAll(() => HomeScreen());
+        emit(Authenticated(UserModel(uid: uid, email: email, password: '')));
+      } else {
+        print('User not found in SharedPreferences, checking FirebaseAuth');
+        print('User NOt found in FirebaseAuth');
+        emit(UnAthenticated());
+        Get.offAll(() => WelcomeAdmin());
+        final user = auth.currentUser;
+        if (user != null) {
+          print('User found in FirebaseAuth');
+          Get.offAll(() => HomeScreen());
+          emit(Authenticated(
+              UserModel(uid: user.uid, email: user.email, password: '')));
+        } else {
+          print('User NOt found in FirebaseAuth');
+          Get.offAll(() => WelcomeAdmin());
+          emit(UnAthenticated());
+        }
+      }
+    });
+
+    // // Handle logout
     on<Logout>((event, emit) async {
       try {
         await auth.signOut();
+        clearAuthState();
         emit(UnAthenticated());
       } catch (e) {
         emit(AuthenticatedErrors(message: e.toString()));
       }
     });
-
-// // Handle splash Screen...!
-
-//     on<CheckUserEvent>((event, emit) async {
-//       emit(AuthLoading());
-//       User? user;
-//       try {
-//         await Future.delayed(Duration(seconds: 2), () {
-//           user = auth.currentUser;
-//         });
-//         if (user != null) {
-//           emit(Authenticated(
-//               UserModel(uid: user!.uid, email: user!.email, password: '')));
-//         } else {
-//           emit(UnAthenticated());
-//         }
-//       } catch (e) {
-//         emit(AuthenticatedErrors(message: e.toString()));
-//       }
-//     });
-
-// user Checking...!
-
-    on<CheckUserEvent>((event, emit) async {
-      emit(AuthLoading());
-      final prefs = await SharedPreferences.getInstance();
-      final uid = prefs.getString('uid');
-      final email = prefs.getString('email');
-      if (uid != null && email != null) {
-        emit(Authenticated(UserModel(uid: uid, email: email, password: '')));
-      } else {
-        final user = auth.currentUser;
-        if (user != null) {
-          emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email, password: '')));
-        } else {
-          emit(UnAthenticated());
-        }
-      }
-    });
   }
+
   Future<void> saveAuthState(String uid, String email) async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('uid', uid);
     await prefs.setString('email', email);
+    log('Saved UID: $uid');
+    log('Saved Email: $email');
   }
 
   Future<void> clearAuthState() async {
     final prefs = await SharedPreferences.getInstance();
     await prefs.remove('uid');
     await prefs.remove('email');
+    log('Cleared UID and Email from SharedPreferences');
   }
 
   // validation...!
@@ -171,7 +173,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     return password.isNotEmpty && password.length >= 6;
   }
 
-// view Password...!
+  // view Password...!
 
   FutureOr<void> togglePasswordVisibility(
       TogglePasswordVisibility event, Emitter<ManageState> emit) {

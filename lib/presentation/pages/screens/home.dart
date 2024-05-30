@@ -10,23 +10,30 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    context.read<ManageBloc>().add(Logout());
     return Scaffold(
       appBar: AppBar(
         backgroundColor: myColor,
         actions: [
           IconButton(
             onPressed: () {
-              final manageBloc = BlocProvider.of<ManageBloc>(context);
-              manageBloc.add(Logout());
-              Get.off(() => GoogleAuth());
+              context.read<ManageBloc>().add(Logout());
             },
             icon: Icon(Icons.logout),
           )
         ],
       ),
-      body: Center(
-        child: Text('Home Page'),
+      body: BlocListener<ManageBloc, ManageState>(
+        listener: (context, state) {
+          if (state is UnAthenticated) {
+            Get.off(() => GoogleAuth());
+          } else if (state is AuthenticatedErrors) {
+            Get.snackbar('Logout Error', state.message,
+                snackPosition: SnackPosition.BOTTOM);
+          }
+        },
+        child: Center(
+          child: Text('Home Page'),
+        ),
       ),
     );
   }

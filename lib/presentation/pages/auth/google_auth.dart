@@ -31,6 +31,8 @@ class GoogleAuth extends StatelessWidget {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Get.offAll(() => HomeScreen());
           });
+
+          return Container();
         } else if (state is AuthenticatedErrors) {
           WidgetsBinding.instance.addPostFrameCallback((_) {
             Get.snackbar('Error', 'Account not Registered');
