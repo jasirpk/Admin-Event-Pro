@@ -17,6 +17,7 @@ class HomeScreen extends StatelessWidget {
           IconButton(
             onPressed: () {
               context.read<ManageBloc>().add(Logout());
+              context.read<ManageBloc>().add(SignOutWithGoogle());
             },
             icon: Icon(Icons.logout),
           )
@@ -25,7 +26,7 @@ class HomeScreen extends StatelessWidget {
       body: BlocListener<ManageBloc, ManageState>(
         listener: (context, state) {
           if (state is UnAthenticated) {
-            Get.off(() => GoogleAuth());
+            Get.off(() => GoogleAuthScreen());
           } else if (state is AuthenticatedErrors) {
             Get.snackbar('Logout Error', state.message,
                 snackPosition: SnackPosition.BOTTOM);

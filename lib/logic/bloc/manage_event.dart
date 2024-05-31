@@ -47,3 +47,9 @@ class AuthenticationError extends ManageEvent {
 
 // check User...!
 class CheckUserEvent extends ManageEvent {}
+
+// Google Auth..!
+
+class GoogleAuth extends ManageEvent {}
+
+class SignOutWithGoogle extends ManageEvent {}

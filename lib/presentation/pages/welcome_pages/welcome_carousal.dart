@@ -110,7 +110,7 @@ class CarousalWelcome extends StatelessWidget {
                       child: PushableButton_widget(
                         buttonText: 'Next',
                         onpressed: () {
-                          Get.to(() => GoogleAuth());
+                          Get.to(() => GoogleAuthScreen());
                         },
                       ),
                     )

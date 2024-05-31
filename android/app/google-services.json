@@ -12,7 +12,12 @@
           "package_name": "com.example.admineventpro"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "491693754365-2obuuar6h9s2lkf74u0mkekbvgi1m6lu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyCwSDwllBJuUYL2vbTqqUrDM3OHWXyDNL8"
@@ -20,7 +25,19 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "491693754365-2obuuar6h9s2lkf74u0mkekbvgi1m6lu.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "491693754365-biugaibgovknh1flg9qufg8266ih4uj4.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.admineventpro"
+              }
+            }
+          ]
         }
       }
     }

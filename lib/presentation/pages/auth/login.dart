@@ -6,7 +6,6 @@ import 'package:admineventpro/presentation/components/back_arrow_button.dart';
 import 'package:admineventpro/presentation/components/dont_have_account.dart';
 import 'package:admineventpro/presentation/components/password_field.dart';
 import 'package:admineventpro/presentation/components/pushable_button.dart';
-import 'package:admineventpro/presentation/pages/auth/google_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
