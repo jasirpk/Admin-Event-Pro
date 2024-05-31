@@ -2,10 +2,11 @@ import 'dart:async';
 import 'dart:developer';
 import 'package:admineventpro/entities/models/admin_auth.dart';
 import 'package:admineventpro/presentation/pages/screens/home.dart';
-import 'package:admineventpro/presentation/pages/welcome_pages/welcome_admin.dart';
+import 'package:admineventpro/presentation/pages/onboarding_pages/welcome_admin.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
@@ -177,7 +178,46 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         emit(AuthenticatedErrors(message: 'signOut error'));
       }
     });
+
+// Handle the Facebook Auth...!
+
+    on<FaceBookAuth>((event, emit) async {
+      emit(AuthLoading());
+      try {
+        final LoginResult result = await FacebookAuth.instance.login();
+        if (result.status == LoginStatus.success) {
+          final OAuthCredential FacebookAuthCredential =
+              FacebookAuthProvider.credential(result.accessToken!.tokenString);
+          final userCredential =
+              await auth.signInWithCredential(FacebookAuthCredential);
+          final user = userCredential.user!;
+          await saveAuthState(user.uid, user.email!);
+          print('facebook account is authenticated');
+          emit(Authenticated(
+              UserModel(uid: user.uid, email: user.email, password: '')));
+        } else {
+          emit(AuthenticatedErrors(
+              message: 'Facebook login failed:${result.message}'));
+        }
+      } catch (e) {
+        emit(AuthenticatedErrors(message: 'facebook errors$e'));
+      }
+    });
+
+// facebook signOut...!
+
+    on<SignOutWithFacebook>((event, emit) async {
+      try {
+        await FacebookAuth.instance.logOut();
+        clearAuthState();
+        emit(UnAthenticated());
+      } catch (e) {
+        emit(AuthenticatedErrors(message: 'Facebook clear statement error'));
+      }
+    });
   }
+
+// User Credential storing in Sharedpreference...!
 
   Future<void> saveAuthState(String uid, String email) async {
     final prefs = await SharedPreferences.getInstance();
@@ -186,6 +226,8 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     log('Saved UID: $uid');
     log('Saved Email: $email');
   }
+
+// User Credential clearing..!
 
   Future<void> clearAuthState() async {
     final prefs = await SharedPreferences.getInstance();

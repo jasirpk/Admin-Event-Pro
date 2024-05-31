@@ -18,6 +18,7 @@ class HomeScreen extends StatelessWidget {
             onPressed: () {
               context.read<ManageBloc>().add(Logout());
               context.read<ManageBloc>().add(SignOutWithGoogle());
+              context.read<ManageBloc>().add(SignOutWithFacebook());
             },
             icon: Icon(Icons.logout),
           )

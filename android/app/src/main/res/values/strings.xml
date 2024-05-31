@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources> 
+    <string name="app_name">Admin Event Pro</string>
+    <string name="facebook_app_id">1298289101575344</string>
+    <string name="fb_login_protocol_scheme">fb1298289101575344</string>
+    <string name="facebook_client_token">12345678998765432</string>
+</resources>

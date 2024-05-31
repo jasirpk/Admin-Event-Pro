@@ -134,7 +134,7 @@ class GoogleAuthScreen extends StatelessWidget {
                                         onpressed: () {
                                           context
                                               .read<ManageBloc>()
-                                              .add(GoogleAuth());
+                                              .add(FaceBookAuth());
                                         },
                                         imagePath: 'assets/images/facebook.png',
                                         title: 'Continue with Facebook',

@@ -1,5 +1,5 @@
 import 'package:admineventpro/presentation/components/pushable_button.dart';
-import 'package:admineventpro/presentation/pages/welcome_pages/welcome_carousal.dart';
+import 'package:admineventpro/presentation/pages/onboarding_pages/welcome_carousal.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
