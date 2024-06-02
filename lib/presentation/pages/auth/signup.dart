@@ -2,11 +2,12 @@ import 'dart:ui';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/entities/models/admin_auth.dart';
 import 'package:admineventpro/logic/bloc/manage_bloc.dart';
-import 'package:admineventpro/presentation/components/already_have_account.dart';
+import 'package:admineventpro/presentation/components/auth_bottom_text.dart';
 import 'package:admineventpro/presentation/components/back_arrow_button.dart';
 import 'package:admineventpro/presentation/components/password_field.dart';
 import 'package:admineventpro/presentation/components/pushable_button.dart';
 import 'package:admineventpro/presentation/components/text_field.dart';
+import 'package:admineventpro/presentation/pages/auth/sign_in.dart';
 import 'package:admineventpro/presentation/pages/screens/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -165,9 +166,12 @@ class SignupScreen extends StatelessWidget {
                                         }),
                                   ),
                                   SizedBox(height: 10),
-                                  AlreadyHaveAccount(onpressed: () {
-                                    Get.back();
-                                  })
+                                  AuthBottomText(
+                                      onpressed: () {
+                                        Get.to(() => GoogleAuthScreen());
+                                      },
+                                      text: 'Already have an account?',
+                                      subText: 'Login')
                                 ],
                               ),
                             ),

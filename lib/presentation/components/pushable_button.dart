@@ -6,8 +6,11 @@ class PushableButton_widget extends StatelessWidget {
   final String buttonText;
   final VoidCallback onpressed;
 
-  const PushableButton_widget(
-      {super.key, required this.buttonText, required this.onpressed});
+  const PushableButton_widget({
+    super.key,
+    required this.buttonText,
+    required this.onpressed,
+  });
   @override
   Widget build(BuildContext context) {
     return PushableButton(

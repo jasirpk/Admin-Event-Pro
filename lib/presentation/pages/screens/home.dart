@@ -1,6 +1,6 @@
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/logic/bloc/manage_bloc.dart';
-import 'package:admineventpro/presentation/pages/auth/google_auth.dart';
+import 'package:admineventpro/presentation/pages/auth/sign_in.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';

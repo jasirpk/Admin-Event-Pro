@@ -1,6 +1,6 @@
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/entities/models/carousal_list.dart';
-import 'package:admineventpro/presentation/pages/auth/google_auth.dart';
+import 'package:admineventpro/presentation/pages/auth/sign_in.dart';
 import 'package:admineventpro/presentation/components/pushable_button.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';

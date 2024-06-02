@@ -1,11 +1,12 @@
 import 'dart:ui';
 import 'package:admineventpro/logic/bloc/manage_bloc.dart';
+import 'package:admineventpro/presentation/components/auth_bottom_text.dart';
 import 'package:admineventpro/presentation/components/back_arrow_button.dart';
-import 'package:admineventpro/presentation/components/dont_have_account.dart';
 import 'package:admineventpro/presentation/components/password_field.dart';
 import 'package:admineventpro/presentation/components/pushable_button.dart';
 import 'package:admineventpro/presentation/components/squre_tile.dart';
 import 'package:admineventpro/presentation/components/text_field.dart';
+import 'package:admineventpro/presentation/pages/auth/forgot_password.dart';
 import 'package:admineventpro/presentation/pages/auth/signup.dart';
 import 'package:admineventpro/presentation/pages/screens/home.dart';
 import 'package:flutter/material.dart';
@@ -78,7 +79,7 @@ class GoogleAuthScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(30),
                           ),
                           width: MediaQuery.of(context).size.width * 0.9,
-                          height: MediaQuery.of(context).size.height * 0.54,
+                          height: MediaQuery.of(context).size.height * 0.56,
                           child: Form(
                             key: formKey,
                             child: Center(
@@ -140,11 +141,21 @@ class GoogleAuthScreen extends StatelessWidget {
                                         title: 'Continue with Facebook',
                                       ),
                                       SizedBox(height: 10),
-                                      DontHaveAccount(
-                                        onpressed: () {
-                                          Get.to(() => SignupScreen());
-                                        },
+                                      AuthBottomText(
+                                          onpressed: () {
+                                            Get.to(() => SignupScreen());
+                                          },
+                                          text: 'Don\'t have an account?',
+                                          subText: ' Sign Up'),
+                                      SizedBox(
+                                        height: 10,
                                       ),
+                                      AuthBottomText(
+                                          onpressed: () {
+                                            Get.to(() => ForgotPassword());
+                                          },
+                                          text: 'Forgot Password?',
+                                          subText: 'click'),
                                     ],
                                   ),
                                 ],
