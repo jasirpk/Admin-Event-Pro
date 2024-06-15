@@ -20,15 +20,24 @@ class AdminEventPro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final Brightness platformBrightness =
+        MediaQuery.of(context).platformBrightness;
+
     return MultiBlocProvider(
         providers: [BlocProvider(create: (context) => ManageBloc())],
         child: GetMaterialApp(
           debugShowCheckedModeBanner: false,
           theme: ThemeData(
-                  textTheme: TextTheme(
+                  iconButtonTheme: IconButtonThemeData(
+                      style: ButtonStyle(
+                          iconColor:
+                              WidgetStateProperty.all<Color>(Colors.white))),
+                  brightness: platformBrightness,
+                  textTheme: const TextTheme(
                       bodyLarge: TextStyle(color: Colors.white),
                       bodyMedium: TextStyle(color: Colors.white)),
-                  colorScheme: ColorScheme.fromSeed(seedColor: myColor))
+                  colorScheme: ColorScheme.fromSeed(
+                      seedColor: myColor, brightness: platformBrightness))
               .copyWith(
             scaffoldBackgroundColor: Colors.black,
           ),

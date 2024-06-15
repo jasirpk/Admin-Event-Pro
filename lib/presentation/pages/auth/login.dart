@@ -2,9 +2,9 @@ import 'dart:ui';
 
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/logic/bloc/manage_bloc.dart';
-import 'package:admineventpro/presentation/components/back_arrow_button.dart';
-import 'package:admineventpro/presentation/components/password_field.dart';
-import 'package:admineventpro/presentation/components/pushable_button.dart';
+import 'package:admineventpro/presentation/components/ui/back_arrow_button.dart';
+import 'package:admineventpro/presentation/components/auth/password_field.dart';
+import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';

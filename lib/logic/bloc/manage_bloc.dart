@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:developer';
-import 'package:admineventpro/entities/models/admin_auth.dart';
+import 'package:admineventpro/entities/logic_models/admin_auth.dart';
 import 'package:admineventpro/presentation/pages/screens/home.dart';
 import 'package:admineventpro/presentation/pages/onboarding_pages/welcome_admin.dart';
 import 'package:bloc/bloc.dart';
@@ -11,7 +11,7 @@ import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
+import 'package:flutter_bloc/flutter_bloc.dart';
 part 'manage_event.dart';
 part 'manage_state.dart';
 
@@ -101,6 +101,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         print('User not found in SharedPreferences, checking FirebaseAuth');
         print('User NOt found in FirebaseAuth');
         emit(UnAthenticated());
+
         Get.offAll(() => WelcomeAdmin());
         final user = auth.currentUser;
         if (user != null) {
@@ -184,14 +185,20 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     on<FaceBookAuth>((event, emit) async {
       emit(AuthLoading());
       try {
-        final LoginResult result = await FacebookAuth.instance.login();
+        final LoginResult result =
+            await FacebookAuth.instance.login(permissions: [
+          'email',
+        ]);
+
         if (result.status == LoginStatus.success) {
           final OAuthCredential FacebookAuthCredential =
               FacebookAuthProvider.credential(result.accessToken!.tokenString);
           final userCredential =
               await auth.signInWithCredential(FacebookAuthCredential);
           final user = userCredential.user!;
+
           await saveAuthState(user.uid, user.email!);
+
           print('facebook account is authenticated');
           emit(Authenticated(
               UserModel(uid: user.uid, email: user.email, password: '')));

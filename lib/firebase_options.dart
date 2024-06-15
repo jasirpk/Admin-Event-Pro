@@ -63,6 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '491693754365',
     projectId: 'event-management-f73f5',
     storageBucket: 'event-management-f73f5.appspot.com',
+    androidClientId: '491693754365-gnk0luoi4eh1roagh5g1am83ffv122gc.apps.googleusercontent.com',
     iosClientId: '491693754365-biugaibgovknh1flg9qufg8266ih4uj4.apps.googleusercontent.com',
     iosBundleId: 'com.example.admineventpro',
   );
@@ -73,6 +74,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '491693754365',
     projectId: 'event-management-f73f5',
     storageBucket: 'event-management-f73f5.appspot.com',
+    androidClientId: '491693754365-gnk0luoi4eh1roagh5g1am83ffv122gc.apps.googleusercontent.com',
     iosClientId: '491693754365-biugaibgovknh1flg9qufg8266ih4uj4.apps.googleusercontent.com',
     iosBundleId: 'com.example.admineventpro',
   );
