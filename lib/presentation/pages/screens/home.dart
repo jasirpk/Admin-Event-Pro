@@ -41,6 +41,7 @@
 //   }
 // }
 
+import 'package:admineventpro/logic/dashboard_bloc/dashboard_bloc.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/favorites.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/home_page.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/profile.dart';
@@ -48,20 +49,10 @@ import 'package:admineventpro/presentation/components/dashboard.dart/search.dart
 import 'package:admineventpro/presentation/components/dashboard.dart/vendor.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeScreen extends StatefulWidget {
-  final String? tile;
-
-  const HomeScreen({super.key, this.tile});
-  @override
-  State<HomeScreen> createState() => _HomeScreenState();
-}
-
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
-
-  // List of widgets for each tab
-  final List<Widget> _pages = [
+class HomeScreen extends StatelessWidget {
+  final List<Widget> pages = [
     HomePage(),
     SearchPage(),
     ReceiptPage(),
@@ -83,12 +74,24 @@ class _HomeScreenState extends State<HomeScreen> {
           Icon(Icons.person, size: 20)
         ],
         onTap: (index) {
-          setState(() {
-            _currentIndex = index;
-          });
+          context.read<DashboardBloc>().add(TabChanged(index));
         },
       ),
-      body: _pages[_currentIndex],
+      body: BlocBuilder<DashboardBloc, DashboardState>(
+        builder: (context, state) {
+          if (state is DashboardInitial) {
+            return pages[0];
+          } else if (state is TabState) {
+            return IndexedStack(
+              index: state.index,
+              children: pages,
+            );
+          }
+          return Center(
+            child: CircularProgressIndicator(),
+          );
+        },
+      ),
     );
   }
 }

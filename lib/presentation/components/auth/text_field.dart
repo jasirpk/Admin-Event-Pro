@@ -1,4 +1,4 @@
-import 'package:admineventpro/logic/bloc/manage_bloc.dart';
+import 'package:admineventpro/logic/auth_bloc/manage_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
