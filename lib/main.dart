@@ -21,9 +21,6 @@ class AdminEventPro extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Brightness platformBrightness =
-        MediaQuery.of(context).platformBrightness;
-
     return MultiBlocProvider(
         providers: [
           BlocProvider(create: (context) => ManageBloc()),

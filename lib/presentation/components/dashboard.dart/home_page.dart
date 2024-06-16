@@ -1,8 +1,10 @@
 import 'package:admineventpro/presentation/components/ui/silver_appbar.dart';
 import 'package:admineventpro/presentation/components/ui/squre_container.dart';
-import 'package:admineventpro/presentation/components/ui/view_all.dart';
+import 'package:admineventpro/presentation/components/ui/custom_text.dart';
+import 'package:admineventpro/presentation/pages/screens/all_templates.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class HomePage extends StatelessWidget {
   @override
@@ -27,10 +29,14 @@ class HomePage extends StatelessWidget {
                     fontFamily: 'JacquesFracois',
                   ),
                 ),
-                ViewAllWidget(
+                CustomText(
                   text: 'View All',
                   screenHeight: screenHeight,
-                  onpressed: () {},
+                  onpressed: () {
+                    Get.to(() => AllTemplatesScreen(),
+                        transition: Transition.fade,
+                        duration: Duration(seconds: 1));
+                  },
                 ),
               ],
             ),
@@ -106,7 +112,7 @@ class HomePage extends StatelessWidget {
         SliverToBoxAdapter(
           child: Center(
             child: Padding(
-              padding: const EdgeInsets.only(bottom: 14),
+              padding: EdgeInsets.only(bottom: 14),
               child: Container(
                 height: screenHeight * 0.32,
                 width: screenWidth * 0.90,
@@ -163,7 +169,7 @@ class HomePage extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
-              ViewAllWidget(
+              CustomText(
                 screenHeight: screenHeight,
                 onpressed: () {},
                 text: 'Select a Template',

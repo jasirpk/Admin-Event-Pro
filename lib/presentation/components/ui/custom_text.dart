@@ -1,8 +1,8 @@
 import 'package:admineventpro/common/style.dart';
 import 'package:flutter/material.dart';
 
-class ViewAllWidget extends StatelessWidget {
-  const ViewAllWidget({
+class CustomText extends StatelessWidget {
+  const CustomText({
     super.key,
     required this.screenHeight,
     required this.onpressed,
@@ -20,7 +20,7 @@ class ViewAllWidget extends StatelessWidget {
         InkWell(
           onTap: onpressed,
           child: Padding(
-            padding: const EdgeInsets.only(right: 8),
+            padding: EdgeInsets.only(right: 8),
             child: Text(
               text,
               style: TextStyle(
