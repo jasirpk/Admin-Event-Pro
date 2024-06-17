@@ -1,7 +1,7 @@
 import 'package:admineventpro/presentation/components/ui/silver_appbar.dart';
 import 'package:admineventpro/presentation/components/ui/squre_container.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text.dart';
-import 'package:admineventpro/presentation/pages/screens/all_templates.dart';
+import 'package:admineventpro/presentation/pages/dashboard/all_templates.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

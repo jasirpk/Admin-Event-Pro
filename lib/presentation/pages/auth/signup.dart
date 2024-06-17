@@ -8,7 +8,7 @@ import 'package:admineventpro/presentation/components/auth/password_field.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:admineventpro/presentation/components/auth/text_field.dart';
 import 'package:admineventpro/presentation/pages/auth/sign_in.dart';
-import 'package:admineventpro/presentation/pages/screens/home.dart';
+import 'package:admineventpro/presentation/pages/dashboard/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';

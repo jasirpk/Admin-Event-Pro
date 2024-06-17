@@ -1,8 +1,8 @@
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/logic/services/custom_appbar.dart';
+import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/components/ui/silver_listview.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text.dart';
-import 'package:admineventpro/presentation/pages/screens/listof_templates.dart';
+import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
 
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

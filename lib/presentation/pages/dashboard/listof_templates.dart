@@ -1,5 +1,5 @@
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/logic/services/custom_appbar.dart';
+import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 

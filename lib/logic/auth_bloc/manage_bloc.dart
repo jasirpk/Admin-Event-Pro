@@ -1,7 +1,7 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:admineventpro/entities/logic_models/admin_auth.dart';
-import 'package:admineventpro/presentation/pages/screens/home.dart';
+import 'package:admineventpro/presentation/pages/dashboard/home.dart';
 import 'package:admineventpro/presentation/pages/onboarding_pages/welcome_admin.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';

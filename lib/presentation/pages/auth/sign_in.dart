@@ -8,7 +8,7 @@ import 'package:admineventpro/presentation/components/auth/squre_tile.dart';
 import 'package:admineventpro/presentation/components/auth/text_field.dart';
 import 'package:admineventpro/presentation/pages/auth/forgot_password.dart';
 import 'package:admineventpro/presentation/pages/auth/signup.dart';
-import 'package:admineventpro/presentation/pages/screens/home.dart';
+import 'package:admineventpro/presentation/pages/dashboard/home.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
