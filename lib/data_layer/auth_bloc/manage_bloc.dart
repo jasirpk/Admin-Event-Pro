@@ -58,7 +58,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         final user = userCredential.user;
         if (user != null) {
           await FirebaseFirestore.instance
-              .collection('users')
+              .collection('entrepreneurs')
               .doc(user.uid)
               .set({
             'uid': user.uid,

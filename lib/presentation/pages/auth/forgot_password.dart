@@ -1,6 +1,6 @@
 import 'dart:ui';
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/logic/services/forgot_password.dart';
+import 'package:admineventpro/data_layer/services/forgot_password.dart';
 import 'package:admineventpro/presentation/components/ui/back_arrow_button.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:admineventpro/presentation/components/auth/text_field.dart';

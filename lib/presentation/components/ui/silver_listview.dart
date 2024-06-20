@@ -66,7 +66,7 @@ class SilverListViewWidget extends StatelessWidget {
                             ),
                           ),
                           Padding(
-                            padding: const EdgeInsets.all(8.0),
+                            padding: EdgeInsets.all(8.0),
                             child: CustomText(
                               screenHeight: screenHeight,
                               onpressed: opressed,

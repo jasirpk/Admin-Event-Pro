@@ -1,5 +1,5 @@
 import 'dart:ui';
-import 'package:admineventpro/logic/auth_bloc/manage_bloc.dart';
+import 'package:admineventpro/data_layer/auth_bloc/manage_bloc.dart';
 import 'package:admineventpro/presentation/components/auth/auth_bottom_text.dart';
 import 'package:admineventpro/presentation/components/ui/back_arrow_button.dart';
 import 'package:admineventpro/presentation/components/auth/password_field.dart';
