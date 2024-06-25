@@ -27,7 +27,7 @@ class CustomText extends StatelessWidget {
                 color: myColor,
                 fontSize: screenHeight * 0.016,
                 fontWeight: FontWeight.w400,
-                fontFamily: 'JacquesFracois',
+                // fontFamily: 'JacquesFracois',
                 decoration: TextDecoration.underline,
                 decorationColor: Colors.teal,
                 decorationThickness: 2,

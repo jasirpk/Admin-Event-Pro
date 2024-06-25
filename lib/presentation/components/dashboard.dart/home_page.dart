@@ -1,5 +1,5 @@
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/data_layer/services/database.dart';
+import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview.dart';
 import 'package:admineventpro/presentation/components/ui/silver_appbar.dart';
 import 'package:admineventpro/presentation/components/ui/squre_container.dart';
@@ -50,10 +50,14 @@ class HomePage extends StatelessWidget {
               ),
             ),
           ),
-          ListViewWidget(
+          SliverToBoxAdapter(
+            child: ListViewWidget(
               databaseMethods: databaseMethods,
               selectedValue: selectedValue,
-              screenHeight: screenHeight),
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+            ),
+          ),
           SliverToBoxAdapter(
             child: Padding(
               padding: EdgeInsets.only(top: 12, bottom: 14),

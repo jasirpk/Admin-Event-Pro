@@ -25,34 +25,21 @@ class AllTemplatesScreen extends StatelessWidget {
       ),
       body: CustomScrollView(
         slivers: [
-          SilverListViewWidget(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-            text: 'Venues',
-            image: 'assets/images/coktail_category.jpg',
-            subImage: 'assets/images/venue_decoration_img.jpg',
-            subText: 'Hello',
-            opressed: () {
-              Get.to(() => ListofTemplatesScreen());
-            },
-          ),
-          SilverListViewWidget(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-            text: 'Venues',
-            image: 'assets/images/coktail_category.jpg',
-            subImage: 'assets/images/venue_decoration_img.jpg',
-            subText: 'Hello',
-            opressed: () {},
-          ),
-          SilverListViewWidget(
-            screenHeight: screenHeight,
-            screenWidth: screenWidth,
-            text: 'Venues',
-            image: 'assets/images/coktail_category.jpg',
-            subImage: 'assets/images/venue_decoration_img.jpg',
-            subText: 'Helloghsdffhdfbddfbdffdsf',
-            opressed: () {},
+          SliverToBoxAdapter(
+            child: ConstrainedBox(
+              constraints: BoxConstraints(
+                minHeight: screenHeight,
+              ),
+              child: SilverListViewWidget(
+                screenHeight: screenHeight,
+                screenWidth: screenWidth,
+                subImage: 'assets/images/venue_decoration_img.jpg',
+                subText: 'Hello',
+                opressed: () {
+                  Get.to(() => ListofTemplatesScreen());
+                },
+              ),
+            ),
           ),
         ],
       ),
