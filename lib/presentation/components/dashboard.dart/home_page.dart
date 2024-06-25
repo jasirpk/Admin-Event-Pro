@@ -1,6 +1,7 @@
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview.dart';
+import 'package:admineventpro/presentation/components/dashboard.dart/listview_name.dart';
 import 'package:admineventpro/presentation/components/ui/silver_appbar.dart';
 import 'package:admineventpro/presentation/components/ui/squre_container.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text.dart';
@@ -58,37 +59,8 @@ class HomePage extends StatelessWidget {
               screenWidth: screenWidth,
             ),
           ),
-          SliverToBoxAdapter(
-            child: Padding(
-              padding: EdgeInsets.only(top: 12, bottom: 14),
-              child: SizedBox(
-                height: 35,
-                child: ListView.builder(
-                  scrollDirection: Axis.horizontal,
-                  itemCount: 30,
-                  itemBuilder: (context, index) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(
-                          horizontal: 5), // Add margin between items
-                      width: 100, // Fixed width for each item
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.grey, // Added color for visibility
-                      ),
-                      child: Center(
-                        child: Text(
-                          'hello',
-                          style: TextStyle(
-                              color: Colors
-                                  .white), // Center the text and add style
-                        ),
-                      ),
-                    );
-                  },
-                ),
-              ),
-            ),
-          ),
+          ListViewName(
+              databaseMethods: databaseMethods, selectedValue: selectedValue),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 14),

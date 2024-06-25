@@ -54,8 +54,7 @@ class SilverListViewWidget extends StatelessWidget {
           itemCount: documents.length,
           itemBuilder: (context, index) {
             var data = documents[index].data() as Map<String, dynamic>;
-            String imagePath =
-                data['imagePath'] ?? 'assets/images/venue_decoration_img.jpg';
+            String imagePath = data['imagePath'];
             String documentId = documents[index].id;
 
             return FutureBuilder<DocumentSnapshot>(
@@ -75,10 +74,7 @@ class SilverListViewWidget extends StatelessWidget {
                   return Center(child: Text('Details not found'));
                 }
                 var detailData =
-                    detailSnapshot.data!.data() as Map<String, dynamic>?;
-                if (detailData == null) {
-                  return Center(child: Text('Details not found'));
-                }
+                    detailSnapshot.data!.data() as Map<String, dynamic>;
 
                 return Center(
                   child: Padding(
@@ -115,7 +111,7 @@ class SilverListViewWidget extends StatelessWidget {
                                     Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
-                                        detailData['categoryName'] ?? 'No name',
+                                        detailData['categoryName'],
                                         style: TextStyle(
                                           fontSize: screenHeight * 0.020,
                                           letterSpacing: 1,

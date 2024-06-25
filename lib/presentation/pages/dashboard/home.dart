@@ -41,6 +41,7 @@
 //   }
 // }
 
+import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/dashboard_bloc/dashboard_bloc.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/favorites.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/home_page.dart';
@@ -64,14 +65,35 @@ class HomeScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(
-        backgroundColor: Colors.black,
+        backgroundColor: myColor,
+        color: Colors.black,
         animationDuration: Duration(milliseconds: 400),
         items: <Widget>[
-          Icon(Icons.home, size: 20),
-          Icon(Icons.search, size: 20),
-          Icon(Icons.receipt, size: 20),
-          Icon(Icons.favorite, size: 20),
-          Icon(Icons.person, size: 20)
+          Icon(
+            Icons.home,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.search,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.receipt,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.favorite,
+            size: 20,
+            color: Colors.white,
+          ),
+          Icon(
+            Icons.person,
+            size: 20,
+            color: Colors.white,
+          )
         ],
         onTap: (index) {
           context.read<DashboardBloc>().add(TabChanged(index));
