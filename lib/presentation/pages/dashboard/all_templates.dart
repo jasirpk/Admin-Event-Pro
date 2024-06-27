@@ -2,10 +2,8 @@ import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/components/ui/silver_listview.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text.dart';
-import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
 
 import 'package:flutter/material.dart';
-import 'package:get/get.dart';
 
 class AllTemplatesScreen extends StatelessWidget {
   const AllTemplatesScreen({super.key});
@@ -33,11 +31,6 @@ class AllTemplatesScreen extends StatelessWidget {
               child: SilverListViewWidget(
                 screenHeight: screenHeight,
                 screenWidth: screenWidth,
-                subImage: 'assets/images/venue_decoration_img.jpg',
-                subText: 'Hello',
-                opressed: () {
-                  Get.to(() => ListofTemplatesScreen());
-                },
               ),
             ),
           ),

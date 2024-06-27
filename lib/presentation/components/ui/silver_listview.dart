@@ -4,24 +4,21 @@ import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/sub_category_widget.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text.dart';
+import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SilverListViewWidget extends StatelessWidget {
   SilverListViewWidget({
     super.key,
     required this.screenHeight,
     required this.screenWidth,
-    required this.subText,
-    required this.subImage,
-    required this.opressed,
   });
 
   final double screenHeight;
   final double screenWidth;
-  final String subText;
-  final String subImage;
-  final VoidCallback opressed;
+
   final DatabaseMethods databaseMethods = DatabaseMethods();
   final subDatabaseMethods subdatabaseMethods = subDatabaseMethods();
 
@@ -124,7 +121,15 @@ class SilverListViewWidget extends StatelessWidget {
                                       padding: EdgeInsets.all(8.0),
                                       child: CustomText(
                                         screenHeight: screenHeight,
-                                        onpressed: opressed,
+                                        onpressed: () {
+                                          Get.to(
+                                            () => SubEventTemplatesScreen(
+                                              categoryId: documentId,
+                                              categoryName:
+                                                  detailData['categoryName'],
+                                            ),
+                                          );
+                                        },
                                         text: 'View All',
                                       ),
                                     ),
