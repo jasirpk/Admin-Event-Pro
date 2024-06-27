@@ -7,11 +7,13 @@ class CustomAppBarWithDivider extends StatelessWidget
   final String title;
   final double dividerThickness;
   final List<Widget>? actions;
+  final PreferredSizeWidget? bottom;
 
   CustomAppBarWithDivider({
     required this.title,
     this.dividerThickness = 1.5,
     this.actions,
+    this.bottom,
   });
 
   @override
@@ -22,6 +24,7 @@ class CustomAppBarWithDivider extends StatelessWidget
       children: [
         AppBar(
           actions: actions,
+          bottom: bottom,
           leading: IconButton(
             icon: Icon(
               CupertinoIcons.back,

@@ -93,7 +93,7 @@ class HomeScreen extends StatelessWidget {
             Icons.person,
             size: 20,
             color: Colors.white,
-          )
+          ),
         ],
         onTap: (index) {
           context.read<DashboardBloc>().add(TabChanged(index));
