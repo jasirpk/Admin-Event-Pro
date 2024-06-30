@@ -48,6 +48,7 @@ dependencies:
   flutter_facebook_auth: ^7.0.0
   curved_navigation_bar: ^1.0.6
   shimmer: ^3.0.0
+  flutter_staggered_grid_view: ^0.7.0
   
 
 dev_dependencies:

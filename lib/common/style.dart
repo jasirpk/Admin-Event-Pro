@@ -5,4 +5,3 @@ var sizedbox = SizedBox(height: 20);
 var sizedboxWidth = SizedBox(
   width: 20,
 );
-String selectedValue = 'Entrepreneur';

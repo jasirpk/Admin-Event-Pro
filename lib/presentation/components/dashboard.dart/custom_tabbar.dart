@@ -66,7 +66,7 @@ class CustomTabAppbar extends StatelessWidget implements PreferredSizeWidget {
           unselectedLabelColor: Colors.white,
           labelStyle: TextStyle(
             fontWeight: FontWeight.bold,
-            fontSize: screenHeight * 0.018,
+            fontSize: screenHeight * 0.016,
           ),
           tabs: [
             Tab(

@@ -1,3 +1,4 @@
+import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview.dart';
@@ -53,13 +54,14 @@ class HomePage extends StatelessWidget {
           SliverToBoxAdapter(
             child: ListViewWidget(
               databaseMethods: databaseMethods,
-              selectedValue: selectedValue,
+              selectedValue: Assigns.selectedValue,
               screenHeight: screenHeight,
               screenWidth: screenWidth,
             ),
           ),
           ListViewName(
-              databaseMethods: databaseMethods, selectedValue: selectedValue),
+              databaseMethods: databaseMethods,
+              selectedValue: Assigns.selectedValue),
           SliverToBoxAdapter(
             child: Padding(
               padding: const EdgeInsets.only(bottom: 14),
