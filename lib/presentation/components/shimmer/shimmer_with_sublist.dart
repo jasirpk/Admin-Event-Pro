@@ -1,28 +1,9 @@
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
+import 'package:admineventpro/presentation/components/shimmer/skelton.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:shimmer/shimmer.dart';
-
-class Skelton extends StatelessWidget {
-  final double? height;
-  final double? width;
-
-  const Skelton({this.height, this.width});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: EdgeInsets.all(8),
-      height: height,
-      width: width,
-      decoration: BoxDecoration(
-        color: Colors.white54,
-        borderRadius: BorderRadius.circular(16),
-      ),
-    );
-  }
-}
 
 class ShimmerEffect extends StatelessWidget {
   final List<QueryDocumentSnapshot<Object?>> documents;

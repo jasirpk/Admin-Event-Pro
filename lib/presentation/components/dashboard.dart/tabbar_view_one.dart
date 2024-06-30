@@ -3,7 +3,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
-import 'package:admineventpro/presentation/components/shimmer/shimmer.dart';
+import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 
 class TabBarViewOne extends StatelessWidget {
   const TabBarViewOne({

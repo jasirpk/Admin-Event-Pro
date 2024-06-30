@@ -1,6 +1,6 @@
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
-import 'package:admineventpro/presentation/components/shimmer/shimmer.dart';
+import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';

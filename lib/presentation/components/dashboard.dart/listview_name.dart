@@ -1,6 +1,10 @@
 import 'package:admineventpro/data_layer/services/category.dart';
+import 'package:admineventpro/presentation/components/shimmer/shimmer_category_names.dart';
+import 'package:admineventpro/presentation/pages/dashboard/all_templates.dart';
+import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ListViewName extends StatelessWidget {
   const ListViewName({
@@ -19,9 +23,7 @@ class ListViewName extends StatelessWidget {
         stream: databaseMethods.getVendorDetail(selectedValue),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            return ShimmerCategoryNames();
           }
           if (snapshot.hasError) {
             return Center(
@@ -38,17 +40,24 @@ class ListViewName extends StatelessWidget {
                 itemCount: documents.length + 1, // Add 1 for the "All" item
                 itemBuilder: (context, index) {
                   if (index == 0) {
-                    return Container(
-                      margin: EdgeInsets.symmetric(horizontal: 5),
-                      width: 70,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(30),
-                        color: Colors.white,
-                      ),
-                      child: Center(
-                        child: Text(
-                          'All',
-                          style: TextStyle(color: Colors.black),
+                    return InkWell(
+                      onTap: () {
+                        Get.to(() => AllTemplatesScreen(),
+                            transition: Transition.fade,
+                            duration: Duration(seconds: 1));
+                      },
+                      child: Container(
+                        margin: EdgeInsets.symmetric(horizontal: 5),
+                        width: 70,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(30),
+                          color: Colors.white,
+                        ),
+                        child: Center(
+                          child: Text(
+                            'All',
+                            style: TextStyle(color: Colors.black),
+                          ),
                         ),
                       ),
                     );
@@ -59,9 +68,7 @@ class ListViewName extends StatelessWidget {
                       builder: (context, detailSnapshot) {
                         if (detailSnapshot.connectionState ==
                             ConnectionState.waiting) {
-                          return Center(
-                            child: CircularProgressIndicator(),
-                          );
+                          return ShimmerCategoryNames();
                         }
                         if (detailSnapshot.hasError) {
                           return Center(
@@ -70,17 +77,24 @@ class ListViewName extends StatelessWidget {
                         }
                         var detailData =
                             detailSnapshot.data!.data() as Map<String, dynamic>;
-                        return Container(
-                          margin: EdgeInsets.symmetric(horizontal: 5),
-                          width: 100,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30),
-                            color: Colors.white,
-                          ),
-                          child: Center(
-                            child: Text(
-                              detailData['categoryName'],
-                              style: TextStyle(color: Colors.black),
+                        return InkWell(
+                          onTap: () {
+                            Get.to(() => SubEventTemplatesScreen(
+                                categoryId: documentId,
+                                categoryName: detailData['categoryName']));
+                          },
+                          child: Container(
+                            margin: EdgeInsets.symmetric(horizontal: 5),
+                            width: 100,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30),
+                              color: Colors.white,
+                            ),
+                            child: Center(
+                              child: Text(
+                                detailData['categoryName'],
+                                style: TextStyle(color: Colors.black),
+                              ),
                             ),
                           ),
                         );

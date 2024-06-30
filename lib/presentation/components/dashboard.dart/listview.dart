@@ -1,8 +1,10 @@
 import 'package:admineventpro/data_layer/services/category.dart';
-import 'package:admineventpro/presentation/components/ui/shimmer.dart';
+import 'package:admineventpro/presentation/components/shimmer/shimmer_carousal.dart';
+import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class ListViewWidget extends StatelessWidget {
   const ListViewWidget({
@@ -24,7 +26,7 @@ class ListViewWidget extends StatelessWidget {
       stream: databaseMethods.getVendorDetail(selectedValue),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return ShimmerList();
+          return ShimmerCarousal();
         }
         if (snapshot.hasError) {
           return Center(
@@ -53,7 +55,7 @@ class ListViewWidget extends StatelessWidget {
                 builder: (context, detailSnapshot) {
                   if (detailSnapshot.connectionState ==
                       ConnectionState.waiting) {
-                    return ShimmerList();
+                    return ShimmerCarousal();
                   }
                   if (detailSnapshot.hasError) {
                     return Center(
@@ -67,34 +69,40 @@ class ListViewWidget extends StatelessWidget {
                   }
                   var detailData =
                       detailSnapshot.data!.data() as Map<String, dynamic>;
-                  return Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(10),
-                      image: DecorationImage(
-                        image: imagePath.startsWith('http')
-                            ? NetworkImage(imagePath)
-                            : AssetImage(imagePath) as ImageProvider,
-                        fit: BoxFit.cover,
-                      ),
-                      color: Colors.grey,
-                    ),
-                    child: Align(
-                      alignment: Alignment.bottomLeft,
-                      child: Container(
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.only(
-                            bottomLeft: Radius.circular(10),
-                          ),
-                          color: Colors.black.withOpacity(0.3),
+                  return InkWell(
+                    onTap: () {
+                      Get.to(() => SubEventTemplatesScreen(
+                          categoryId: documentId,
+                          categoryName: detailData['categoryName']));
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(10),
+                        image: DecorationImage(
+                          image: imagePath.startsWith('http')
+                              ? NetworkImage(imagePath)
+                              : AssetImage(imagePath) as ImageProvider,
+                          fit: BoxFit.cover,
                         ),
-                        width: screenWidth * 0.4,
-                        padding: EdgeInsets.only(left: 8, top: 8),
-                        child: Text(
-                          detailData['categoryName'] ?? 'No name',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: screenHeight * 0.016,
-                            letterSpacing: 1,
+                      ),
+                      child: Align(
+                        alignment: Alignment.bottomLeft,
+                        child: Container(
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.only(
+                              bottomLeft: Radius.circular(10),
+                            ),
+                            color: Colors.black.withOpacity(0.3),
+                          ),
+                          width: screenWidth * 0.4,
+                          padding: EdgeInsets.only(left: 8, top: 8),
+                          child: Text(
+                            detailData['categoryName'] ?? 'No name',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: screenHeight * 0.016,
+                              letterSpacing: 1,
+                            ),
                           ),
                         ),
                       ),

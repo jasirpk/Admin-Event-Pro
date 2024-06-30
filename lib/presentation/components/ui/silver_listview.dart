@@ -3,6 +3,7 @@ import 'dart:ui';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/sub_category_widget.dart';
+import 'package:admineventpro/presentation/components/shimmer/shimmer_all_templates.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text.dart';
 import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -29,9 +30,8 @@ class SilverListViewWidget extends StatelessWidget {
       stream: databaseMethods.getVendorDetail(selectedValue),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return Center(
-            child: CircularProgressIndicator(),
-          );
+          return ShimmerAllTemplates(
+              screenHeight: screenHeight, screenWidth: screenWidth);
         }
         if (snapshot.hasError) {
           return Center(
@@ -58,9 +58,8 @@ class SilverListViewWidget extends StatelessWidget {
               future: databaseMethods.getCategoryDetailById(documentId),
               builder: (context, detailSnapshot) {
                 if (detailSnapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(),
-                  );
+                  return ShimmerAllTemplates(
+                      screenHeight: screenHeight, screenWidth: screenWidth);
                 }
                 if (detailSnapshot.hasError) {
                   return Center(
