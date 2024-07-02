@@ -11,25 +11,43 @@ import 'package:admineventpro/presentation/components/ui/vendor_names.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class AddVendorsScreen extends StatelessWidget {
-  const AddVendorsScreen({super.key});
+class AddVendorsScreen extends StatefulWidget {
+  AddVendorsScreen(
+      {this.categoryName, this.categoryDescription, this.imagePath});
+  final String? categoryName;
+  final String? categoryDescription;
+  final String? imagePath;
+
+  @override
+  State<AddVendorsScreen> createState() => _AddVendorsScreenState();
+}
+
+class _AddVendorsScreenState extends State<AddVendorsScreen> {
+  TextEditingController nameEditingController = TextEditingController();
+  TextEditingController descriptionEditingController = TextEditingController();
+  String? imagePath = '';
+  List<Map<String, String>> names = [
+    {'name': Assigns.dressCode},
+    {'name': Assigns.styleAndTheme},
+    {'name': Assigns.photography},
+    {'name': Assigns.decoration},
+    {'name': Assigns.djAndBands},
+    {'name': Assigns.music},
+    {'name': Assigns.catering},
+    {'name': Assigns.venues},
+  ];
+  @override
+  void initState() {
+    nameEditingController.text = widget.categoryName ?? '';
+    descriptionEditingController.text = widget.categoryDescription ?? '';
+    imagePath = widget.imagePath ?? '';
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    TextEditingController nameEditingController = TextEditingController();
-    List<Map<String, String>> names = [
-      {'name': Assigns.dressCode},
-      {'name': Assigns.styleAndTheme},
-      {'name': Assigns.photography},
-      {'name': Assigns.decoration},
-      {'name': Assigns.djAndBands},
-      {'name': Assigns.music},
-      {'name': Assigns.catering},
-      {'name': Assigns.venues},
-    ];
-
     return Scaffold(
       appBar: CustomAppBarWithDivider(
         title: Assigns.vendorPreview,
@@ -116,24 +134,46 @@ class AddVendorsScreen extends StatelessWidget {
                 ),
               ),
               SizedBox(height: 10),
-              Container(
-                decoration: BoxDecoration(
-                  color: Colors.grey,
-                  borderRadius: BorderRadius.circular(10),
-                ),
-                height: screenHeight * 0.2,
-                child: Center(
-                  child: Icon(
-                    Icons.collections_bookmark,
-                    color: Colors.white,
-                    size: 40,
-                  ),
-                ),
-              ),
+              imagePath!.isEmpty
+                  ? Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      height: screenHeight * 0.2,
+                      child: Center(
+                        child: Icon(
+                          Icons.collections_bookmark,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                    )
+                  : Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(10),
+                        image: DecorationImage(
+                          image: imagePath!.startsWith('http')
+                              ? NetworkImage(imagePath!)
+                              : AssetImage(imagePath!) as ImageProvider,
+                          fit: BoxFit.cover,
+                        ),
+                      ),
+                      height: screenHeight * 0.2,
+                      child: Center(
+                        child: Icon(
+                          Icons.collections_bookmark,
+                          color: Colors.white,
+                          size: 40,
+                        ),
+                      ),
+                    ),
               SizedBox(height: 10),
               TextFormField(
+                controller: descriptionEditingController,
                 decoration: InputDecoration(
-                  labelText: 'About',
+                  labelText: 'Description',
                   alignLabelWithHint: true,
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(10),
@@ -186,7 +226,7 @@ class AddVendorsScreen extends StatelessWidget {
                         scrollDirection: Axis.vertical,
                         itemCount: itemCount,
                         itemBuilder: (context, index) {
-                          return customTimeLineWidget(screenWidth: screenWidth);
+                          return CustomTimeLineWidget(screenWidth: screenWidth);
                         },
                       ),
                     ),
@@ -206,11 +246,11 @@ class AddVendorsScreen extends StatelessWidget {
               ),
               SizedBox(height: 10),
               Card(
-                color: Colors.grey,
+                color: Colors.white38,
                 child: Container(
-                  height: screenHeight * 0.2,
+                  height: screenHeight * (140 / screenHeight),
                   child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Container(
                         width: screenWidth * 0.4,
@@ -241,11 +281,11 @@ class AddVendorsScreen extends StatelessWidget {
                                         color: Colors.white54, width: 2),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  labelText: '00:00',
+                                  labelText: '₹',
                                   prefixIcon: IconButton(
                                       onPressed: () {},
                                       icon: Icon(
-                                        Icons.alarm,
+                                        Icons.currency_rupee,
                                         size: 20,
                                         color: Colors.white,
                                       )),
@@ -285,11 +325,11 @@ class AddVendorsScreen extends StatelessWidget {
                                         color: Colors.white54, width: 2),
                                     borderRadius: BorderRadius.circular(10),
                                   ),
-                                  labelText: '00:00',
+                                  labelText: '₹',
                                   prefixIcon: IconButton(
                                       onPressed: () {},
                                       icon: Icon(
-                                        Icons.alarm,
+                                        Icons.currency_rupee,
                                         size: 20,
                                         color: Colors.white,
                                       )),

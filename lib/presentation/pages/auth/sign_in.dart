@@ -1,4 +1,5 @@
 import 'dart:ui';
+import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
 import 'package:admineventpro/data_layer/auth_bloc/manage_bloc.dart';
 import 'package:admineventpro/presentation/components/auth/auth_bottom_text.dart';
 import 'package:admineventpro/presentation/components/ui/back_arrow_button.dart';
@@ -30,8 +31,9 @@ class GoogleAuthScreen extends StatelessWidget {
           );
         } else if (state is Authenticated) {
           Get.offAll(() => HomeScreen());
+          showCustomSnackBar('Success', 'Successfully Registed');
         } else if (state is AuthenticatedErrors) {
-          Get.snackbar('Error', state.message);
+          showCustomSnackBar('Error', state.message);
         }
       },
       child: Scaffold(
@@ -71,101 +73,84 @@ class GoogleAuthScreen extends StatelessWidget {
                     ClipRRect(
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                        child: Flexible(
-                          child: Container(
-                            padding: EdgeInsets.symmetric(
-                                horizontal: 16, vertical: 18),
-                            decoration: BoxDecoration(
-                              color:
-                                  Color.fromARGB(0, 0, 0, 1).withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(30),
-                            ),
-                            width: MediaQuery.of(context).size.width * 0.9,
-                            child: Form(
-                              key: formKey,
-                              child: Center(
-                                child: Column(
-                                  mainAxisSize: MainAxisSize.min,
-                                  children: [
-                                    TextFieldWidget(
-                                      Controller: userEmailController,
-                                      hintText: 'Email',
-                                      obscureText: false,
-                                    ),
-                                    SizedBox(height: 10),
-                                    PasswordField(
-                                        controller: userPasswordController,
-                                        hintText: 'Password'),
-                                    SizedBox(height: 10),
-                                    PushableButton_widget(
-                                        buttonText: 'Continue',
-                                        onpressed: () {
-                                          final email =
-                                              userEmailController.text;
-                                          final password =
-                                              userPasswordController.text;
-                                          if (email.isEmpty ||
-                                              password.isEmpty) {
-                                            Get.snackbar('Error',
-                                                'Please fill all fields');
-                                            return;
-                                          }
-                                          authBloc.add(LoginEvent(
-                                              email: email,
-                                              password: password));
-                                        }),
-                                    SizedBox(height: 10),
-                                    Text(
-                                      'Or',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
-                                          fontWeight: FontWeight.bold),
-                                    ),
-                                    SizedBox(height: 8),
-                                    Column(
-                                      mainAxisSize: MainAxisSize.min,
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        SqureTile(
-                                          onpressed: () {
-                                            context
-                                                .read<ManageBloc>()
-                                                .add(GoogleAuth());
-                                          },
-                                          imagePath: 'assets/images/google.png',
-                                          title: 'Continue with Google',
-                                        ),
-                                        SizedBox(height: 10),
-                                        SqureTile(
-                                          onpressed: () {
-                                            context
-                                                .read<ManageBloc>()
-                                                .add(FaceBookAuth());
-                                          },
-                                          imagePath:
-                                              'assets/images/facebook.png',
-                                          title: 'Continue with Facebook',
-                                        ),
-                                        SizedBox(height: 10),
-                                        AuthBottomText(
-                                            onpressed: () {
-                                              Get.to(() => SignupScreen());
-                                            },
-                                            text: 'Don\'t have an account?',
-                                            subText: ' Sign Up'),
-                                        SizedBox(height: 10),
-                                        AuthBottomText(
-                                            onpressed: () {
-                                              Get.to(() => ForgotPassword());
-                                            },
-                                            text: 'Forgot Password?',
-                                            subText: 'click'),
-                                      ],
-                                    ),
-                                  ],
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 16, vertical: 18),
+                          decoration: BoxDecoration(
+                            color: Color.fromARGB(0, 0, 0, 1).withOpacity(0.2),
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          width: MediaQuery.of(context).size.width * 0.9,
+                          child: Form(
+                            key: formKey,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              children: [
+                                TextFieldWidget(
+                                  Controller: userEmailController,
+                                  hintText: 'Email',
+                                  obscureText: false,
                                 ),
-                              ),
+                                SizedBox(height: 10),
+                                PasswordField(
+                                    controller: userPasswordController,
+                                    hintText: 'Password'),
+                                SizedBox(height: 10),
+                                PushableButton_widget(
+                                    buttonText: 'Continue',
+                                    onpressed: () {
+                                      final email = userEmailController.text;
+                                      final password =
+                                          userPasswordController.text;
+                                      if (email.isEmpty || password.isEmpty) {
+                                        showCustomSnackBar(
+                                            'Error', 'Please fill all fields');
+                                        return;
+                                      }
+                                      authBloc.add(LoginEvent(
+                                          email: email, password: password));
+                                    }),
+                                SizedBox(height: 10),
+                                Text(
+                                  'Or',
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(fontWeight: FontWeight.bold),
+                                ),
+                                SizedBox(height: 8),
+                                SqureTile(
+                                  onpressed: () {
+                                    context
+                                        .read<ManageBloc>()
+                                        .add(GoogleAuth());
+                                  },
+                                  imagePath: 'assets/images/google.png',
+                                  title: 'Continue with Google',
+                                ),
+                                SizedBox(height: 10),
+                                SqureTile(
+                                  onpressed: () {
+                                    context
+                                        .read<ManageBloc>()
+                                        .add(FaceBookAuth());
+                                  },
+                                  imagePath: 'assets/images/facebook.png',
+                                  title: 'Continue with Facebook',
+                                ),
+                                SizedBox(height: 10),
+                                AuthBottomText(
+                                    onpressed: () {
+                                      Get.to(() => SignupScreen());
+                                    },
+                                    text: 'Don\'t have an account?',
+                                    subText: ' Sign Up'),
+                                SizedBox(height: 10),
+                                AuthBottomText(
+                                    onpressed: () {
+                                      Get.to(() => ForgotPassword());
+                                    },
+                                    text: 'Forgot Password?',
+                                    subText: 'click'),
+                              ],
                             ),
                           ),
                         ),

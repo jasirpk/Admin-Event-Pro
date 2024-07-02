@@ -1,6 +1,7 @@
 import 'dart:ui';
+import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/entities/logic_models/admin_auth.dart';
+import 'package:admineventpro/bussiness_layer/entities/logic_models/admin_auth.dart';
 import 'package:admineventpro/data_layer/auth_bloc/manage_bloc.dart';
 import 'package:admineventpro/presentation/components/auth/auth_bottom_text.dart';
 import 'package:admineventpro/presentation/components/ui/back_arrow_button.dart';
@@ -25,7 +26,7 @@ class SignupScreen extends StatelessWidget {
         listener: (context, state) {
           if (state is Authenticated) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Get.snackbar('Error', 'Successfully Registed');
+              showCustomSnackBar('Success', 'Successfully Registed');
               Get.offAll(() => HomeScreen());
             });
           } else if (state is ValidatonSuccess) {
@@ -36,7 +37,7 @@ class SignupScreen extends StatelessWidget {
             context.read<ManageBloc>().add(SignUp(userModel: user));
           } else if (state is AuthenticatedErrors) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              Get.snackbar('Error', 'Account not Registered');
+              showCustomSnackBar('Error', 'Authentication Error!');
             });
           }
         },

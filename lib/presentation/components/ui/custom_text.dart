@@ -23,6 +23,7 @@ class CustomText extends StatelessWidget {
             padding: EdgeInsets.only(right: 8),
             child: Text(
               text,
+              overflow: TextOverflow.clip,
               style: TextStyle(
                 color: myColor,
                 fontSize: screenHeight * 0.016,

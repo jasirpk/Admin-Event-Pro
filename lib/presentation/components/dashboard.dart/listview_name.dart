@@ -91,9 +91,14 @@ class ListViewName extends StatelessWidget {
                               color: Colors.white,
                             ),
                             child: Center(
-                              child: Text(
-                                detailData['categoryName'],
-                                style: TextStyle(color: Colors.black),
+                              child: Padding(
+                                padding: const EdgeInsets.all(8.0),
+                                child: Text(
+                                  detailData['categoryName'],
+                                  maxLines: 1,
+                                  // overflow: TextOverflow.ellipsis,
+                                  style: TextStyle(color: Colors.black),
+                                ),
                               ),
                             ),
                           ),

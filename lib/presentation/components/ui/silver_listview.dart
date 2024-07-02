@@ -109,7 +109,11 @@ class SilverListViewWidget extends StatelessWidget {
                                       child: Text(
                                         detailData['categoryName'],
                                         style: TextStyle(
-                                          fontSize: screenHeight * 0.020,
+                                          fontSize: detailData['categoryName']
+                                                      .length >
+                                                  20
+                                              ? screenHeight * 0.016
+                                              : screenHeight * 0.020,
                                           letterSpacing: 1,
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,

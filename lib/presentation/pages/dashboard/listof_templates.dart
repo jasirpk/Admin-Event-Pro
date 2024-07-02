@@ -2,9 +2,11 @@ import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
+import 'package:admineventpro/presentation/pages/dashboard/add_vendors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SubEventTemplatesScreen extends StatelessWidget {
   final String categoryId;
@@ -42,9 +44,8 @@ class SubEventTemplatesScreen extends StatelessWidget {
         stream: subdatabaseMethods.getSubcategories(categoryId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
+            return ShimmerAllSubcategories(
+                screenHeight: screenHeight, screenWidth: screenWidth);
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -71,13 +72,8 @@ class SubEventTemplatesScreen extends StatelessWidget {
                 builder: (context, subdetailSnapshot) {
                   if (subdetailSnapshot.connectionState ==
                       ConnectionState.waiting) {
-                    return ShimmerEffect(
-                        documents: documents,
-                        subdatabaseMethods: subdatabaseMethods,
-                        categoryId: categoryId,
-                        subCategoryId: subCategoryId,
-                        screenWidth: screenWidth,
-                        screenHeight: screenHeight);
+                    return ShimmerAllSubcategories(
+                        screenHeight: screenHeight, screenWidth: screenWidth);
                   }
 
                   if (!subdetailSnapshot.hasData ||
@@ -92,67 +88,76 @@ class SubEventTemplatesScreen extends StatelessWidget {
                   }
                   var subDetailData =
                       subdetailSnapshot.data!.data() as Map<String, dynamic>;
-                  return Container(
-                    margin:
-                        EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
-                    decoration: BoxDecoration(
-                      color: Colors.white38,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Row(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Container(
-                          width: screenWidth * 0.30,
-                          height: screenHeight * 0.15,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(10),
-                            image: DecorationImage(
-                              image: subimagePath.startsWith('http')
-                                  ? NetworkImage(subimagePath)
-                                  : AssetImage(subimagePath) as ImageProvider,
-                              fit: BoxFit.cover,
+                  return InkWell(
+                    onTap: () {
+                      Get.to(() => AddVendorsScreen(
+                            categoryName: subDetailData['categoryName'],
+                            categoryDescription: subDetailData['description'],
+                            imagePath: subimagePath,
+                          ));
+                    },
+                    child: Container(
+                      margin:
+                          EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white38,
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Container(
+                            width: screenWidth * 0.30,
+                            height: screenHeight * 0.15,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              image: DecorationImage(
+                                image: subimagePath.startsWith('http')
+                                    ? NetworkImage(subimagePath)
+                                    : AssetImage(subimagePath) as ImageProvider,
+                                fit: BoxFit.cover,
+                              ),
                             ),
                           ),
-                        ),
-                        SizedBox(width: 8.0),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                subDetailData['subCategoryName'] ?? 'No Name',
-                                style: TextStyle(
-                                  fontSize: 18.0,
-                                  fontWeight: FontWeight.bold,
+                          SizedBox(width: 8.0),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  subDetailData['subCategoryName'] ?? 'No Name',
+                                  style: TextStyle(
+                                    fontSize: 18.0,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
+                                SizedBox(height: 4.0),
+                                Text(
+                                  subDetailData['about'],
+                                  overflow: TextOverflow.ellipsis,
+                                  maxLines: 4,
+                                  style: TextStyle(fontSize: 14.0),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              IconButton(
+                                onPressed: () {},
+                                icon: Icon(Icons.favorite_border),
+                                color: Colors.grey,
                               ),
-                              SizedBox(height: 4.0),
-                              Text(
-                                subDetailData['about'],
-                                overflow: TextOverflow.ellipsis,
-                                maxLines: 4,
-                                style: TextStyle(fontSize: 14.0),
+                              IconButton(
+                                onPressed: () {},
+                                icon: Icon(CupertinoIcons.forward),
+                                color: Colors.grey,
                               ),
                             ],
                           ),
-                        ),
-                        Column(
-                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                          children: [
-                            IconButton(
-                              onPressed: () {},
-                              icon: Icon(Icons.favorite_border),
-                              color: Colors.grey,
-                            ),
-                            IconButton(
-                              onPressed: () {},
-                              icon: Icon(CupertinoIcons.forward),
-                              color: Colors.grey,
-                            ),
-                          ],
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   );
                 },

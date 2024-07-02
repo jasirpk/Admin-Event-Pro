@@ -3,11 +3,16 @@ part of 'generated_bloc.dart';
 @immutable
 sealed class GeneratedState {}
 
-final class GeneratedInitial extends GeneratedState {
+class GeneratedInitial extends GeneratedState {
   final int listViewCount;
   final int timeLineCount;
+  final List<File?> pickedImages;
 
-  GeneratedInitial({required this.listViewCount, required this.timeLineCount});
+  GeneratedInitial({
+    required this.listViewCount,
+    required this.timeLineCount,
+    required this.pickedImages,
+  });
 }
 
 class ComponentLoadedState extends GeneratedState {
@@ -31,4 +36,10 @@ class TimeLineReduceState extends GeneratedState {
   final int TimeReduceCount;
 
   TimeLineReduceState(this.TimeReduceCount);
+}
+
+class selectdImageState extends GeneratedState {
+  final File? newImage;
+
+  selectdImageState({required this.newImage});
 }

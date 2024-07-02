@@ -98,6 +98,7 @@ class ListViewWidget extends StatelessWidget {
                           padding: EdgeInsets.only(left: 8, top: 8),
                           child: Text(
                             detailData['categoryName'] ?? 'No name',
+                            maxLines: 1,
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               fontSize: screenHeight * 0.016,

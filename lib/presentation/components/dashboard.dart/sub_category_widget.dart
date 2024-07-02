@@ -1,7 +1,9 @@
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_subcategory.dart';
+import 'package:admineventpro/presentation/pages/dashboard/add_vendors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SubCategoryWidget extends StatelessWidget {
   const SubCategoryWidget({
@@ -69,45 +71,55 @@ class SubCategoryWidget extends StatelessWidget {
                   }
                   var subDetailData =
                       subdetailSnapshot.data!.data() as Map<String, dynamic>;
-                  return Container(
-                    margin: EdgeInsets.symmetric(horizontal: 5, vertical: 18),
-                    height: screenHeight * 0.12,
-                    width: screenWidth * 0.40,
-                    decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: subimagePath.startsWith('http')
-                              ? NetworkImage(subimagePath)
-                              : AssetImage(subimagePath) as ImageProvider,
-                          fit: BoxFit.cover,
-                          colorFilter: ColorFilter.mode(
-                              Colors.black.withOpacity(0.3), BlendMode.color)),
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.end,
-                      children: [
-                        Container(
-                          width: double.infinity,
-                          height: screenHeight * 0.04,
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                                bottomRight: Radius.circular(10),
-                                bottomLeft: Radius.circular(10)),
-                            color: Colors.white,
-                          ),
-                          child: Center(
-                            child: Padding(
-                              padding: EdgeInsets.symmetric(horizontal: 4),
-                              child: Text(
-                                subDetailData['subCategoryName'] ?? 'No Name',
-                                style: TextStyle(
-                                    color: Colors.black,
-                                    overflow: TextOverflow.ellipsis),
+                  return InkWell(
+                    onTap: () {
+                      Get.to(() => AddVendorsScreen(
+                          categoryName: subDetailData['categoryName'],
+                          categoryDescription: subDetailData['description'],
+                          imagePath: subimagePath));
+                    },
+                    child: Container(
+                      margin: EdgeInsets.symmetric(horizontal: 5, vertical: 18),
+                      height: screenHeight * 0.12,
+                      width: screenWidth * 0.40,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                            image: subimagePath.startsWith('http')
+                                ? NetworkImage(subimagePath)
+                                : AssetImage(subimagePath) as ImageProvider,
+                            fit: BoxFit.cover,
+                            colorFilter: ColorFilter.mode(
+                                Colors.black.withOpacity(0.3),
+                                BlendMode.color)),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          Container(
+                            width: double.infinity,
+                            height: screenHeight * 0.04,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.only(
+                                  bottomRight: Radius.circular(10),
+                                  bottomLeft: Radius.circular(10)),
+                              color: Colors.white,
+                            ),
+                            child: Center(
+                              child: Padding(
+                                padding: EdgeInsets.symmetric(horizontal: 4),
+                                child: Text(
+                                  subDetailData['subCategoryName'] ?? 'No Name',
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      overflow: TextOverflow.ellipsis,
+                                      fontSize: screenHeight * 0.016),
+                                ),
                               ),
                             ),
-                          ),
-                        )
-                      ],
+                          )
+                        ],
+                      ),
                     ),
                   );
                 },
