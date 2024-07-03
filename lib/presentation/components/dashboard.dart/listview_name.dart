@@ -90,14 +90,22 @@ class ListViewName extends StatelessWidget {
                               borderRadius: BorderRadius.circular(30),
                               color: Colors.white,
                             ),
-                            child: Center(
+                            child: Align(
+                              alignment: Alignment.center,
                               child: Padding(
                                 padding: const EdgeInsets.all(8.0),
                                 child: Text(
                                   detailData['categoryName'],
-                                  maxLines: 1,
-                                  // overflow: TextOverflow.ellipsis,
-                                  style: TextStyle(color: Colors.black),
+                                  textAlign: TextAlign.center,
+                                  style: TextStyle(
+                                      color: Colors.black,
+                                      fontSize: detailData['categoryName']
+                                                  .length >
+                                              8
+                                          ? MediaQuery.of(context).size.height *
+                                              0.016
+                                          : MediaQuery.of(context).size.height *
+                                              0.09),
                                 ),
                               ),
                             ),

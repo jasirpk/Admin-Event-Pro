@@ -1,5 +1,4 @@
 import 'dart:io';
-
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/generated/generated_bloc.dart';
@@ -26,6 +25,7 @@ class AddVendorsScreen extends StatefulWidget {
 class _AddVendorsScreenState extends State<AddVendorsScreen> {
   TextEditingController nameEditingController = TextEditingController();
   TextEditingController descriptionEditingController = TextEditingController();
+  TextEditingController locationController = TextEditingController();
   File? image;
   String? imagePath = '';
   List<Map<String, String>> names = [
@@ -59,19 +59,18 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
           int? itemCount = 0;
           int? countItem = 0;
           List<File?>? images;
+
+          String errorText = '';
           if (state is GeneratedInitial) {
             itemCount = state.listViewCount;
             images = state.pickedImages;
             countItem = state.timeLineCount;
             image = state.pickImage;
+            locationController.text = state.pickLocation;
           }
           if (state is ImagePickerInitial) {
             return Center(
               child: CircularProgressIndicator(),
-            );
-          } else if (state is ImagePickerFailure) {
-            return Center(
-              child: Text('Failed to pick image'),
             );
           }
 
@@ -119,8 +118,15 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               enabledBorder: OutlineInputBorder(
-                                borderSide:
-                                    BorderSide(color: Colors.white54, width: 2),
+                                borderSide: BorderSide(
+                                    color: Colors
+                                        .white), // Customize border color and width
+                                borderRadius: BorderRadius.circular(10),
+                              ),
+                              focusedBorder: OutlineInputBorder(
+                                borderSide: BorderSide(
+                                    color: Colors
+                                        .white), // Customize focused border color and width
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               labelText: 'Displayed Name',
@@ -218,9 +224,19 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                                 SizedBox(height: 8),
                                 TextFormField(
                                   decoration: InputDecoration(
+                                    enabledBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors
+                                              .white), // Customize border color and width
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
+                                    focusedBorder: OutlineInputBorder(
+                                      borderSide: BorderSide(
+                                          color: Colors
+                                              .white), // Customize focused border color and width
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                     border: OutlineInputBorder(
-                                      borderSide:
-                                          BorderSide(color: Colors.white),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     labelText: 'Displayed Name',
@@ -263,12 +279,17 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                                       )
                                     : null),
                             child: Center(
-                              child: Icon(
-                                  image == null
-                                      ? Icons.collections_bookmark
-                                      : Icons.edit,
-                                  color: Colors.white,
-                                  size: 40),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                children: [
+                                  Icon(
+                                      image == null
+                                          ? Icons.collections_bookmark
+                                          : Icons.edit,
+                                      color: Colors.white,
+                                      size: 40),
+                                ],
+                              ),
                             ),
                             height: screenHeight * 0.2,
                           ),
@@ -305,6 +326,18 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                       labelText: 'Description',
                       labelStyle: TextStyle(color: Colors.white70),
                       alignLabelWithHint: true,
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors
+                                .white), // Customize border color and width
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(
+                            color: Colors
+                                .white), // Customize focused border color and width
+                        borderRadius: BorderRadius.circular(10),
+                      ),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(10),
                       ),
@@ -318,17 +351,33 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                     screenHeight: screenHeight,
                   ),
                   SizedBox(height: 10),
-                  Container(
-                    decoration: BoxDecoration(
-                      color: Colors.grey,
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    height: screenHeight * 0.2,
-                    child: Center(
-                      child: Icon(
-                        Icons.collections_bookmark,
-                        color: Colors.white,
-                        size: 40,
+                  TextFormField(
+                    controller: locationController,
+                    readOnly: true,
+                    decoration: InputDecoration(
+                      labelText: 'location',
+                      errorText: errorText,
+                      labelStyle: TextStyle(color: Colors.white70),
+                      alignLabelWithHint: true,
+                      suffixIcon: IconButton(
+                        onPressed: () {
+                          context.read<GeneratedBloc>().add(FetchLocation());
+                        },
+                        icon: Icon(
+                          Icons.location_on,
+                          color: Colors.white,
+                        ),
+                      ),
+                      enabledBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      focusedBorder: OutlineInputBorder(
+                        borderSide: BorderSide(color: Colors.white),
+                        borderRadius: BorderRadius.circular(10),
+                      ),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(10),
                       ),
                     ),
                   ),

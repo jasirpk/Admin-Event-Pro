@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:admineventpro/bussiness_layer/repos/location.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:image_picker/image_picker.dart';
 
 part 'generated_event.dart';
@@ -17,6 +19,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
           timeLineCount: 1,
           pickedImages: [null],
           pickImage: null,
+          pickLocation: '',
         )) {
     on<IncreamentEvent>(increamentEvent);
     on<DecrementEvent>(decrementEvent);
@@ -25,7 +28,9 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
     on<PickImageEvent>(pickImage);
     on<RemoveImageEvent>(removeImage);
     on<PickImage>(pickImageDuplicate);
+    on<FetchLocation>(fetchLocation);
   }
+
   FutureOr<void> pickImageDuplicate(
       PickImage event, Emitter<GeneratedState> emit) async {
     final picker = ImagePicker();
@@ -38,15 +43,14 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
           listViewCount: (state as GeneratedInitial).listViewCount,
           timeLineCount: (state as GeneratedInitial).timeLineCount,
           pickedImages: (state as GeneratedInitial).pickedImages,
+          pickLocation: (state as GeneratedInitial).pickLocation,
           pickImage: updatedImage,
         ));
         print('State updated with new image path: ${updatedImage.path}');
       } else {
-        emit(ImagePickerFailure());
         print('Image picking failed, no image selected.');
       }
     } catch (e) {
-      emit(ImagePickerFailure());
       print('Error occurred during image picking: $e');
     }
   }
@@ -60,15 +64,12 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       final updatedImages =
           List<File?>.from((state as GeneratedInitial).pickedImages);
       updatedImages[event.index] = File(pickedFile.path);
-      // String? imageUrl = await uploadFile(updatedImages[event.index]!);
-      // await FirebaseFirestore.instance.collection('generatedVendors').add({
-      //   'imageUrl': imageUrl,
-      //   'timestamp': FieldValue.serverTimestamp(),
-      // });
+
       emit(GeneratedInitial(
         listViewCount: (state as GeneratedInitial).listViewCount,
         timeLineCount: (state as GeneratedInitial).timeLineCount,
         pickImage: (state as GeneratedInitial).pickImage,
+        pickLocation: (state as GeneratedInitial).pickLocation,
         pickedImages: updatedImages,
       ));
     }
@@ -83,6 +84,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       listViewCount: (state as GeneratedInitial).listViewCount,
       timeLineCount: (state as GeneratedInitial).timeLineCount,
       pickImage: (state as GeneratedInitial).pickImage,
+      pickLocation: (state as GeneratedInitial).pickLocation,
       pickedImages: updatedImages,
     ));
   }
@@ -97,6 +99,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
         listViewCount: updatedItemCount,
         timeLineCount: (state as GeneratedInitial).timeLineCount,
         pickImage: (state as GeneratedInitial).pickImage,
+        pickLocation: (state as GeneratedInitial).pickLocation,
         pickedImages: updatedImages,
       ));
     }
@@ -114,6 +117,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
         listViewCount: updatedItemCount,
         timeLineCount: (state as GeneratedInitial).timeLineCount,
         pickImage: (state as GeneratedInitial).pickImage,
+        pickLocation: (state as GeneratedInitial).pickLocation,
         pickedImages: updatedImages,
       ));
     }
@@ -125,9 +129,10 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       timeLineIndex = (state as GeneratedInitial).timeLineCount + 1;
       emit(GeneratedInitial(
         listViewCount: (state as GeneratedInitial).listViewCount,
-        timeLineCount: timeLineIndex,
         pickImage: (state as GeneratedInitial).pickImage,
         pickedImages: (state as GeneratedInitial).pickedImages,
+        pickLocation: (state as GeneratedInitial).pickLocation,
+        timeLineCount: timeLineIndex,
       ));
     }
   }
@@ -139,10 +144,61 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       timeLineIndex = (state as GeneratedInitial).timeLineCount - 1;
       emit(GeneratedInitial(
         listViewCount: (state as GeneratedInitial).listViewCount,
-        timeLineCount: timeLineIndex,
         pickImage: (state as GeneratedInitial).pickImage,
         pickedImages: (state as GeneratedInitial).pickedImages,
+        pickLocation: (state as GeneratedInitial).pickLocation,
+        timeLineCount: timeLineIndex,
       ));
+    }
+  }
+
+  FutureOr<void> fetchLocation(
+      FetchLocation event, Emitter<GeneratedState> emit) async {
+    try {
+      bool serviceEnabled;
+      LocationPermission permission;
+
+      // Check if location services are enabled, prompt user to enable if not
+      serviceEnabled = await Geolocator.isLocationServiceEnabled();
+      if (!serviceEnabled) {
+        serviceEnabled = await Geolocator.openLocationSettings();
+        if (!serviceEnabled) {
+          print('Location services are disabled.');
+          return;
+        }
+      }
+
+      // Check location permissions
+      permission = await Geolocator.checkPermission();
+      if (permission == LocationPermission.denied) {
+        permission = await Geolocator.requestPermission();
+        if (permission == LocationPermission.denied) {
+          print('Location permissions are denied.');
+        }
+      }
+
+      // Handle permanently denied location permissions
+      if (permission == LocationPermission.deniedForever) {
+        print('Location permissions are permanently denied.');
+      }
+
+      // Fetch current position
+      final position = await Geolocator.getCurrentPosition();
+
+      // Fetch location name using reverse geocoding
+      String locationName =
+          await getLocationName(position.latitude, position.longitude);
+
+      // Emit LocationLoaded state with position and location name
+      emit(GeneratedInitial(
+        listViewCount: (state as GeneratedInitial).listViewCount,
+        timeLineCount: (state as GeneratedInitial).timeLineCount,
+        pickImage: (state as GeneratedInitial).pickImage,
+        pickedImages: (state as GeneratedInitial).pickedImages,
+        pickLocation: locationName,
+      ));
+    } catch (e) {
+      print(e);
     }
   }
 }
