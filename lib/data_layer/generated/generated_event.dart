@@ -20,3 +20,5 @@ class RemoveImageEvent extends GeneratedEvent {
   final int index;
   RemoveImageEvent(this.index);
 }
+
+class PickImage extends GeneratedEvent {}

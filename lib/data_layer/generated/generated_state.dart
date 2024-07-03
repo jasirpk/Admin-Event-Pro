@@ -7,8 +7,10 @@ class GeneratedInitial extends GeneratedState {
   final int listViewCount;
   final int timeLineCount;
   final List<File?> pickedImages;
+  final File? pickImage;
 
   GeneratedInitial({
+    required this.pickImage,
     required this.listViewCount,
     required this.timeLineCount,
     required this.pickedImages,
@@ -43,3 +45,15 @@ class selectdImageState extends GeneratedState {
 
   selectdImageState({required this.newImage});
 }
+
+class ImagePickerLoading extends GeneratedState {}
+
+class ImagePickerInitial extends GeneratedState {}
+
+class ImagePickerSuccess extends GeneratedState {
+  final String imageDuplicate;
+
+  ImagePickerSuccess(this.imageDuplicate);
+}
+
+class ImagePickerFailure extends GeneratedState {}

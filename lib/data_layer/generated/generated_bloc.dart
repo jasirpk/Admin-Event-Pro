@@ -1,8 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'package:admineventpro/bussiness_layer/repos/upload_imgae_file.dart';
 import 'package:bloc/bloc.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 
@@ -18,6 +16,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
           listViewCount: 1,
           timeLineCount: 1,
           pickedImages: [null],
+          pickImage: null,
         )) {
     on<IncreamentEvent>(increamentEvent);
     on<DecrementEvent>(decrementEvent);
@@ -25,6 +24,31 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
     on<ReduceTimeLineField>(reduceTimeLineField);
     on<PickImageEvent>(pickImage);
     on<RemoveImageEvent>(removeImage);
+    on<PickImage>(pickImageDuplicate);
+  }
+  FutureOr<void> pickImageDuplicate(
+      PickImage event, Emitter<GeneratedState> emit) async {
+    final picker = ImagePicker();
+    try {
+      final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+      if (image != null) {
+        print('Image picked successfully: ${image.path}');
+        final File updatedImage = File(image.path);
+        emit(GeneratedInitial(
+          listViewCount: (state as GeneratedInitial).listViewCount,
+          timeLineCount: (state as GeneratedInitial).timeLineCount,
+          pickedImages: (state as GeneratedInitial).pickedImages,
+          pickImage: updatedImage,
+        ));
+        print('State updated with new image path: ${updatedImage.path}');
+      } else {
+        emit(ImagePickerFailure());
+        print('Image picking failed, no image selected.');
+      }
+    } catch (e) {
+      emit(ImagePickerFailure());
+      print('Error occurred during image picking: $e');
+    }
   }
 
   Future<void> pickImage(
@@ -36,14 +60,15 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       final updatedImages =
           List<File?>.from((state as GeneratedInitial).pickedImages);
       updatedImages[event.index] = File(pickedFile.path);
-      String? imageUrl = await uploadFile(updatedImages[event.index]!);
-      await FirebaseFirestore.instance.collection('generatedVendors').add({
-        'imageUrl': imageUrl,
-        'timestamp': FieldValue.serverTimestamp(),
-      });
+      // String? imageUrl = await uploadFile(updatedImages[event.index]!);
+      // await FirebaseFirestore.instance.collection('generatedVendors').add({
+      //   'imageUrl': imageUrl,
+      //   'timestamp': FieldValue.serverTimestamp(),
+      // });
       emit(GeneratedInitial(
         listViewCount: (state as GeneratedInitial).listViewCount,
         timeLineCount: (state as GeneratedInitial).timeLineCount,
+        pickImage: (state as GeneratedInitial).pickImage,
         pickedImages: updatedImages,
       ));
     }
@@ -57,6 +82,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
     emit(GeneratedInitial(
       listViewCount: (state as GeneratedInitial).listViewCount,
       timeLineCount: (state as GeneratedInitial).timeLineCount,
+      pickImage: (state as GeneratedInitial).pickImage,
       pickedImages: updatedImages,
     ));
   }
@@ -70,6 +96,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       emit(GeneratedInitial(
         listViewCount: updatedItemCount,
         timeLineCount: (state as GeneratedInitial).timeLineCount,
+        pickImage: (state as GeneratedInitial).pickImage,
         pickedImages: updatedImages,
       ));
     }
@@ -86,6 +113,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       emit(GeneratedInitial(
         listViewCount: updatedItemCount,
         timeLineCount: (state as GeneratedInitial).timeLineCount,
+        pickImage: (state as GeneratedInitial).pickImage,
         pickedImages: updatedImages,
       ));
     }
@@ -98,6 +126,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       emit(GeneratedInitial(
         listViewCount: (state as GeneratedInitial).listViewCount,
         timeLineCount: timeLineIndex,
+        pickImage: (state as GeneratedInitial).pickImage,
         pickedImages: (state as GeneratedInitial).pickedImages,
       ));
     }
@@ -111,6 +140,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       emit(GeneratedInitial(
         listViewCount: (state as GeneratedInitial).listViewCount,
         timeLineCount: timeLineIndex,
+        pickImage: (state as GeneratedInitial).pickImage,
         pickedImages: (state as GeneratedInitial).pickedImages,
       ));
     }
