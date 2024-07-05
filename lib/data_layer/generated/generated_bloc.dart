@@ -166,9 +166,9 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
 
   FutureOr<void> clearImages(ClearImages event, Emitter<GeneratedState> emit) {
     emit(GeneratedInitial(
-      listViewCount: (state as GeneratedInitial).listViewCount,
-      pickedImages: (state as GeneratedInitial).pickedImages,
-      pickLocation: (state as GeneratedInitial).pickLocation,
+      listViewCount: 1,
+      pickedImages: [null],
+      pickLocation: '',
       pickImage: null,
     ));
   }
