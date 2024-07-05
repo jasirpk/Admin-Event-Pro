@@ -25,4 +25,4 @@ class PickImage extends GeneratedEvent {}
 
 class FetchLocation extends GeneratedEvent {}
 
-class ResetFormEvent extends GeneratedEvent {}
+class ClearImages extends GeneratedEvent {}

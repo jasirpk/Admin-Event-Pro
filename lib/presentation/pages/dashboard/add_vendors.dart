@@ -30,7 +30,7 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
   TextEditingController locationController = TextEditingController();
   TextEditingController FromBudgetController = TextEditingController();
   TextEditingController ToBudgetController = TextEditingController();
-  TextEditingController imageNameController = TextEditingController();
+  List<TextEditingController> imageNameControllers = [];
 
   File? image;
   String? imagePath = '';
@@ -52,6 +52,26 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
     super.initState();
   }
 
+  GeneratedBloc? _generatedBloc;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _generatedBloc = context.read<GeneratedBloc>();
+  }
+
+  @override
+  void dispose() {
+    _generatedBloc?.add(ClearImages());
+    // nameEditingController.dispose();
+    // descriptionEditingController.dispose();
+    // locationController.dispose();
+    // FromBudgetController.clear();
+    // ToBudgetController.dispose();
+    // imageNameControllers.forEach((controller) => controller.dispose());
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
@@ -71,6 +91,12 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
             images = state.pickedImages;
             image = state.pickImage;
             locationController.text = state.pickLocation;
+            if (imageNameControllers.isEmpty) {
+              imageNameControllers = List.generate(
+                itemCount,
+                (index) => TextEditingController(),
+              );
+            }
           }
           if (state is ImagePickerInitial) {
             return Center(
@@ -160,6 +186,11 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                       scrollDirection: Axis.horizontal,
                       itemCount: itemCount,
                       itemBuilder: (context, index) {
+                        // Ensure controllers are initialized for each index
+                        if (imageNameControllers.length <= index) {
+                          imageNameControllers.add(TextEditingController());
+                        }
+
                         return Container(
                           width: screenWidth * 0.4,
                           child: Padding(
@@ -227,18 +258,16 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                                 ),
                                 SizedBox(height: 8),
                                 TextFormField(
-                                  controller: imageNameController,
+                                  controller: imageNameControllers[index],
                                   decoration: InputDecoration(
                                     enabledBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors
-                                              .white), // Customize border color and width
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     focusedBorder: OutlineInputBorder(
-                                      borderSide: BorderSide(
-                                          color: Colors
-                                              .white), // Customize focused border color and width
+                                      borderSide:
+                                          BorderSide(color: Colors.white),
                                       borderRadius: BorderRadius.circular(10),
                                     ),
                                     border: OutlineInputBorder(
@@ -503,8 +532,7 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                           if (images[i] != null) {
                             imagesData.add({
                               'image': images[i]!,
-                              'text': imageNameController
-                                  .text, // Modify as per your requirement
+                              'text': imageNameControllers[i].text,
                             });
                           }
                         }
@@ -539,6 +567,13 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                               "Success", "Details Added Successfully");
 
                           print('vendor details added');
+                          locationController.clear();
+                          nameEditingController.clear();
+                          descriptionEditingController.clear();
+                          FromBudgetController.clear();
+                          ToBudgetController.clear();
+                          imageNameControllers
+                              .forEach((controller) => controller.clear());
                         } else {
                           showCustomSnackBar(
                               "Error", "User is not authenticated");
@@ -559,18 +594,5 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
         },
       ),
     );
-  }
-
-  @override
-  void dispose() {
-    nameEditingController.clear();
-    descriptionEditingController.clear();
-    imageNameController.clear();
-    FromBudgetController.clear();
-    ToBudgetController.clear();
-    image = null;
-    imagePath = null;
-    locationController.clear();
-    super.dispose();
   }
 }

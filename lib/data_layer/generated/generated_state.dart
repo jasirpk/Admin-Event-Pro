@@ -43,5 +43,3 @@ class LocationLoaded extends GeneratedState {
 
   LocationLoaded(this.position, this.location);
 }
-
-class FormResetState extends GeneratedState {}

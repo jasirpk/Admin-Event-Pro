@@ -11,7 +11,6 @@ part 'generated_state.dart';
 
 class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
   int updatedItemCount = 0;
-  int timeLineIndex = 1;
 
   GeneratedBloc()
       : super(GeneratedInitial(
@@ -26,7 +25,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
     on<RemoveImageEvent>(removeImage);
     on<PickImage>(pickImageDuplicate);
     on<FetchLocation>(fetchLocation);
-    // on<ResetFormEvent>(resetFormEvent);
+    on<ClearImages>(clearImages);
   }
 
   FutureOr<void> pickImageDuplicate(
@@ -165,8 +164,12 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
     }
   }
 
-  // FutureOr<void> resetFormEvent(
-  //     ResetFormEvent event, Emitter<GeneratedState> emit) {
-  //   emit(FormResetState());
-  // }
+  FutureOr<void> clearImages(ClearImages event, Emitter<GeneratedState> emit) {
+    emit(GeneratedInitial(
+      listViewCount: (state as GeneratedInitial).listViewCount,
+      pickedImages: (state as GeneratedInitial).pickedImages,
+      pickLocation: (state as GeneratedInitial).pickLocation,
+      pickImage: null,
+    ));
+  }
 }
