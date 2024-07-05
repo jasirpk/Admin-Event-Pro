@@ -5,7 +5,7 @@ sealed class GeneratedState {}
 
 class GeneratedInitial extends GeneratedState {
   final int listViewCount;
-  final int timeLineCount;
+
   final List<File?> pickedImages;
   final File? pickImage;
   final String pickLocation;
@@ -14,7 +14,6 @@ class GeneratedInitial extends GeneratedState {
     required this.pickLocation,
     required this.pickImage,
     required this.listViewCount,
-    required this.timeLineCount,
     required this.pickedImages,
   });
 }
@@ -28,18 +27,6 @@ class ComponentDecrementState extends GeneratedState {
   final int decrementCount;
 
   ComponentDecrementState(this.decrementCount);
-}
-
-class TimeLineAddedState extends GeneratedState {
-  final int TimeVeiwCount;
-
-  TimeLineAddedState(this.TimeVeiwCount);
-}
-
-class TimeLineReduceState extends GeneratedState {
-  final int TimeReduceCount;
-
-  TimeLineReduceState(this.TimeReduceCount);
 }
 
 class selectdImageState extends GeneratedState {
@@ -56,3 +43,5 @@ class LocationLoaded extends GeneratedState {
 
   LocationLoaded(this.position, this.location);
 }
+
+class FormResetState extends GeneratedState {}

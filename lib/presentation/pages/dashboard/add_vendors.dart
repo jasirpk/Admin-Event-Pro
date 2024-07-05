@@ -1,13 +1,15 @@
 import 'dart:io';
+import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/generated/generated_bloc.dart';
+import 'package:admineventpro/data_layer/services/generated_vendor.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text_and_icon.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text_with_icons.dart';
-import 'package:admineventpro/presentation/components/ui/custom_timeline.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:admineventpro/presentation/components/ui/vendor_names.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -26,6 +28,10 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
   TextEditingController nameEditingController = TextEditingController();
   TextEditingController descriptionEditingController = TextEditingController();
   TextEditingController locationController = TextEditingController();
+  TextEditingController FromBudgetController = TextEditingController();
+  TextEditingController ToBudgetController = TextEditingController();
+  TextEditingController imageNameController = TextEditingController();
+
   File? image;
   String? imagePath = '';
   List<Map<String, String>> names = [
@@ -57,14 +63,12 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
       body: BlocBuilder<GeneratedBloc, GeneratedState>(
         builder: (context, state) {
           int? itemCount = 0;
-          int? countItem = 0;
           List<File?>? images;
 
           String errorText = '';
           if (state is GeneratedInitial) {
             itemCount = state.listViewCount;
             images = state.pickedImages;
-            countItem = state.timeLineCount;
             image = state.pickImage;
             locationController.text = state.pickLocation;
           }
@@ -223,6 +227,7 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                                 ),
                                 SizedBox(height: 8),
                                 TextFormField(
+                                  controller: imageNameController,
                                   decoration: InputDecoration(
                                     enabledBorder: OutlineInputBorder(
                                       borderSide: BorderSide(
@@ -239,7 +244,7 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                                     border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    labelText: 'Displayed Name',
+                                    labelText: 'Image Name',
                                     labelStyle: TextStyle(
                                       color: Colors.white54,
                                     ),
@@ -263,62 +268,44 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                     ),
                   ),
                   SizedBox(height: 10),
-                  imagePath!.isEmpty
-                      ? GestureDetector(
-                          onTap: () {
-                            context.read<GeneratedBloc>().add(PickImage());
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.circular(10),
-                                image: image != null
-                                    ? DecorationImage(
-                                        image: FileImage(image!),
-                                        fit: BoxFit.cover,
-                                      )
-                                    : null),
-                            child: Center(
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
-                                children: [
-                                  Icon(
-                                      image == null
-                                          ? Icons.collections_bookmark
-                                          : Icons.edit,
-                                      color: Colors.white,
-                                      size: 40),
-                                ],
-                              ),
-                            ),
-                            height: screenHeight * 0.2,
-                          ),
-                        )
-                      : GestureDetector(
-                          onTap: () {
-                            context.read<GeneratedBloc>().add(PickImage());
-                          },
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.grey,
-                              borderRadius: BorderRadius.circular(10),
-                              image: DecorationImage(
+                  GestureDetector(
+                    onTap: () {
+                      context.read<GeneratedBloc>().add(PickImage());
+                    },
+                    child: Container(
+                      decoration: BoxDecoration(
+                        color: Colors.grey,
+                        borderRadius: BorderRadius.circular(10),
+                        image: imagePath!.isEmpty
+                            ? (image != null
+                                ? DecorationImage(
+                                    image: FileImage(image!),
+                                    fit: BoxFit.cover,
+                                  )
+                                : null)
+                            : DecorationImage(
                                 image: imagePath!.startsWith('http')
                                     ? NetworkImage(imagePath!)
                                     : AssetImage(imagePath!) as ImageProvider,
                                 fit: BoxFit.cover,
                               ),
-                            ),
-                            height: screenHeight * 0.2,
-                            child: Center(
-                              child: Icon(
-                                Icons.collections_bookmark,
+                      ),
+                      child: Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(
+                                image == null && imagePath == null
+                                    ? Icons.collections_bookmark
+                                    : Icons.edit,
                                 color: Colors.white,
-                                size: 40,
-                              ),
-                            ),
-                          ),
+                                size: 40),
+                          ],
                         ),
+                      ),
+                      height: screenHeight * 0.2,
+                    ),
+                  ),
                   SizedBox(height: 10),
                   TextFormField(
                     controller: descriptionEditingController,
@@ -381,33 +368,6 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                       ),
                     ),
                   ),
-                  sizedbox,
-                  CustomTextWithIconsWidget(
-                      screenHeight: screenHeight,
-                      text: Assigns.timeline,
-                      onAddpressed: () {
-                        context
-                            .read<GeneratedBloc>()
-                            .add(AddMoreTimeLineEvent());
-                      },
-                      onRemovePressed: () {
-                        context
-                            .read<GeneratedBloc>()
-                            .add(ReduceTimeLineField());
-                      }),
-                  Card(
-                    color: Colors.white38,
-                    child: Container(
-                      height: screenHeight * 0.2,
-                      child: ListView.builder(
-                        scrollDirection: Axis.vertical,
-                        itemCount: countItem,
-                        itemBuilder: (context, index) {
-                          return CustomTimeLineWidget(screenWidth: screenWidth);
-                        },
-                      ),
-                    ),
-                  ),
                   SizedBox(height: 10),
                   Text(
                     Assigns.budget,
@@ -443,17 +403,20 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                                   ),
                                   SizedBox(height: 10),
                                   TextFormField(
+                                    controller: FromBudgetController,
                                     keyboardType: TextInputType.datetime,
                                     decoration: InputDecoration(
-                                      border: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                          color: Colors.white,
-                                        ),
+                                      enabledBorder: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.white),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.white54, width: 2),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.white),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       labelText: '₹',
@@ -489,16 +452,20 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                                   ),
                                   SizedBox(height: 10),
                                   TextFormField(
+                                    controller: ToBudgetController,
                                     keyboardType: TextInputType.datetime,
                                     decoration: InputDecoration(
-                                      border: OutlineInputBorder(
+                                      enabledBorder: OutlineInputBorder(
                                         borderSide:
                                             BorderSide(color: Colors.white),
                                         borderRadius: BorderRadius.circular(10),
                                       ),
-                                      enabledBorder: OutlineInputBorder(
-                                        borderSide: BorderSide(
-                                            color: Colors.white54, width: 2),
+                                      focusedBorder: OutlineInputBorder(
+                                        borderSide:
+                                            BorderSide(color: Colors.white),
+                                        borderRadius: BorderRadius.circular(10),
+                                      ),
+                                      border: OutlineInputBorder(
                                         borderRadius: BorderRadius.circular(10),
                                       ),
                                       labelText: '₹',
@@ -523,7 +490,68 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
                     ),
                   ),
                   SizedBox(height: 10),
-                  PushableButton_widget(buttonText: 'Submit', onpressed: () {})
+                  PushableButton_widget(
+                    buttonText: 'Submit',
+                    onpressed: () async {
+                      String? imageUrl = imagePath;
+                      try {
+                        String categoryName = nameEditingController.text;
+                        String description = descriptionEditingController.text;
+                        String location = locationController.text;
+                        List<Map<String, dynamic>> imagesData = [];
+                        for (int i = 0; i < images!.length; i++) {
+                          if (images[i] != null) {
+                            imagesData.add({
+                              'image': images[i]!,
+                              'text': imageNameController
+                                  .text, // Modify as per your requirement
+                            });
+                          }
+                        }
+
+                        if (image != null) {
+                          imageUrl = image!
+                              .path; // If a new image is picked, use its path
+                        } else if (imagePath != null && imagePath!.isNotEmpty) {
+                          // If imagePath is already a URL, use it directly
+                          imageUrl = imagePath;
+                        }
+
+                        bool validate = false;
+                        Map<String, double> budget = {
+                          'from': double.parse(FromBudgetController.text),
+                          'to': double.parse(ToBudgetController.text),
+                        };
+                        final user = FirebaseAuth.instance.currentUser;
+                        if (user != null) {
+                          await GeneratedVendor().addGeneratedCategoryDetail(
+                            uid: user.uid,
+                            categoryName: categoryName,
+                            description: description,
+                            location: location,
+                            images: imagesData,
+                            imagePath: imageUrl!,
+                            budget: budget,
+                            context: context,
+                            validate: validate,
+                          );
+                          showCustomSnackBar(
+                              "Success", "Details Added Successfully");
+
+                          print('vendor details added');
+                        } else {
+                          showCustomSnackBar(
+                              "Error", "User is not authenticated");
+                        }
+                      } catch (e) {
+                        showCustomSnackBar(
+                            "Error", "Failed to add vendor details: $e");
+                        print('Not added');
+                        print('$imageUrl for image else');
+                        print(e.toString());
+                      }
+                    },
+                  )
                 ],
               ),
             ),
@@ -531,5 +559,18 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
         },
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    nameEditingController.clear();
+    descriptionEditingController.clear();
+    imageNameController.clear();
+    FromBudgetController.clear();
+    ToBudgetController.clear();
+    image = null;
+    imagePath = null;
+    locationController.clear();
+    super.dispose();
   }
 }

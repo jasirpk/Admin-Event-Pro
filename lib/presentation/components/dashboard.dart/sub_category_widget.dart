@@ -74,8 +74,8 @@ class SubCategoryWidget extends StatelessWidget {
                   return InkWell(
                     onTap: () {
                       Get.to(() => AddVendorsScreen(
-                          categoryName: subDetailData['categoryName'],
-                          categoryDescription: subDetailData['description'],
+                          categoryName: subDetailData['subCategoryName'],
+                          categoryDescription: subDetailData['about'],
                           imagePath: subimagePath));
                     },
                     child: Container(

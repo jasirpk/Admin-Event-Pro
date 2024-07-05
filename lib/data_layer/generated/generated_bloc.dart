@@ -16,19 +16,17 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
   GeneratedBloc()
       : super(GeneratedInitial(
           listViewCount: 1,
-          timeLineCount: 1,
           pickedImages: [null],
           pickImage: null,
           pickLocation: '',
         )) {
     on<IncreamentEvent>(increamentEvent);
     on<DecrementEvent>(decrementEvent);
-    on<AddMoreTimeLineEvent>(addMoreTimeLine);
-    on<ReduceTimeLineField>(reduceTimeLineField);
     on<PickImageEvent>(pickImage);
     on<RemoveImageEvent>(removeImage);
     on<PickImage>(pickImageDuplicate);
     on<FetchLocation>(fetchLocation);
+    // on<ResetFormEvent>(resetFormEvent);
   }
 
   FutureOr<void> pickImageDuplicate(
@@ -41,7 +39,6 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
         final File updatedImage = File(image.path);
         emit(GeneratedInitial(
           listViewCount: (state as GeneratedInitial).listViewCount,
-          timeLineCount: (state as GeneratedInitial).timeLineCount,
           pickedImages: (state as GeneratedInitial).pickedImages,
           pickLocation: (state as GeneratedInitial).pickLocation,
           pickImage: updatedImage,
@@ -67,7 +64,6 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
 
       emit(GeneratedInitial(
         listViewCount: (state as GeneratedInitial).listViewCount,
-        timeLineCount: (state as GeneratedInitial).timeLineCount,
         pickImage: (state as GeneratedInitial).pickImage,
         pickLocation: (state as GeneratedInitial).pickLocation,
         pickedImages: updatedImages,
@@ -82,7 +78,6 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
     updatedImages[event.index] = null;
     emit(GeneratedInitial(
       listViewCount: (state as GeneratedInitial).listViewCount,
-      timeLineCount: (state as GeneratedInitial).timeLineCount,
       pickImage: (state as GeneratedInitial).pickImage,
       pickLocation: (state as GeneratedInitial).pickLocation,
       pickedImages: updatedImages,
@@ -97,7 +92,6 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
           List<File?>.from((state as GeneratedInitial).pickedImages)..add(null);
       emit(GeneratedInitial(
         listViewCount: updatedItemCount,
-        timeLineCount: (state as GeneratedInitial).timeLineCount,
         pickImage: (state as GeneratedInitial).pickImage,
         pickLocation: (state as GeneratedInitial).pickLocation,
         pickedImages: updatedImages,
@@ -115,39 +109,9 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
             ..removeLast();
       emit(GeneratedInitial(
         listViewCount: updatedItemCount,
-        timeLineCount: (state as GeneratedInitial).timeLineCount,
         pickImage: (state as GeneratedInitial).pickImage,
         pickLocation: (state as GeneratedInitial).pickLocation,
         pickedImages: updatedImages,
-      ));
-    }
-  }
-
-  FutureOr<void> addMoreTimeLine(
-      AddMoreTimeLineEvent event, Emitter<GeneratedState> emit) {
-    if (state is GeneratedInitial) {
-      timeLineIndex = (state as GeneratedInitial).timeLineCount + 1;
-      emit(GeneratedInitial(
-        listViewCount: (state as GeneratedInitial).listViewCount,
-        pickImage: (state as GeneratedInitial).pickImage,
-        pickedImages: (state as GeneratedInitial).pickedImages,
-        pickLocation: (state as GeneratedInitial).pickLocation,
-        timeLineCount: timeLineIndex,
-      ));
-    }
-  }
-
-  FutureOr<void> reduceTimeLineField(
-      ReduceTimeLineField event, Emitter<GeneratedState> emit) {
-    if (state is GeneratedInitial &&
-        (state as GeneratedInitial).timeLineCount > 1) {
-      timeLineIndex = (state as GeneratedInitial).timeLineCount - 1;
-      emit(GeneratedInitial(
-        listViewCount: (state as GeneratedInitial).listViewCount,
-        pickImage: (state as GeneratedInitial).pickImage,
-        pickedImages: (state as GeneratedInitial).pickedImages,
-        pickLocation: (state as GeneratedInitial).pickLocation,
-        timeLineCount: timeLineIndex,
       ));
     }
   }
@@ -192,7 +156,6 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       // Emit LocationLoaded state with position and location name
       emit(GeneratedInitial(
         listViewCount: (state as GeneratedInitial).listViewCount,
-        timeLineCount: (state as GeneratedInitial).timeLineCount,
         pickImage: (state as GeneratedInitial).pickImage,
         pickedImages: (state as GeneratedInitial).pickedImages,
         pickLocation: locationName,
@@ -201,4 +164,9 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       print(e);
     }
   }
+
+  // FutureOr<void> resetFormEvent(
+  //     ResetFormEvent event, Emitter<GeneratedState> emit) {
+  //   emit(FormResetState());
+  // }
 }
