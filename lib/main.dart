@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/generated/generated_bloc.dart';
+import 'package:admineventpro/data_layer/profile/profile_bloc.dart';
 import 'package:admineventpro/firebase_options.dart';
 import 'package:admineventpro/data_layer/auth_bloc/manage_bloc.dart';
 import 'package:admineventpro/data_layer/dashboard_bloc/dashboard_bloc.dart';
@@ -35,6 +36,7 @@ class AdminEventPro extends StatelessWidget {
         BlocProvider(create: (context) => ManageBloc()),
         BlocProvider(create: (context) => DashboardBloc()),
         BlocProvider(create: (context) => GeneratedBloc()),
+        BlocProvider(create: (contex) => ProfileBloc())
       ],
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,

@@ -17,4 +17,10 @@ class Assigns {
   static String location = 'Location';
   static String timeline = 'Timeline';
   static String budget = 'Budget';
+  static String profileText =
+      '''Find event service providers by browsing our detailed admin profiles, including company name, location, and services offered. Connect with professionals to make your event unforgettable''';
+  static String profileDetails = 'Profile Details';
+  static String contactInformation = 'Contact Information';
+  static String portFolio = 'PortFolio';
+  static String socialMedia = 'Social Media Links';
 }

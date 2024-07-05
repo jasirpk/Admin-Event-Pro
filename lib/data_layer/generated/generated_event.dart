@@ -7,10 +7,6 @@ class IncreamentEvent extends GeneratedEvent {}
 
 class DecrementEvent extends GeneratedEvent {}
 
-class AddMoreTimeLineEvent extends GeneratedEvent {}
-
-class ReduceTimeLineField extends GeneratedEvent {}
-
 class PickImageEvent extends GeneratedEvent {
   final int index;
   PickImageEvent(this.index);

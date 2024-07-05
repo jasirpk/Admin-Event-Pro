@@ -18,30 +18,25 @@ class GeneratedInitial extends GeneratedState {
   });
 }
 
-class ComponentLoadedState extends GeneratedState {
-  final int listviewItemCount;
-  ComponentLoadedState(this.listviewItemCount);
-}
+// class ComponentDecrementState extends GeneratedState {
+//   final int decrementCount;
 
-class ComponentDecrementState extends GeneratedState {
-  final int decrementCount;
+//   ComponentDecrementState(this.decrementCount);
+// }
 
-  ComponentDecrementState(this.decrementCount);
-}
+// class selectdImageState extends GeneratedState {
+//   final File? newImage;
 
-class selectdImageState extends GeneratedState {
-  final File? newImage;
-
-  selectdImageState({required this.newImage});
-}
+//   selectdImageState({required this.newImage});
+// }
 
 class ImagePickerInitial extends GeneratedState {}
 
-class LocationLoaded extends GeneratedState {
-  final Position position;
-  final String location;
+// class LocationLoaded extends GeneratedState {
+//   final Position position;
+//   final String location;
 
-  LocationLoaded(this.position, this.location);
-}
+//   LocationLoaded(this.position, this.location);
+// }
 
-class isSubmitState extends GeneratedState {}
+// class isSubmitState extends GeneratedState {}
