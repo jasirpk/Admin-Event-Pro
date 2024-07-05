@@ -10,16 +10,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class HomeScreen extends StatelessWidget {
-  final List<Widget> pages = [
-    HomePage(),
-    SearchPage(),
-    ReceiptPage(),
-    FavoritePage(),
-    ProfilePage(),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      HomePage(),
+      SearchPage(),
+      ReceiptPage(),
+      FavoritePage(),
+      ProfilePage(),
+    ];
     return Scaffold(
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: myColor,

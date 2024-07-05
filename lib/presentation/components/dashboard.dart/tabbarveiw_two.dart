@@ -1,9 +1,12 @@
-import 'package:admineventpro/common/assigns.dart';
+import 'package:admineventpro/bussiness_layer/repos/delete_showdilog.dart';
+import 'package:admineventpro/common/style.dart';
+import 'package:admineventpro/data_layer/generated/generated_bloc.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
-import 'package:admineventpro/presentation/components/dashboard.dart/popupmenu_items.dart';
+import 'package:admineventpro/data_layer/services/generated_vendor.dart';
+import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 class TabBarViewTwo extends StatelessWidget {
   const TabBarViewTwo({
@@ -11,133 +14,214 @@ class TabBarViewTwo extends StatelessWidget {
     required this.databaseMethods,
     required this.screenWidth,
     required this.screenHeight,
+    required this.uid,
   });
 
   final DatabaseMethods databaseMethods;
   final double screenWidth;
   final double screenHeight;
+  final String uid;
 
   @override
   Widget build(BuildContext context) {
-    return StreamBuilder<QuerySnapshot>(
-      stream: databaseMethods.getVendorDetail(Assigns.selectedValue),
-      builder: (context, snapshot) {
-        // if (snapshot.connectionState == ConnectionState.waiting) {
-        //   return Center(
-        //     child: CircularProgressIndicator(),
-        //   );
-        // }
+    final GeneratedVendor generatedVendor = GeneratedVendor();
 
-        // if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-        //   return Center(
-        //     child: Text(
-        //       'No Templates Found for ',
-        //       style: TextStyle(color: Colors.white),
-        //     ),
-        //   );
-        // }
+    return BlocBuilder<GeneratedBloc, GeneratedState>(
+      builder: (context, state) {
+        return StreamBuilder<QuerySnapshot>(
+          stream: generatedVendor.getGeneratedCategoryDetails(uid),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return ShimmerAllSubcategories(
+                  screenHeight: screenHeight, screenWidth: screenWidth);
+            }
 
-        var documents = snapshot.data!.docs;
+            if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+              return Center(
+                child: Text(
+                  'No Templates Found for ',
+                  style: TextStyle(color: Colors.white),
+                ),
+              );
+            }
 
-        return ListView.builder(
-          shrinkWrap: true,
-          itemCount: 2,
-          itemBuilder: (context, index) {
-            var document = documents[index];
-            // var data = document.data() as Map<String, dynamic>;
-            // String imagePath = data['imagePath'];
-            String? documentId = document.id;
+            var documents = snapshot.data!.docs;
 
-            return FutureBuilder<DocumentSnapshot?>(
-              future: databaseMethods.getCategoryDetailById(documentId),
-              builder: (context, subdetailSnapshot) {
-                // if (subdetailSnapshot.connectionState ==
-                //     ConnectionState.waiting) {
-                //   return ShimmerEffect(
-                //     databaseMethods: databaseMethods,
-                //     documents: documents,
-                //     categoryId: documentId,
-                //     subCategoryId: documentId,
-                //     screenWidth: screenWidth,
-                //     screenHeight: screenHeight,
-                //   );
-                // }
+            return ListView.builder(
+              shrinkWrap: true,
+              itemCount: documents.length,
+              itemBuilder: (context, index) {
+                var document = documents[index];
+                var data = document.data() as Map<String, dynamic>;
+                String imagePath = data['imagePathUrl'];
+                String documentId = document.id;
 
-                // if (!subdetailSnapshot.hasData ||
-                //     subdetailSnapshot.data == null ||
-                //     subdetailSnapshot.data!.data() == null) {
-                //   return Center(
-                //     child: Text(
-                //       'Details not found for $documentId',
-                //       style: TextStyle(color: Colors.white),
-                //     ),
-                //   );
-                // }
+                return FutureBuilder<DocumentSnapshot?>(
+                  future:
+                      generatedVendor.getCategoryDetailById(uid, documentId),
+                  builder: (context, subdetailSnapshot) {
+                    if (subdetailSnapshot.connectionState ==
+                        ConnectionState.waiting) {
+                      return ShimmerAllSubcategories(
+                          screenHeight: screenHeight, screenWidth: screenWidth);
+                    }
 
-                // var subDetailData = subdetailSnapshot.data!.data()
-                //     as Map<String, dynamic>;
-
-                return Container(
-                  margin: EdgeInsets.symmetric(vertical: 8.0),
-                  decoration: BoxDecoration(
-                    color: Colors.white38,
-                    borderRadius: BorderRadius.circular(10),
-                  ),
-                  child: Row(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Container(
-                        width: screenWidth * 0.30,
-                        height: screenHeight * 0.15,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(10),
+                    if (!subdetailSnapshot.hasData ||
+                        subdetailSnapshot.data == null ||
+                        subdetailSnapshot.data!.data() == null) {
+                      return Center(
+                        child: Text(
+                          'Details not found for $documentId',
+                          style: TextStyle(color: Colors.white),
                         ),
+                      );
+                    }
+
+                    var subDetailData =
+                        subdetailSnapshot.data!.data() as Map<String, dynamic>;
+
+                    bool isSubmit = subDetailData['isValid'] ?? false;
+                    return Container(
+                      margin: EdgeInsets.symmetric(vertical: 8.0),
+                      decoration: BoxDecoration(
+                        color: Colors.white38,
+                        borderRadius: BorderRadius.circular(10),
                       ),
-                      SizedBox(width: 8.0),
-                      Expanded(
-                        child: Padding(
-                          padding: EdgeInsets.symmetric(
-                              vertical: 8.0, horizontal: 8.0),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(''
-                                  // subDetailData['categoryName'] ??
-                                  //     'No Name',
-                                  // style: TextStyle(
-                                  //   fontSize: 18.0,
-                                  //   fontWeight: FontWeight.bold,
-                                  // ),
-                                  ),
-                              SizedBox(height: 4.0),
-                              Text(''
-                                  // subDetailData['description'] ?? '',
-                                  // overflow: TextOverflow.ellipsis,
-                                  // maxLines: 4,
-                                  // style: TextStyle(fontSize: 14.0),
-                                  ),
-                            ],
-                          ),
-                        ),
-                      ),
-                      Column(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(Icons.favorite_border),
-                            color: Colors.grey,
+                          Container(
+                            width: screenWidth * 0.30,
+                            height: screenHeight * 0.17,
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(10),
+                              image: DecorationImage(
+                                image: imagePath.startsWith('http')
+                                    ? NetworkImage(imagePath)
+                                    : AssetImage(imagePath) as ImageProvider,
+                                fit: BoxFit.cover,
+                              ),
+                            ),
                           ),
-                          PopubMenuButton(),
-                          IconButton(
-                            onPressed: () {},
-                            icon: Icon(CupertinoIcons.forward),
-                            color: Colors.grey,
+                          SizedBox(width: 8.0),
+                          Expanded(
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(
+                                  vertical: 8.0, horizontal: 8.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    subDetailData['categoryName'] ?? 'No Name',
+                                    maxLines: 1,
+                                    style: TextStyle(
+                                      fontSize: 16.0,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  SizedBox(height: 4.0),
+                                  Text(
+                                    subDetailData['description'] ?? '',
+                                    overflow: TextOverflow.ellipsis,
+                                    maxLines: 4,
+                                    style: TextStyle(fontSize: 14.0),
+                                  ),
+                                  SizedBox(height: 4.0),
+                                  Row(
+                                    crossAxisAlignment: CrossAxisAlignment.end,
+                                    children: [
+                                      Icon(
+                                        Icons.location_on,
+                                        color: myColor,
+                                        size: 20,
+                                      ),
+                                      SizedBox(width: 4.0),
+                                      Expanded(
+                                        child: Text(
+                                          subDetailData['location'] ?? '',maxLines: 1,
+                                          style: TextStyle(
+                                              fontSize: screenHeight * 0.014,
+                                              fontWeight: FontWeight.w500),
+                                        ),
+                                      ),
+                                      Container(
+                                        padding: EdgeInsets.symmetric(
+                                            horizontal: 4, vertical: 4),
+                                        decoration: BoxDecoration(
+                                            color: myColor,
+                                            borderRadius:
+                                                BorderRadius.circular(30)),
+                                        child: Text(
+                                          isSubmit ? 'submited' : '',
+                                          style: TextStyle(
+                                              color: Colors.black,
+                                              fontSize: screenHeight * 0.010),
+                                        ),
+                                      )
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ),
+                          ),
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              IconButton(
+                                onPressed: () {},
+                                icon: Icon(Icons.favorite_border),
+                                color: Colors.grey,
+                              ),
+                              PopupMenuButton(
+                                onSelected: (value) async {
+                                  if (value == 'View Detail') {
+                                  } else if (value == 'delete') {
+                                    showDeleteConfirmationDialog(
+                                      uid: uid,
+                                      documentId: documentId,
+                                      generatedVendor: generatedVendor,
+                                    );
+                                  } else if (value == 'update') {
+                                  } else if (value == 'submit') {
+                                    await generatedVendor.updateIsValidField(
+                                        uid, documentId,
+                                        isSumbit: true);
+                                  }
+                                },
+                                itemBuilder: (context) {
+                                  return [
+                                    PopupMenuItem(
+                                      child: Text('Delete'),
+                                      value: 'delete',
+                                    ),
+                                    PopupMenuItem(
+                                      child: Text('View Detail'),
+                                      value: 'View Detail',
+                                    ),
+                                    PopupMenuItem(
+                                      child: Text('Update'),
+                                      value: 'update',
+                                    ),
+                                    PopupMenuItem(
+                                      child: Text(
+                                        'Submit',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.bold,
+                                          color: myCustomColor,
+                                          letterSpacing: 1,
+                                        ),
+                                      ),
+                                      value: 'submit',
+                                    ),
+                                  ];
+                                },
+                              ),
+                            ],
                           ),
                         ],
                       ),
-                    ],
-                  ),
+                    );
+                  },
                 );
               },
             );

@@ -43,3 +43,5 @@ class LocationLoaded extends GeneratedState {
 
   LocationLoaded(this.position, this.location);
 }
+
+class isSubmitState extends GeneratedState {}

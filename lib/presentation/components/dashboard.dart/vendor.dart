@@ -4,6 +4,7 @@ import 'package:admineventpro/presentation/components/shimmer/shimmer_with_subli
 import 'package:admineventpro/presentation/pages/dashboard/add_vendors.dart';
 import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
@@ -16,6 +17,12 @@ class ReceiptPage extends StatelessWidget {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     final DatabaseMethods databaseMethods = DatabaseMethods();
+    final user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Center(
+        child: Text("User not logged in"),
+      );
+    }
 
     return Padding(
       padding: const EdgeInsets.all(8.0),
@@ -119,8 +126,9 @@ class ReceiptPage extends StatelessWidget {
                                           Text(
                                             subDetailData['categoryName'] ??
                                                 'No Name',
+                                            maxLines: 1,
                                             style: TextStyle(
-                                              fontSize: 18.0,
+                                              fontSize: 18,
                                               fontWeight: FontWeight.bold,
                                             ),
                                           ),
@@ -162,6 +170,7 @@ class ReceiptPage extends StatelessWidget {
                 },
               ),
               TabBarViewTwo(
+                  uid: user.uid,
                   databaseMethods: databaseMethods,
                   screenWidth: screenWidth,
                   screenHeight: screenHeight)
