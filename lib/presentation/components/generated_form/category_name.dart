@@ -18,13 +18,11 @@ class CategoryNameWidget extends StatelessWidget {
           borderRadius: BorderRadius.circular(10),
         ),
         enabledBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: Colors.white), // Customize border color and width
+          borderSide: BorderSide(color: Colors.white),
           borderRadius: BorderRadius.circular(10),
         ),
         focusedBorder: OutlineInputBorder(
-          borderSide: BorderSide(
-              color: Colors.white), // Customize focused border color and width
+          borderSide: BorderSide(color: Colors.white),
           borderRadius: BorderRadius.circular(10),
         ),
         labelText: 'Displayed Name',
