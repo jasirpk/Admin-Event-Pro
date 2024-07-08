@@ -1,5 +1,5 @@
 import 'package:bloc/bloc.dart';
-import 'package:meta/meta.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 part 'dashboard_event.dart';
 part 'dashboard_state.dart';

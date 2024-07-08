@@ -3,7 +3,7 @@ import 'dart:io';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:flutter/material.dart';
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/data_layer/generated/generated_bloc.dart';
+import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 
 import 'package:admineventpro/presentation/components/generated_form/budget.dart';
 import 'package:admineventpro/presentation/components/generated_form/category_image.dart';

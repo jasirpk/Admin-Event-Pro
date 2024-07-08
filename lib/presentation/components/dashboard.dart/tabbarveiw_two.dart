@@ -1,8 +1,9 @@
 import 'package:admineventpro/bussiness_layer/repos/delete_showdilog.dart';
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/data_layer/generated/generated_bloc.dart';
+import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/data_layer/services/generated_vendor.dart';
+import 'package:admineventpro/data_layer/services/profile.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -84,7 +85,8 @@ class TabBarViewTwo extends StatelessWidget {
                     return Container(
                       margin: EdgeInsets.symmetric(vertical: 8.0),
                       decoration: BoxDecoration(
-                        color: Colors.white38,
+                        border: Border.all(
+                            color: Colors.white.withOpacity(0.5), width: 0.5),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
@@ -138,26 +140,31 @@ class TabBarViewTwo extends StatelessWidget {
                                       SizedBox(width: 4.0),
                                       Expanded(
                                         child: Text(
-                                          subDetailData['location'] ?? '',maxLines: 1,
+                                          subDetailData['location'] ?? '',
+                                          maxLines: 1,
                                           style: TextStyle(
                                               fontSize: screenHeight * 0.014,
                                               fontWeight: FontWeight.w500),
                                         ),
                                       ),
-                                      Container(
-                                        padding: EdgeInsets.symmetric(
-                                            horizontal: 4, vertical: 4),
-                                        decoration: BoxDecoration(
-                                            color: myColor,
-                                            borderRadius:
-                                                BorderRadius.circular(30)),
-                                        child: Text(
-                                          isSubmit ? 'submited' : '',
-                                          style: TextStyle(
-                                              color: Colors.black,
-                                              fontSize: screenHeight * 0.010),
-                                        ),
-                                      )
+                                      isSubmit
+                                          ? Container(
+                                              padding: EdgeInsets.symmetric(
+                                                  horizontal: 4, vertical: 4),
+                                              decoration: BoxDecoration(
+                                                  color: myColor,
+                                                  borderRadius:
+                                                      BorderRadius.circular(
+                                                          30)),
+                                              child: Text(
+                                                'submited',
+                                                style: TextStyle(
+                                                    color: Colors.black,
+                                                    fontSize:
+                                                        screenHeight * 0.010),
+                                              ),
+                                            )
+                                          : SizedBox(),
                                     ],
                                   ),
                                 ],
@@ -173,6 +180,8 @@ class TabBarViewTwo extends StatelessWidget {
                                 color: Colors.grey,
                               ),
                               PopupMenuButton(
+                                color: Colors.white,
+                                iconColor: Colors.white,
                                 onSelected: (value) async {
                                   if (value == 'View Detail') {
                                   } else if (value == 'delete') {
@@ -186,6 +195,9 @@ class TabBarViewTwo extends StatelessWidget {
                                     await generatedVendor.updateIsValidField(
                                         uid, documentId,
                                         isSumbit: true);
+                                    await UserProfile().updateIsValidUser(
+                                        uid, documentId,
+                                        isvalid: true);
                                   }
                                 },
                                 itemBuilder: (context) {

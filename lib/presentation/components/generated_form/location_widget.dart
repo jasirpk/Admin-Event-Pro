@@ -1,4 +1,4 @@
-import 'package:admineventpro/data_layer/generated/generated_bloc.dart';
+import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 

@@ -65,9 +65,7 @@ class HomeScreen extends StatelessWidget {
               children: pages,
             );
           }
-          return Center(
-            child: CircularProgressIndicator(),
-          );
+          return pages[0];
         },
       ),
     );

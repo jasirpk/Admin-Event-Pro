@@ -14,6 +14,8 @@ class GeneratedVendor {
     required String imagePath,
     required Map<String, double> budget,
     bool validate = false,
+    bool isAccepted = false,
+    bool isRejected = false,
     BuildContext? context,
   }) async {
     try {
@@ -41,7 +43,10 @@ class GeneratedVendor {
         'images': imageUrls, // Include image URLs with corresponding text
         'imagePathUrl': finalImagePath,
         'budget': budget,
+        'uid': uid,
         'isValid': validate,
+        'isAccepted': isAccepted,
+        'isRejected': isRejected,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -192,7 +197,7 @@ class GeneratedVendor {
           .collection('vendorDetails');
 
       await vendorDetailsRef.doc(documentId).update({
-        'isValid': isSumbit, // Set isValid to true
+        'isValid': isSumbit,
       });
 
       print('isValid field updated successfully.');

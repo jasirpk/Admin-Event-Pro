@@ -13,6 +13,7 @@ class UserProfile {
     required String phoneNumber,
     required String emailAddress,
     required String website,
+    bool validate = false,
     required List<Map<String, dynamic>> images,
     required List<Map<String, dynamic>> links,
   }) async {
@@ -38,6 +39,8 @@ class UserProfile {
             finalImagePath, // Assuming you want to save the profile image URL
         'images': imageUrlList,
         'links': links,
+        'isValid': validate,
+        'uid': uid,
         'createdAt': FieldValue.serverTimestamp(),
       });
 
@@ -45,6 +48,23 @@ class UserProfile {
     } catch (e) {
       log('Error adding user Profile to sub-collection: $e');
       throw Exception('Failed to add user Profile: $e');
+    }
+  }
+
+  Future<void> updateIsValidUser(String uid, String documentId,
+      {required bool isvalid}) async {
+    try {
+      DocumentReference documentRef =
+          FirebaseFirestore.instance.collection('generatedVendors').doc(uid);
+
+      await documentRef.update({
+        'isValid': isvalid, // Set isValid to true
+      });
+
+      print('isValid field updated successfully.From profile side');
+    } catch (e) {
+      log('Error updating isValid field: $e');
+      throw Exception('Failed to update isValid field: $e');
     }
   }
 

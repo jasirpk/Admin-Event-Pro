@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/data_layer/profile/profile_bloc.dart';
+import 'package:admineventpro/data_layer/profile_bloc/profile_bloc.dart';
 import 'package:admineventpro/data_layer/services/profile.dart';
 import 'package:admineventpro/presentation/components/profile_form/link_fields.dart';
 import 'package:admineventpro/presentation/components/profile_form/medias.dart';

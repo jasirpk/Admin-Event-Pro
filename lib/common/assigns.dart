@@ -23,4 +23,5 @@ class Assigns {
   static String contactInformation = 'Contact Information';
   static String portFolio = 'PortFolio';
   static String socialMedia = 'Social Media Links';
+  static String favorite = 'Favorites';
 }

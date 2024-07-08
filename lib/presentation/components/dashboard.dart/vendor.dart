@@ -94,7 +94,9 @@ class ReceiptPage extends StatelessWidget {
                             child: Container(
                               margin: EdgeInsets.symmetric(vertical: 8.0),
                               decoration: BoxDecoration(
-                                color: Colors.white38,
+                                border: Border.all(
+                                    color: Colors.white.withOpacity(0.5),
+                                    width: 0.5),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(

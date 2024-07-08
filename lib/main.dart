@@ -1,8 +1,8 @@
 import 'dart:async';
 
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/data_layer/generated/generated_bloc.dart';
-import 'package:admineventpro/data_layer/profile/profile_bloc.dart';
+import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
+import 'package:admineventpro/data_layer/profile_bloc/profile_bloc.dart';
 import 'package:admineventpro/firebase_options.dart';
 import 'package:admineventpro/data_layer/auth_bloc/manage_bloc.dart';
 import 'package:admineventpro/data_layer/dashboard_bloc/dashboard_bloc.dart';
@@ -19,9 +19,9 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await FirebaseAppCheck.instance.activate(
-    // webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
+    webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
     androidProvider: AndroidProvider.debug,
-    // appleProvider: AppleProvider.debug,
+    appleProvider: AppleProvider.debug,
   );
   runApp(AdminEventPro());
 }
@@ -41,9 +41,6 @@ class AdminEventPro extends StatelessWidget {
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-            iconButtonTheme: IconButtonThemeData(
-                style: ButtonStyle(
-                    iconColor: WidgetStateProperty.all<Color>(Colors.white))),
             textTheme: TextTheme(
                 bodyLarge: TextStyle(color: Colors.white),
                 bodyMedium: TextStyle(color: Colors.white)),

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:admineventpro/data_layer/profile/profile_bloc.dart';
+import 'package:admineventpro/data_layer/profile_bloc/profile_bloc.dart';
 import 'package:admineventpro/presentation/components/profile_form/user_fields.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';

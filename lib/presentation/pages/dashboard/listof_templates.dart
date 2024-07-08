@@ -1,19 +1,28 @@
-import 'package:admineventpro/common/style.dart';
+import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'package:admineventpro/data_layer/dashboard_bloc/dashboard_bloc.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/pages/dashboard/add_vendors.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter/material.dart';
-import 'package:get/get.dart';
+import 'package:admineventpro/common/style.dart';
 
 class SubEventTemplatesScreen extends StatelessWidget {
   final String categoryId;
   final String categoryName;
 
-  const SubEventTemplatesScreen(
-      {super.key, required this.categoryId, required this.categoryName});
+  const SubEventTemplatesScreen({
+    Key? key,
+    required this.categoryId,
+    required this.categoryName,
+  }) : super(key: key);
+
   @override
   Widget build(BuildContext context) {
     final subDatabaseMethods subdatabaseMethods = subDatabaseMethods();
@@ -26,6 +35,7 @@ class SubEventTemplatesScreen extends StatelessWidget {
         actions: [
           IconButton(
             icon: Icon(Icons.search),
+            color: Colors.white,
             onPressed: () {},
           ),
           sizedboxWidth,
@@ -37,7 +47,7 @@ class SubEventTemplatesScreen extends StatelessWidget {
               width: 27,
             ),
           ),
-          sizedboxWidth
+          sizedboxWidth,
         ],
       ),
       body: StreamBuilder<QuerySnapshot>(
@@ -45,7 +55,9 @@ class SubEventTemplatesScreen extends StatelessWidget {
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return ShimmerAllSubcategories(
-                screenHeight: screenHeight, screenWidth: screenWidth);
+              screenHeight: screenHeight,
+              screenWidth: screenWidth,
+            );
           }
 
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -66,14 +78,19 @@ class SubEventTemplatesScreen extends StatelessWidget {
               var data = document.data() as Map<String, dynamic>;
               String subimagePath = data['imagePath'];
               String subCategoryId = document.id;
+
               return FutureBuilder<DocumentSnapshot>(
                 future: subdatabaseMethods.getSubCategoryId(
-                    categoryId, subCategoryId),
+                  categoryId,
+                  subCategoryId,
+                ),
                 builder: (context, subdetailSnapshot) {
                   if (subdetailSnapshot.connectionState ==
                       ConnectionState.waiting) {
                     return ShimmerAllSubcategories(
-                        screenHeight: screenHeight, screenWidth: screenWidth);
+                      screenHeight: screenHeight,
+                      screenWidth: screenWidth,
+                    );
                   }
 
                   if (!subdetailSnapshot.hasData ||
@@ -86,8 +103,11 @@ class SubEventTemplatesScreen extends StatelessWidget {
                       ),
                     );
                   }
+
                   var subDetailData =
                       subdetailSnapshot.data!.data() as Map<String, dynamic>;
+                  bool isFavorite = subDetailData['isFavorite'] ?? false;
+
                   return InkWell(
                     onTap: () {
                       Get.to(() => AddVendorsScreen(
@@ -97,10 +117,13 @@ class SubEventTemplatesScreen extends StatelessWidget {
                           ));
                     },
                     child: Container(
-                      margin:
-                          EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
+                      margin: EdgeInsets.symmetric(
+                        horizontal: 8.0,
+                        vertical: 8.0,
+                      ),
                       decoration: BoxDecoration(
-                        color: Colors.white38,
+                        border: Border.all(
+                            color: Colors.white.withOpacity(0.5), width: 0.5),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
@@ -123,11 +146,16 @@ class SubEventTemplatesScreen extends StatelessWidget {
                           Expanded(
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
+                              mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 Text(
                                   subDetailData['subCategoryName'] ?? 'No Name',
                                   style: TextStyle(
-                                    fontSize: 18.0,
+                                    fontSize: subDetailData['subCategoryName']
+                                                .length >
+                                            14
+                                        ? 16
+                                        : 18,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -141,20 +169,79 @@ class SubEventTemplatesScreen extends StatelessWidget {
                               ],
                             ),
                           ),
-                          Column(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: [
-                              IconButton(
-                                onPressed: () {},
-                                icon: Icon(Icons.favorite_border),
-                                color: Colors.grey,
-                              ),
-                              IconButton(
-                                onPressed: () {},
-                                icon: Icon(CupertinoIcons.forward),
-                                color: Colors.grey,
-                              ),
-                            ],
+                          BlocBuilder<DashboardBloc, DashboardState>(
+                            builder: (context, state) {
+                              if (state is DashboardLoading) {
+                                return Center(
+                                  child: CircularProgressIndicator(),
+                                );
+                              } else if (state is DashboardError) {
+                                return Center(
+                                  child: Text('Error: ${state.errorMessage}'),
+                                );
+                              }
+
+                              return Column(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  IconButton(
+                                    onPressed: () async {
+                                      String id = subCategoryId;
+                                      String imagePath =
+                                          subDetailData['imagePath'];
+                                      String subCategoryName =
+                                          subDetailData['subCategoryName'];
+                                      String about = subDetailData['about'];
+                                      // await subdatabaseMethods
+                                      //     .updateIsValidField(
+                                      //         categoryId, subCategoryId,
+                                      //         isSumbit: true);
+                                      try {
+                                        final user =
+                                            FirebaseAuth.instance.currentUser;
+                                        if (user != null) {
+                                          await subDatabaseMethods()
+                                              .toggleFavoriteStatus(
+                                                  user.uid,
+                                                  subCategoryName,
+                                                  about,
+                                                  imagePath,
+                                                  id,
+                                                  true);
+                                          print(
+                                              'Data added'); // Show success message
+                                          showCustomSnackBar("Success",
+                                              "Details Added Successfully");
+                                        } else {
+                                          print(
+                                              'data not added'); // Show error message if user is not authenticated
+                                          showCustomSnackBar("Error",
+                                              "User is not authenticated");
+                                        }
+                                      } catch (e) {
+                                        // Show error message if there's an exception
+                                        showCustomSnackBar("Error",
+                                            "Failed to add vendor details: $e");
+                                        print(
+                                            'Failed to add vendor details: $e');
+                                      }
+                                    },
+                                    icon: Icon(Icons.favorite_border
+                                        // isFavorite
+                                        //     ? Icons.favorite
+                                        //     : Icons.favorite_border,
+                                        ),
+                                    color: Colors.white,
+                                  ),
+                                  IconButton(
+                                    onPressed: () async {},
+                                    icon: Icon(CupertinoIcons.forward),
+                                    color: Colors.white,
+                                  ),
+                                ],
+                              );
+                            },
                           ),
                         ],
                       ),

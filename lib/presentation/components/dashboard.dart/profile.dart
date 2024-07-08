@@ -18,7 +18,10 @@ class ProfilePage extends StatelessWidget {
             context.read<ManageBloc>().add(SignOutWithGoogle());
             context.read<ManageBloc>().add(SignOutWithFacebook());
           },
-          icon: Icon(Icons.logout),
+          icon: Icon(
+            Icons.logout,
+            color: Colors.white,
+          ),
         ),
         BlocListener<ManageBloc, ManageState>(
           listener: (context, state) {
