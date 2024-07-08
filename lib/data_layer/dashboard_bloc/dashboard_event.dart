@@ -7,3 +7,10 @@ class TabChanged extends DashboardEvent {
 
   TabChanged(this.newIndex);
 }
+
+class FavoriteStatusChanged extends DashboardEvent {
+  final String subCategoryId;
+  final bool isFavorite;
+
+  FavoriteStatusChanged(this.subCategoryId, this.isFavorite);
+}

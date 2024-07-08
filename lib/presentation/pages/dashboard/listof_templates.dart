@@ -179,6 +179,11 @@ class SubEventTemplatesScreen extends StatelessWidget {
                                 return Center(
                                   child: Text('Error: ${state.errorMessage}'),
                                 );
+                              } else if (state is FavoriteStatusUpdated) {
+                                // Rebuild the widget based on the updated favorite status
+                                if (state.subCategoryId == subCategoryId) {
+                                  isFavorite = state.isFavorite;
+                                }
                               }
 
                               return Column(
@@ -193,10 +198,6 @@ class SubEventTemplatesScreen extends StatelessWidget {
                                       String subCategoryName =
                                           subDetailData['subCategoryName'];
                                       String about = subDetailData['about'];
-                                      // await subdatabaseMethods
-                                      //     .updateIsValidField(
-                                      //         categoryId, subCategoryId,
-                                      //         isSumbit: true);
                                       try {
                                         final user =
                                             FirebaseAuth.instance.currentUser;
@@ -208,31 +209,28 @@ class SubEventTemplatesScreen extends StatelessWidget {
                                                   about,
                                                   imagePath,
                                                   id,
-                                                  true);
+                                                  isFavorite);
+                                          context.read<DashboardBloc>().add(
+                                              FavoriteStatusChanged(
+                                                  id, !isFavorite));
                                           print(
-                                              'Data added'); // Show success message
+                                              'Favorite status updated successfully');
                                           showCustomSnackBar("Success",
                                               "Details Added Successfully");
                                         } else {
-                                          print(
-                                              'data not added'); // Show error message if user is not authenticated
+                                          print('User not authenticated');
                                           showCustomSnackBar("Error",
                                               "User is not authenticated");
                                         }
                                       } catch (e) {
-                                        // Show error message if there's an exception
                                         showCustomSnackBar("Error",
-                                            "Failed to add vendor details: $e");
+                                            "Failed to update favorite status: $e");
                                         print(
-                                            'Failed to add vendor details: $e');
+                                            'Failed to update favorite status: $e');
                                       }
                                     },
-                                    icon: Icon(Icons.favorite_border
-                                        // isFavorite
-                                        //     ? Icons.favorite
-                                        //     : Icons.favorite_border,
-                                        ),
-                                    color: Colors.white,
+                                    icon: Icon(Icons.favorite),
+                                    color: isFavorite ? myColor : Colors.white,
                                   ),
                                   IconButton(
                                     onPressed: () async {},

@@ -9,5 +9,9 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
     on<TabChanged>((event, emit) {
       emit(TabState(event.newIndex));
     });
+    on<FavoriteStatusChanged>((event, emit) {
+      emit(FavoriteStatusUpdated(
+          subCategoryId: event.subCategoryId, isFavorite: event.isFavorite));
+    });
   }
 }

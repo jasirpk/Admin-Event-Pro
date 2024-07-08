@@ -33,3 +33,11 @@ class DashboardFavoritesLoaded extends DashboardState {
 
   DashboardFavoritesLoaded(this.favorites);
 }
+
+class FavoriteStatusUpdated extends DashboardState {
+  final String subCategoryId;
+  final bool isFavorite;
+
+  FavoriteStatusUpdated(
+      {required this.subCategoryId, required this.isFavorite});
+}
