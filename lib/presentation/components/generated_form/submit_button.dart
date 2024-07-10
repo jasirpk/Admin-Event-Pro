@@ -2,6 +2,7 @@ import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
 import 'package:admineventpro/data_layer/services/generated_vendor.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class VendorDetailsManager {
   static Future<void> addVendorDetails({
@@ -23,6 +24,7 @@ class VendorDetailsManager {
     try {
       final user = FirebaseAuth.instance.currentUser;
       if (user != null) {
+        Get.back();
         // Add vendor details to Firebase or your preferred backend
         await GeneratedVendor().addGeneratedCategoryDetail(
           uid: user.uid,

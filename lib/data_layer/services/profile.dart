@@ -18,25 +18,25 @@ class UserProfile {
     required List<Map<String, dynamic>> links,
   }) async {
     try {
-      // Upload images and get URLs
+      File imageFile = File(imagePath);
+      if (!imageFile.existsSync()) {
+        throw Exception("Image file does not exist at path: $imagePath");
+      }
+
       List<Map<String, dynamic>> imageUrlList = await uploadImages(images);
 
-      // Upload profile image and get URL
-      String finalImagePath = await uploadImageToFirebase(File(imagePath));
+      String finalImagePath = await uploadImageToFirebase(imageFile);
 
-      // Create a reference to the generatedVendors collection and the specific document for the user
       DocumentReference documentRef =
-          FirebaseFirestore.instance.collection('generatedVendors').doc(uid);
+          FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
 
-      // Set the data for the document
-      await documentRef.set({
+      await documentRef.update({
         'companyName': companyName,
         'description': about,
         'website': website,
         'phoneNumber': phoneNumber,
         'emailAddress': emailAddress,
-        'profileImage':
-            finalImagePath, // Assuming you want to save the profile image URL
+        'profileImage': finalImagePath,
         'images': imageUrlList,
         'links': links,
         'isValid': validate,
@@ -44,27 +44,10 @@ class UserProfile {
         'createdAt': FieldValue.serverTimestamp(),
       });
 
-      log('Vendor details added successfully to sub-collection.');
+      print('Vendor details added successfully to sub-collection.');
     } catch (e) {
-      log('Error adding user Profile to sub-collection: $e');
+      print('Error adding user Profile to sub-collection: $e');
       throw Exception('Failed to add user Profile: $e');
-    }
-  }
-
-  Future<void> updateIsValidUser(String uid, String documentId,
-      {required bool isvalid}) async {
-    try {
-      DocumentReference documentRef =
-          FirebaseFirestore.instance.collection('generatedVendors').doc(uid);
-
-      await documentRef.update({
-        'isValid': isvalid, // Set isValid to true
-      });
-
-      print('isValid field updated successfully.From profile side');
-    } catch (e) {
-      log('Error updating isValid field: $e');
-      throw Exception('Failed to update isValid field: $e');
     }
   }
 
@@ -87,18 +70,14 @@ class UserProfile {
 
   Future<String> uploadImageToFirebase(File image) async {
     try {
-      // Create a unique file name for the image
       String fileName =
           'profile_images/${DateTime.now().millisecondsSinceEpoch}_${image.path.split('/').last}';
 
-      // Get a reference to Firebase Storage
       Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
 
-      // Upload the image file to Firebase Storage
       UploadTask uploadTask = storageRef.putFile(image);
       TaskSnapshot snapshot = await uploadTask;
 
-      // Get the download URL of the uploaded image
       String downloadUrl = await snapshot.ref.getDownloadURL();
       return downloadUrl;
     } catch (e) {
@@ -142,7 +121,7 @@ class UserProfile {
       }
 
       DocumentReference documentRef =
-          FirebaseFirestore.instance.collection('generatedVendors').doc(uid);
+          FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
 
       await documentRef.update(updateData);
 
@@ -156,7 +135,7 @@ class UserProfile {
   Future<void> deleteProfile(String uid) async {
     try {
       DocumentReference documentRef =
-          FirebaseFirestore.instance.collection('generatedVendors').doc(uid);
+          FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
 
       await documentRef.delete();
 

@@ -26,6 +26,7 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
     on<PickImage>(pickImageDuplicate);
     on<FetchLocation>(fetchLocation);
     on<ClearImages>(clearImages);
+    on<VendorSaveLoading>(saveLoading);
   }
 
   FutureOr<void> pickImageDuplicate(
@@ -171,5 +172,10 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
       pickLocation: '',
       pickImage: null,
     ));
+  }
+
+  FutureOr<void> saveLoading(
+      VendorSaveLoading event, Emitter<GeneratedState> emit) {
+    emit(saveVendorLoading());
   }
 }

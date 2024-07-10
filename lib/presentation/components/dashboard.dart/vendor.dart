@@ -151,11 +151,6 @@ class ReceiptPage extends StatelessWidget {
                                     children: [
                                       IconButton(
                                         onPressed: () {},
-                                        icon: Icon(Icons.favorite_border),
-                                        color: Colors.grey,
-                                      ),
-                                      IconButton(
-                                        onPressed: () {},
                                         icon: Icon(CupertinoIcons.forward),
                                         color: Colors.grey,
                                       ),

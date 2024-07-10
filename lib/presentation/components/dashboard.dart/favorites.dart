@@ -49,7 +49,7 @@ class FavoritePage extends StatelessWidget {
           if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
             return Center(
               child: Text(
-                'No Templates Found for ${user.uid}',
+                'No favorites',
                 style: TextStyle(color: Colors.white),
               ),
             );
@@ -208,8 +208,6 @@ class FavoritePage extends StatelessWidget {
                                                   isFavorite);
                                           print(
                                               'Favorite status updated successfully');
-                                          showCustomSnackBar("Success",
-                                              "Details Added Successfully");
                                         } else {
                                           print('User not authenticated');
                                           showCustomSnackBar("Error",

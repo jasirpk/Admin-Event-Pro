@@ -22,3 +22,5 @@ class PickImage extends GeneratedEvent {}
 class FetchLocation extends GeneratedEvent {}
 
 class ClearImages extends GeneratedEvent {}
+
+class VendorSaveLoading extends GeneratedEvent {}

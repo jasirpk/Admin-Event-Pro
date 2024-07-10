@@ -3,7 +3,6 @@ import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/data_layer/services/generated_vendor.dart';
-import 'package:admineventpro/data_layer/services/profile.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -72,7 +71,7 @@ class TabBarViewTwo extends StatelessWidget {
                         subdetailSnapshot.data!.data() == null) {
                       return Center(
                         child: Text(
-                          'Details not found for $documentId',
+                          'Details not found ',
                           style: TextStyle(color: Colors.white),
                         ),
                       );
@@ -82,6 +81,7 @@ class TabBarViewTwo extends StatelessWidget {
                         subdetailSnapshot.data!.data() as Map<String, dynamic>;
 
                     bool isSubmit = subDetailData['isValid'] ?? false;
+
                     return Container(
                       margin: EdgeInsets.symmetric(vertical: 8.0),
                       decoration: BoxDecoration(
@@ -174,11 +174,6 @@ class TabBarViewTwo extends StatelessWidget {
                           Column(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              IconButton(
-                                onPressed: () {},
-                                icon: Icon(Icons.favorite_border),
-                                color: Colors.grey,
-                              ),
                               PopupMenuButton(
                                 color: Colors.white,
                                 iconColor: Colors.white,
@@ -195,9 +190,6 @@ class TabBarViewTwo extends StatelessWidget {
                                     await generatedVendor.updateIsValidField(
                                         uid, documentId,
                                         isSumbit: true);
-                                    await UserProfile().updateIsValidUser(
-                                        uid, documentId,
-                                        isvalid: true);
                                   }
                                 },
                                 itemBuilder: (context) {

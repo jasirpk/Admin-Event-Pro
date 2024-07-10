@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/profile_bloc/profile_bloc.dart';
@@ -147,12 +148,15 @@ class User_FieldsWidget extends StatelessWidget {
                     uid: user.uid,
                     companyName: companyName,
                     about: about,
+                    validate: true,
                     imagePath: imagePath,
                     phoneNumber: phoneNumber,
                     emailAddress: emailAddress,
                     website: website,
                     images: medias,
                     links: links);
+
+                showCustomSnackBar('Sucess', 'Profile Created');
                 print('user profile added');
               } else {
                 print('user can not added');

@@ -33,7 +33,7 @@ class subDatabaseMethods {
 
   Stream<QuerySnapshot> getFavoriteSubcategories(String uid) {
     return FirebaseFirestore.instance
-        .collection('generatedVendors')
+        .collection('entrepreneurs')
         .doc(uid)
         .collection('favoritesItems')
         .snapshots();
@@ -43,7 +43,7 @@ class subDatabaseMethods {
       String uid, String subCategoryId) async {
     try {
       DocumentSnapshot docSnapshot = await FirebaseFirestore.instance
-          .collection('generatedVendors')
+          .collection('entrepreneurs')
           .doc(uid)
           .collection('favoritesItems')
           .doc(subCategoryId)
@@ -64,7 +64,7 @@ class subDatabaseMethods {
       bool currentIsFavorite) async {
     try {
       DocumentReference docRef = FirebaseFirestore.instance
-          .collection('generatedVendors')
+          .collection('entrepreneurs')
           .doc(uid)
           .collection('favoritesItems')
           .doc(subcategoryId);
@@ -112,6 +112,28 @@ class subDatabaseMethods {
     } catch (e) {
       print('Error uploading image: $e');
       throw e;
+    }
+  }
+
+  Stream<QuerySnapshot> searchSubcategories(
+      String categoryId, String searchTerm) {
+    if (categoryId.isEmpty || searchTerm.isEmpty) {
+      print('categoryId and searchTerm must not be empty');
+      return Stream.empty(); // Return an empty stream if parameters are invalid
+    }
+
+    try {
+      print('Searching for: $searchTerm in category: $categoryId');
+      return FirebaseFirestore.instance
+          .collection('Categories')
+          .doc(categoryId)
+          .collection('SubCategories')
+          .where('subCategoryName', isGreaterThanOrEqualTo: searchTerm)
+          .where('subCategoryName', isLessThanOrEqualTo: searchTerm + '\uf8ff')
+          .snapshots();
+    } catch (e) {
+      print('Error executing query: $e');
+      return Stream.empty(); // Return an empty stream on error
     }
   }
 }

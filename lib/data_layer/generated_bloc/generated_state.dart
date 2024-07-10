@@ -19,3 +19,5 @@ class GeneratedInitial extends GeneratedState {
 }
 
 class ImagePickerInitial extends GeneratedState {}
+
+class saveVendorLoading extends GeneratedState {}

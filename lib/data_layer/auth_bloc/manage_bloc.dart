@@ -37,7 +37,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
             email: event.email, password: event.password);
 
         final user = userCredential.user!;
-        await saveAuthState(user.uid, user.email!);
+        await saveAuthState(user.uid, user.email ?? '');
 
         print('Account is authenticated');
         emit(Authenticated(
@@ -47,14 +47,12 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         print('Authentication failed: $e');
       }
     });
-
-    // Handle sign-up
     on<SignUp>((event, emit) async {
       emit(AuthLoading());
       try {
         final userCredential = await auth.createUserWithEmailAndPassword(
-          email: event.userModel.email.toString(),
-          password: event.userModel.password.toString(),
+          email: event.userModel.email ?? '',
+          password: event.userModel.password ?? '',
         );
         final user = userCredential.user;
         if (user != null) {
@@ -71,8 +69,9 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
           print('Account is authenticated');
           print('Current FirebaseAuth user UID: ${user.uid}');
           print('Current FirebaseAuth user Email: ${user.email}');
+
           emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email!, password: '')));
+              UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
           emit(UnAthenticated());
         }

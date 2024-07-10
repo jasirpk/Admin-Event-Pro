@@ -31,7 +31,7 @@ class GeneratedVendor {
 
       // Firestore document reference for sub-collection
       CollectionReference subCollectionRef = FirebaseFirestore.instance
-          .collection('generatedVendors')
+          .collection('entrepreneurs')
           .doc(uid)
           .collection('vendorDetails');
 
@@ -99,7 +99,7 @@ class GeneratedVendor {
       String uid, String documentId) async {
     try {
       DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('generatedVendors')
+          .collection('entrepreneurs')
           .doc(uid)
           .collection('vendorDetails')
           .doc(documentId)
@@ -119,7 +119,7 @@ class GeneratedVendor {
 
   Stream<QuerySnapshot> getGeneratedCategoryDetails(String uid) {
     return FirebaseFirestore.instance
-        .collection('generatedVendors')
+        .collection('entrepreneurs')
         .doc(uid)
         .collection('vendorDetails')
         .snapshots();
@@ -158,7 +158,7 @@ class GeneratedVendor {
       }
 
       await FirebaseFirestore.instance
-          .collection('generatedVendors')
+          .collection('entrepreneurs')
           .doc(uid)
           .collection('vendorDetails')
           .doc(documentId)
@@ -175,7 +175,7 @@ class GeneratedVendor {
       String uid, String documentId) async {
     try {
       await FirebaseFirestore.instance
-          .collection('generatedVendors')
+          .collection('entrepreneurs')
           .doc(uid)
           .collection('vendorDetails')
           .doc(documentId)
@@ -192,7 +192,7 @@ class GeneratedVendor {
       {required bool isSumbit}) async {
     try {
       CollectionReference vendorDetailsRef = FirebaseFirestore.instance
-          .collection('generatedVendors')
+          .collection('entrepreneurs')
           .doc(uid)
           .collection('vendorDetails');
 

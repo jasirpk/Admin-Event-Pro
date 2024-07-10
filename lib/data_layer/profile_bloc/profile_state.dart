@@ -21,10 +21,4 @@ class GeneratedInitial extends ProfileState {
   });
 }
 
-// class selectdImageState extends ProfileState {
-//   final File? newImage;
-
-//   selectdImageState({required this.newImage});
-// }
-
 class ImagePickerInitial extends ProfileState {}

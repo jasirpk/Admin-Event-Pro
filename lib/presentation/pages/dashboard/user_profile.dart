@@ -7,8 +7,6 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
-
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -84,19 +82,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Container(
                   child: User_FieldsWidget(
-                      screenHeight: screenHeight,
-                      companyNameController: companyNameController,
-                      descriptionEditingController:
-                          descriptionEditingController,
-                      image: image,
-                      screenWidth: screenWidth,
-                      PhoneEditingController: PhoneEditingController,
-                      EmailAddressContrller: EmailAddressContrller,
-                      WebsiteEditingContrller: WebsiteEditingContrller,
-                      fieldCount: fieldCount,
-                      fields: fields,
-                      itemCount: itemCount,
-                      images: images),
+                    screenHeight: screenHeight,
+                    companyNameController: companyNameController,
+                    descriptionEditingController: descriptionEditingController,
+                    image: image,
+                    screenWidth: screenWidth,
+                    PhoneEditingController: PhoneEditingController,
+                    EmailAddressContrller: EmailAddressContrller,
+                    WebsiteEditingContrller: WebsiteEditingContrller,
+                    fieldCount: fieldCount,
+                    fields: fields,
+                    itemCount: itemCount,
+                    images: images,
+                  ),
                 ),
               ),
             );

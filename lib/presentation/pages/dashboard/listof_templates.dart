@@ -1,4 +1,5 @@
 import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
+import 'package:admineventpro/bussiness_layer/repos/search.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -36,7 +37,12 @@ class SubEventTemplatesScreen extends StatelessWidget {
           IconButton(
             icon: Icon(Icons.search),
             color: Colors.white,
-            onPressed: () {},
+            onPressed: () {
+              showSearch(
+                  useRootNavigator: true,
+                  context: context,
+                  delegate: DataSearch(categoryId: categoryId));
+            },
           ),
           sizedboxWidth,
           ClipRRect(
@@ -215,8 +221,6 @@ class SubEventTemplatesScreen extends StatelessWidget {
                                                   id, !isFavorite));
                                           print(
                                               'Favorite status updated successfully');
-                                          showCustomSnackBar("Success",
-                                              "Details Added Successfully");
                                         } else {
                                           print('User not authenticated');
                                           showCustomSnackBar("Error",
