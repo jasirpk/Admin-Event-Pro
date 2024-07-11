@@ -19,28 +19,23 @@ class GeneratedVendor {
     BuildContext? context,
   }) async {
     try {
-      // Upload images and get their download URLs
       List<Map<String, dynamic>> imageUrls = await uploadImages(images);
       String finalImagePath = imagePath;
 
-      // Check if the imagePath is a local file path or a URL
       if (!imagePath.startsWith('http')) {
-        // If it's a local file path, upload it to Firebase Storage
         finalImagePath = await uploadImageToFirebase(File(imagePath));
       }
 
-      // Firestore document reference for sub-collection
       CollectionReference subCollectionRef = FirebaseFirestore.instance
           .collection('entrepreneurs')
           .doc(uid)
           .collection('vendorDetails');
 
-      // Add document data to sub-collection
       await subCollectionRef.add({
         'categoryName': categoryName,
         'description': description,
         'location': location,
-        'images': imageUrls, // Include image URLs with corresponding text
+        'images': imageUrls,
         'imagePathUrl': finalImagePath,
         'budget': budget,
         'uid': uid,

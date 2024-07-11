@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
-import 'package:admineventpro/presentation/components/generated_form/Fields.dart';
+import 'package:admineventpro/presentation/components/generated_form/crud_add/Fields.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -69,6 +69,11 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
       ),
       body: BlocBuilder<GeneratedBloc, GeneratedState>(
         builder: (context, state) {
+          if (State is SaveVendorLoading) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
           int? itemCount = 0;
           List<File?>? images;
 
@@ -90,7 +95,11 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
               child: CircularProgressIndicator(),
             );
           }
-
+          if (State is SaveVendorLoading) {
+            return Center(
+              child: CircularProgressIndicator(),
+            );
+          }
           return SingleChildScrollView(
             child: Container(
               margin: EdgeInsets.symmetric(vertical: 18, horizontal: 8),

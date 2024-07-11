@@ -176,6 +176,6 @@ class GeneratedBloc extends Bloc<GeneratedEvent, GeneratedState> {
 
   FutureOr<void> saveLoading(
       VendorSaveLoading event, Emitter<GeneratedState> emit) {
-    emit(saveVendorLoading());
+    emit(SaveVendorLoading());
   }
 }

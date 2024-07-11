@@ -24,4 +24,8 @@ class Assigns {
   static String portFolio = 'PortFolio';
   static String socialMedia = 'Social Media Links';
   static String favorite = 'Favorites';
+  static String vendorName = 'VendorName:';
+  static String component = 'Components';
+  static String locationImage = 'assets/images/location_img.webp';
+  static String aboutUs = 'about Us';
 }

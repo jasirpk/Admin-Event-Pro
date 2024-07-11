@@ -237,7 +237,15 @@ class SubEventTemplatesScreen extends StatelessWidget {
                                     color: isFavorite ? myColor : Colors.white,
                                   ),
                                   IconButton(
-                                    onPressed: () async {},
+                                    onPressed: () async {
+                                      Get.to(() => AddVendorsScreen(
+                                            categoryName: subDetailData[
+                                                'subCategoryName'],
+                                            categoryDescription:
+                                                subDetailData['about'],
+                                            imagePath: subimagePath,
+                                          ));
+                                    },
                                     icon: Icon(CupertinoIcons.forward),
                                     color: Colors.white,
                                   ),
