@@ -24,26 +24,20 @@ class DatabaseMethods {
     }
   }
 
-  // Stream<QuerySnapshot> searchSubcategorie(
-  //     String categoryId, String searchTerm) {
-  //   if (categoryId.isEmpty || searchTerm.isEmpty) {
-  //     print('categoryId and searchTerm must not be empty');
-  //     return Stream.empty(); // Return an empty stream if parameters are invalid
-  //   }
+  Stream<QuerySnapshot> searchcategories(String categoryId, String searchTerm) {
+    if (searchTerm.isEmpty) {
+      return FirebaseFirestore.instance.collection('Categories').snapshots();
+    }
 
-  //   try {
-  //     print('Searching for: $searchTerm in category: $categoryId');
-  //     return FirebaseFirestore.instance
-  //         .collection('Categories')
-  //         .doc(categoryId) // Assuming categoryId is the document ID
-  //         .collection(
-  //             'subcategories') // Adjust this path based on your Firestore structure
-  //         .where('categoryName', isGreaterThanOrEqualTo: searchTerm)
-  //         .where('categoryName', isLessThanOrEqualTo: searchTerm + '\uf8ff')
-  //         .snapshots();
-  //   } catch (e) {
-  //     print('Error executing query: $e');
-  //     return Stream.empty(); // Return an empty stream on error
-  //   }
-  // }
+    try {
+      return FirebaseFirestore.instance
+          .collection('Categories')
+          .where('categoryName', isGreaterThanOrEqualTo: searchTerm)
+          .where('categoryName', isLessThanOrEqualTo: searchTerm + '\uf8ff')
+          .snapshots();
+    } catch (e) {
+      print('Error executing query: $e');
+      return Stream.empty();
+    }
+  }
 }

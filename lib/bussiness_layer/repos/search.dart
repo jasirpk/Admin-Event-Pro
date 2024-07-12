@@ -16,7 +16,6 @@ class DataSearch extends SearchDelegate<String> {
       required this.categoryId});
   @override
   List<Widget> buildActions(BuildContext context) {
-    // Actions for search bar (e.g., clear button)
     return [
       IconButton(
         icon: Icon(Icons.clear),

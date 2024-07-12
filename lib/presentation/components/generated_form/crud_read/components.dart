@@ -14,43 +14,46 @@ class componentsWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Column(
-      children: List.generate(images.length, (index) {
-        var data = images[index];
-        return Container(
-          decoration: BoxDecoration(
-              color: Colors.white38, borderRadius: BorderRadius.circular(10)),
-          child: Padding(
-            padding: const EdgeInsets.all(8.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Expanded(
-                  child: Row(
-                    children: [
-                      Icon(Icons.arrow_right, color: Colors.white),
-                      sizedboxWidth,
-                      Text(
-                        data['text'],
-                        style: TextStyle(
-                          fontWeight: FontWeight.w500,
-                          fontSize: screenWidth * 0.038,
+      children: List.generate(
+        images.length,
+        (index) {
+          var data = images[index];
+          return Container(
+            decoration: BoxDecoration(
+                color: Colors.white38, borderRadius: BorderRadius.circular(10)),
+            child: Padding(
+              padding: const EdgeInsets.all(8.0),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  Expanded(
+                    child: Row(
+                      children: [
+                        Icon(Icons.arrow_right, color: Colors.white),
+                        sizedboxWidth,
+                        Text(
+                          data['text'],
+                          style: TextStyle(
+                            fontWeight: FontWeight.w500,
+                            fontSize: screenWidth * 0.038,
+                          ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
-                CircleAvatar(
-                  maxRadius: 14,
-                  backgroundColor: Colors.blue,
-                  backgroundImage: data['imageUrl'].startsWith('http')
-                      ? NetworkImage(data['imageUrl'])
-                      : AssetImage(data['imageUrl']) as ImageProvider,
-                ),
-              ],
+                  CircleAvatar(
+                    maxRadius: 14,
+                    backgroundColor: Colors.blue,
+                    backgroundImage: data['imageUrl'].startsWith('http')
+                        ? NetworkImage(data['imageUrl'])
+                        : AssetImage(data['imageUrl']) as ImageProvider,
+                  ),
+                ],
+              ),
             ),
-          ),
-        );
-      }),
+          );
+        },
+      ),
     );
   }
 }

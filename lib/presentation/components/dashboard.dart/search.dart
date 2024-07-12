@@ -1,7 +1,6 @@
-import 'package:admineventpro/common/assigns.dart';
-import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
-
+import 'package:admineventpro/presentation/components/dashboard.dart/search_empty.dart';
+import 'package:admineventpro/presentation/components/dashboard.dart/search_stack.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -21,7 +20,7 @@ class _SearchPageState extends State<SearchPage> {
 
   Stream<QuerySnapshot>? searchResults;
   var user = FirebaseAuth.instance.currentUser;
-
+  String categoryId = '';
   @override
   void dispose() {
     searchController.dispose();
@@ -36,37 +35,14 @@ class _SearchPageState extends State<SearchPage> {
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.black,
-        leading: Icon(
-          CupertinoIcons.back,
-          color: Colors.white,
-        ),
       ),
       body: SingleChildScrollView(
         child: Center(
           child: Padding(
-            padding: const EdgeInsets.all(8.0),
+            padding: EdgeInsets.all(8.0),
             child: Column(
               children: [
-                Stack(
-                  children: [
-                    Text(
-                      'Search',
-                      style: TextStyle(
-                          color: myColor,
-                          fontFamily: 'JacquesFracois',
-                          fontSize: screenHeight * (66 / screenHeight)),
-                    ),
-                    Positioned(
-                      left: 60,
-                      top: 25,
-                      child: Icon(
-                        Icons.search,
-                        size: 80,
-                        color: Colors.blue,
-                      ),
-                    )
-                  ],
-                ),
+                SearchStackWidget(screenHeight: screenHeight),
                 Padding(
                   padding: EdgeInsets.all(18.0),
                   child: TextFormField(
@@ -90,6 +66,9 @@ class _SearchPageState extends State<SearchPage> {
                         color: Colors.white54,
                       ),
                     ),
+                    onFieldSubmitted: (_) {
+                      initiateSearch();
+                    },
                   ),
                 ),
                 Padding(
@@ -101,8 +80,7 @@ class _SearchPageState extends State<SearchPage> {
                   ),
                 ),
                 StreamBuilder<QuerySnapshot>(
-                  stream:
-                      databaseMethods.getVendorDetail(Assigns.selectedValue),
+                  stream: searchResults,
                   builder: (context, snapshot) {
                     if (snapshot.connectionState == ConnectionState.waiting) {
                       return ShimmerAllSubcategories(
@@ -110,12 +88,10 @@ class _SearchPageState extends State<SearchPage> {
                     }
 
                     if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                      return Center(
-                        child: Text(
-                          'No Templates Found for ',
-                          style: TextStyle(color: Colors.white),
-                        ),
-                      );
+                      return EmptySearchWidget(
+                          databaseMethods: databaseMethods,
+                          screenHeight: screenHeight,
+                          screenWidth: screenWidth);
                     }
 
                     var documents = snapshot.data!.docs;
@@ -130,6 +106,7 @@ class _SearchPageState extends State<SearchPage> {
                           var data = document.data() as Map<String, dynamic>;
                           String imagePath = data['imagePath'];
                           String? documentId = document.id;
+                          categoryId = documentId;
 
                           return FutureBuilder<DocumentSnapshot?>(
                             future: databaseMethods
@@ -249,5 +226,12 @@ class _SearchPageState extends State<SearchPage> {
         ),
       ),
     );
+  }
+
+  void initiateSearch() {
+    setState(() {
+      searchResults = DatabaseMethods()
+          .searchcategories(categoryId, searchController.text.trim());
+    });
   }
 }

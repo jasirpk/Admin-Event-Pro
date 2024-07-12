@@ -21,18 +21,16 @@ class VendorNameWidget extends StatelessWidget {
             style: TextStyle(
               fontWeight: FontWeight.w300,
               fontSize: screenWidth * 0.038,
-              color: Colors.black,
             ),
           ),
           TextSpan(
-            text: ' ',
+            text: '  ',
           ),
           TextSpan(
             text: vendorName,
             style: TextStyle(
               fontWeight: FontWeight.w500,
-              fontSize: screenWidth * 0.038,
-              color: Colors.black,
+              fontSize: screenWidth * 0.040,
             ),
           ),
         ],
