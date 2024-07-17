@@ -1,13 +1,10 @@
-import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
 import 'package:admineventpro/bussiness_layer/repos/search.dart';
+import 'package:admineventpro/data_layer/services/favorites.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-
-import 'package:admineventpro/data_layer/dashboard_bloc/dashboard_bloc.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
@@ -26,6 +23,11 @@ class SubEventTemplatesScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    var user = FirebaseAuth.instance.currentUser;
+    if (user == null) {
+      return Center(child: Text('User not logged in'));
+    }
+    final FavoritesMehtods favoritesMehtods = FavoritesMehtods();
     final subDatabaseMethods subdatabaseMethods = subDatabaseMethods();
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -112,7 +114,6 @@ class SubEventTemplatesScreen extends StatelessWidget {
 
                   var subDetailData =
                       subdetailSnapshot.data!.data() as Map<String, dynamic>;
-                  bool isFavorite = subDetailData['isFavorite'] ?? false;
 
                   return InkWell(
                     onTap: () {
@@ -175,83 +176,52 @@ class SubEventTemplatesScreen extends StatelessWidget {
                               ],
                             ),
                           ),
-                          BlocBuilder<DashboardBloc, DashboardState>(
-                            builder: (context, state) {
-                              if (state is DashboardLoading) {
-                                return Center(
-                                  child: CircularProgressIndicator(),
-                                );
-                              } else if (state is DashboardError) {
-                                return Center(
-                                  child: Text('Error: ${state.errorMessage}'),
-                                );
-                              } else if (state is FavoriteStatusUpdated) {
-                                // Rebuild the widget based on the updated favorite status
-                                if (state.subCategoryId == subCategoryId) {
-                                  isFavorite = state.isFavorite;
-                                }
-                              }
-
-                              return Column(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceEvenly,
-                                children: [
-                                  IconButton(
-                                    onPressed: () async {
-                                      String id = subCategoryId;
-                                      String imagePath =
-                                          subDetailData['imagePath'];
-                                      String subCategoryName =
-                                          subDetailData['subCategoryName'];
-                                      String about = subDetailData['about'];
-                                      try {
-                                        final user =
-                                            FirebaseAuth.instance.currentUser;
-                                        if (user != null) {
-                                          await subDatabaseMethods()
-                                              .toggleFavoriteStatus(
-                                                  user.uid,
-                                                  subCategoryName,
-                                                  about,
-                                                  imagePath,
-                                                  id,
-                                                  isFavorite);
-                                          context.read<DashboardBloc>().add(
-                                              FavoriteStatusChanged(
-                                                  id, !isFavorite));
-                                          print(
-                                              'Favorite status updated successfully');
+                          Column(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              StreamBuilder<DocumentSnapshot>(
+                                  stream: favoritesMehtods.getFavoritesStatus(
+                                      user.uid, subCategoryId),
+                                  builder: (context, snapshot) {
+                                    bool isFavorite =
+                                        snapshot.data?.exists ?? false;
+                                    return IconButton(
+                                      onPressed: () async {
+                                        if (isFavorite) {
+                                          favoritesMehtods.removeFavorite(
+                                              user.uid, subCategoryId);
                                         } else {
-                                          print('User not authenticated');
-                                          showCustomSnackBar("Error",
-                                              "User is not authenticated");
-                                        }
-                                      } catch (e) {
-                                        showCustomSnackBar("Error",
-                                            "Failed to update favorite status: $e");
-                                        print(
-                                            'Failed to update favorite status: $e');
-                                      }
-                                    },
-                                    icon: Icon(Icons.favorite),
-                                    color: isFavorite ? myColor : Colors.white,
-                                  ),
-                                  IconButton(
-                                    onPressed: () async {
-                                      Get.to(() => AddVendorsScreen(
-                                            categoryName: subDetailData[
+                                          favoritesMehtods.addFavorite(user.uid,
+                                              categoryId, subCategoryId, {
+                                            'categoryId': categoryId,
+                                            'subCategoryId': subCategoryId,
+                                            'subCategoryName': subDetailData[
                                                 'subCategoryName'],
-                                            categoryDescription:
-                                                subDetailData['about'],
-                                            imagePath: subimagePath,
-                                          ));
-                                    },
-                                    icon: Icon(CupertinoIcons.forward),
-                                    color: Colors.white,
-                                  ),
-                                ],
-                              );
-                            },
+                                            'imagePath': subimagePath,
+                                            'about': subDetailData['about'],
+                                          });
+                                        }
+                                      },
+                                      icon: Icon(isFavorite
+                                          ? Icons.favorite
+                                          : Icons.favorite),
+                                      color: isFavorite ? myColor : Colors.grey,
+                                    );
+                                  }),
+                              IconButton(
+                                onPressed: () async {
+                                  Get.to(() => AddVendorsScreen(
+                                        categoryName:
+                                            subDetailData['subCategoryName'],
+                                        categoryDescription:
+                                            subDetailData['about'],
+                                        imagePath: subimagePath,
+                                      ));
+                                },
+                                icon: Icon(CupertinoIcons.forward),
+                                color: Colors.white,
+                              ),
+                            ],
                           ),
                         ],
                       ),

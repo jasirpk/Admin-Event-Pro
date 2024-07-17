@@ -28,4 +28,15 @@ class Assigns {
   static String component = 'Components';
   static String locationImage = 'assets/images/location_img.webp';
   static String aboutUs = 'about Us';
+  static String eventDetail = 'Event Details';
+  static String date = 'Date:';
+  static String time = 'Time:';
+  static String guestCount = 'Guest Count:';
+  static String guestAndTheme = 'Guests & Theme';
+  static String totalAmoutn = 'Total Amount';
+  static String selectedVendors = 'Selected Vendors';
+  static String clientInformation = 'Client Information';
+  static String name = 'Name:';
+  static String email = 'Email:';
+  static String phoneNumberdot = 'Phone Number:';
 }

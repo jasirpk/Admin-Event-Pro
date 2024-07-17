@@ -1,6 +1,7 @@
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
+import 'package:admineventpro/presentation/pages/dashboard/checklist.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview_name.dart';
 import 'package:admineventpro/presentation/components/ui/silver_appbar.dart';
@@ -113,11 +114,16 @@ class HomePage extends StatelessWidget {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
-                          SqureContainerWidget(
-                            screenHeight: screenHeight,
-                            screenWidth: screenWidth,
-                            image: 'assets/images/checkList_card_img.png',
-                            text: 'Checklist',
+                          InkWell(
+                            onTap: () {
+                              Get.to(() => ChecklistScreen());
+                            },
+                            child: SqureContainerWidget(
+                              screenHeight: screenHeight,
+                              screenWidth: screenWidth,
+                              image: 'assets/images/checkList_card_img.png',
+                              text: 'Checklist',
+                            ),
                           ),
                           SqureContainerWidget(
                             screenHeight: screenHeight,
