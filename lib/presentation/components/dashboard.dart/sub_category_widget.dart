@@ -1,3 +1,4 @@
+import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_subcategory.dart';
 import 'package:admineventpro/presentation/pages/dashboard/add_vendors.dart';
@@ -81,43 +82,57 @@ class SubCategoryWidget extends StatelessWidget {
                     child: Container(
                       margin: EdgeInsets.symmetric(horizontal: 5, vertical: 18),
                       height: screenHeight * 0.12,
-                      width: screenWidth * 0.40,
+                      width: screenWidth * 0.46,
                       decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: subimagePath.startsWith('http')
-                                ? NetworkImage(subimagePath)
-                                : AssetImage(subimagePath) as ImageProvider,
-                            fit: BoxFit.cover,
-                            colorFilter: ColorFilter.mode(
-                                Colors.black.withOpacity(0.3),
-                                BlendMode.color)),
                         borderRadius: BorderRadius.circular(10),
                       ),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                      child: Stack(
                         children: [
-                          Container(
-                            width: double.infinity,
-                            height: screenHeight * 0.04,
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.only(
-                                  bottomRight: Radius.circular(10),
-                                  bottomLeft: Radius.circular(10)),
-                              color: Colors.white,
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: FadeInImage.assetNetwork(
+                              placeholder: Assigns.placeHolderImage,
+                              image: subimagePath,
+                              fit: BoxFit.cover,
+                              width: double.infinity,
+                              height: double.infinity,
+                              imageErrorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  Assigns.placeHolderImage,
+                                  fit: BoxFit.cover,
+                                  width: double.infinity,
+                                  height: double.infinity,
+                                );
+                              },
                             ),
-                            child: Center(
-                              child: Padding(
-                                padding: EdgeInsets.symmetric(horizontal: 4),
-                                child: Text(
-                                  subDetailData['subCategoryName'] ?? 'No Name',
-                                  style: TextStyle(
+                          ),
+                          Align(
+                            alignment: Alignment.bottomCenter,
+                            child: Container(
+                              width: double.infinity,
+                              height: screenHeight * 0.04,
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  bottomRight: Radius.circular(10),
+                                  bottomLeft: Radius.circular(10),
+                                ),
+                                color: Colors.white,
+                              ),
+                              child: Center(
+                                child: Padding(
+                                  padding: EdgeInsets.symmetric(horizontal: 4),
+                                  child: Text(
+                                    subDetailData['subCategoryName'] ??
+                                        'No Name',
+                                    style: TextStyle(
                                       color: Colors.black,
                                       overflow: TextOverflow.ellipsis,
-                                      fontSize: screenHeight * 0.016),
+                                    ),
+                                  ),
                                 ),
                               ),
                             ),
-                          )
+                          ),
                         ],
                       ),
                     ),

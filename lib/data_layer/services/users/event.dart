@@ -6,6 +6,7 @@ class EventMethods {
         .collection('users')
         .doc(uid)
         .collection('events')
+        .where('isValid', isEqualTo: true)
         .snapshots();
   }
 

@@ -1,4 +1,5 @@
 import 'package:admineventpro/bussiness_layer/repos/delete_showdilog.dart';
+import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
@@ -112,12 +113,19 @@ class TabBarViewTwo extends StatelessWidget {
                               height: screenHeight * 0.17,
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
-                                image: DecorationImage(
-                                  image: imagePath.startsWith('http')
-                                      ? NetworkImage(imagePath)
-                                      : AssetImage(imagePath) as ImageProvider,
-                                  fit: BoxFit.cover,
-                                ),
+                              ),
+                              child: ClipRRect(
+                                borderRadius: BorderRadius.circular(10),
+                                child: imagePath.startsWith('http')
+                                    ? FadeInImage.assetNetwork(
+                                        placeholder: Assigns.placeHolderImage,
+                                        image: imagePath,
+                                        fit: BoxFit.cover,
+                                      )
+                                    : Image.asset(
+                                        imagePath,
+                                        fit: BoxFit.cover,
+                                      ),
                               ),
                             ),
                             SizedBox(width: 8.0),

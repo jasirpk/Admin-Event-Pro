@@ -39,4 +39,5 @@ class Assigns {
   static String name = 'Name:';
   static String email = 'Email:';
   static String phoneNumberdot = 'Phone Number:';
+  static String placeHolderImage = 'assets/images/place holder.jpg';
 }

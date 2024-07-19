@@ -1,4 +1,5 @@
 import 'package:admineventpro/bussiness_layer/repos/search.dart';
+import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/services/favorites.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -138,15 +139,22 @@ class SubEventTemplatesScreen extends StatelessWidget {
                         children: [
                           Container(
                             width: screenWidth * 0.30,
-                            height: screenHeight * 0.15,
+                            height: screenHeight * 0.16,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              image: DecorationImage(
-                                image: subimagePath.startsWith('http')
-                                    ? NetworkImage(subimagePath)
-                                    : AssetImage(subimagePath) as ImageProvider,
-                                fit: BoxFit.cover,
-                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: subimagePath.startsWith('http')
+                                  ? FadeInImage.assetNetwork(
+                                      placeholder: Assigns.placeHolderImage,
+                                      image: subimagePath,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      subimagePath,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
                           SizedBox(width: 8.0),
