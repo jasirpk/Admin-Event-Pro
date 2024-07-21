@@ -2,6 +2,8 @@ import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/data_layer/services/notifications.dart';
+import 'package:admineventpro/presentation/components/dashboard.dart/vendor.dart';
+import 'package:admineventpro/presentation/pages/dashboard/budget_tracker.dart';
 import 'package:admineventpro/presentation/pages/dashboard/checklist.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview_name.dart';
@@ -9,6 +11,7 @@ import 'package:admineventpro/presentation/components/ui/silver_appbar.dart';
 import 'package:admineventpro/presentation/components/ui/squre_container.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text.dart';
 import 'package:admineventpro/presentation/pages/dashboard/all_templates.dart';
+import 'package:admineventpro/presentation/pages/dashboard/message_list.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -116,17 +119,31 @@ class _HomePageState extends State<HomePage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: [
-                          SqureContainerWidget(
-                            screenHeight: screenHeight,
-                            screenWidth: screenWidth,
-                            image: 'assets/images/vendor_card_img.png',
-                            text: 'Vendors',
+                          InkWell(
+                            onTap: () {
+                              Get.to(() => ReceiptPage(),
+                                  transition: Transition.fade,
+                                  duration: Duration(milliseconds: 800));
+                            },
+                            child: SqureContainerWidget(
+                              screenHeight: screenHeight,
+                              screenWidth: screenWidth,
+                              image: 'assets/images/vendor_card_img.png',
+                              text: 'Vendors',
+                            ),
                           ),
-                          SqureContainerWidget(
-                            screenHeight: screenHeight,
-                            screenWidth: screenWidth,
-                            image: 'assets/images/budget_card_img.png',
-                            text: 'Budget',
+                          InkWell(
+                            onTap: () {
+                              Get.to(() => BudgetTracker(),
+                                  transition: Transition.fade,
+                                  duration: Duration(milliseconds: 800));
+                            },
+                            child: SqureContainerWidget(
+                              screenHeight: screenHeight,
+                              screenWidth: screenWidth,
+                              image: 'assets/images/budget_card_img.png',
+                              text: 'Budget',
+                            ),
                           ),
                         ],
                       ),
@@ -135,7 +152,9 @@ class _HomePageState extends State<HomePage> {
                         children: [
                           InkWell(
                             onTap: () {
-                              Get.to(() => ChecklistScreen());
+                              Get.to(() => ChecklistScreen(),
+                                  transition: Transition.fade,
+                                  duration: Duration(milliseconds: 800));
                             },
                             child: SqureContainerWidget(
                               screenHeight: screenHeight,
@@ -144,11 +163,18 @@ class _HomePageState extends State<HomePage> {
                               text: 'Checklist',
                             ),
                           ),
-                          SqureContainerWidget(
-                            screenHeight: screenHeight,
-                            screenWidth: screenWidth,
-                            image: 'assets/images/message_card_img.png',
-                            text: 'Messages',
+                          InkWell(
+                            onTap: () {
+                              Get.to(() => MessageListScreen(),
+                                  transition: Transition.fade,
+                                  duration: Duration(milliseconds: 800));
+                            },
+                            child: SqureContainerWidget(
+                              screenHeight: screenHeight,
+                              screenWidth: screenWidth,
+                              image: 'assets/images/message_card_img.png',
+                              text: 'Messages',
+                            ),
                           ),
                         ],
                       ),

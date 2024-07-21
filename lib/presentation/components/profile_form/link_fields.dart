@@ -24,6 +24,7 @@ class LinkFieldsWidget extends StatelessWidget {
         return Padding(
           padding: const EdgeInsets.only(bottom: 10),
           child: CustomTextFieldWidget(
+            readOnly: false,
             keyboardtype: TextInputType.emailAddress,
             controller: fields[index],
             labelText: 'link',

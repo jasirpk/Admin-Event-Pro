@@ -64,12 +64,14 @@ class User_FieldsWidget extends StatelessWidget {
         CustomTextFieldWidget(
           keyboardtype: TextInputType.emailAddress,
           controller: companyNameController,
+          readOnly: false,
           labelText: 'Company Name',
         ),
         SizedBox(height: 10),
         CustomTextFieldWidget(
           controller: descriptionEditingController,
           keyboardtype: TextInputType.emailAddress,
+          readOnly: false,
           labelText: 'About Us',
           maxLine: 4,
         ),
@@ -83,17 +85,20 @@ class User_FieldsWidget extends StatelessWidget {
         CustomTextFieldWidget(
           keyboardtype: TextInputType.number,
           controller: PhoneEditingController,
+          readOnly: false,
           labelText: 'Phone Number',
         ),
         SizedBox(height: 10),
         CustomTextFieldWidget(
           keyboardtype: TextInputType.emailAddress,
+          readOnly: false,
           controller: EmailAddressContrller,
           labelText: 'Email Address',
         ),
         SizedBox(height: 10),
         CustomTextFieldWidget(
           keyboardtype: TextInputType.multiline,
+          readOnly: false,
           controller: WebsiteEditingContrller,
           labelText: 'Website',
         ),
