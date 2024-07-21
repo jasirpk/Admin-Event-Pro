@@ -1,4 +1,3 @@
-// ignore_for_file: unnecessary_null_comparison
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/budget.dart';
@@ -28,9 +27,57 @@ class _BudgetTrackerState extends State<BudgetTracker> {
   final TextEditingController costController = TextEditingController();
   final TextEditingController benefitController = TextEditingController();
   final uid = FirebaseAuth.instance.currentUser!.uid;
+
   double totalBudget = 0;
   double totalBudgetCost = 0;
   double totalBudgetBenefit = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchData();
+  }
+
+  void fetchData() async {
+    BudgetTrack budgetTrack = BudgetTrack();
+    QuerySnapshot snapshot = await budgetTrack.getBudgetReveneu(uid).first;
+
+    double totalSum = 0;
+    double totalCost = 0;
+    double totalBenefit = 0;
+
+    var documents = snapshot.docs;
+    for (var document in documents) {
+      var data = document.data() as Map<String, dynamic>;
+
+      if (data['totalRevenue'] is String &&
+          data['benefit'] is String &&
+          data['cost'] is String) {
+        List<String> totalRevenue = data['totalRevenue'].split(',');
+        List<String> totalCostList = data['cost'].split(',');
+        List<String> totalBenefitList = data['benefit'].split(',');
+
+        for (var revenueStr in totalRevenue) {
+          int revenue = int.parse(revenueStr.trim());
+          totalSum += revenue;
+        }
+        for (var costStr in totalCostList) {
+          int cost = int.parse(costStr.trim());
+          totalCost += cost;
+        }
+        for (var benefitStr in totalBenefitList) {
+          int benefit = int.parse(benefitStr.trim());
+          totalBenefit += benefit;
+        }
+      }
+    }
+
+    setState(() {
+      totalBudget = totalSum;
+      totalBudgetBenefit = totalBenefit;
+      totalBudgetCost = totalCost;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -137,40 +184,6 @@ class _BudgetTrackerState extends State<BudgetTracker> {
                     );
                   }
                   var documents = snapshot.data!.docs;
-                  double totalSum = 0;
-                  double totalCost = 0;
-                  double totalBenefit = 0;
-
-                  for (var document in documents) {
-                    var data = document.data() as Map<String, dynamic>;
-
-                    if (data['totalRevenue'] is String &&
-                        data['benefit'] is String &&
-                        data['cost'] is String) {
-                      List<String> totalRevenue =
-                          data['totalRevenue'].split(',');
-                      List<String> totalCostList = data['cost'].split(',');
-                      List<String> totalBenefitList =
-                          data['benefit'].split(',');
-
-                      for (var revenueStr in totalRevenue) {
-                        int revenue = int.parse(revenueStr.trim());
-                        totalSum += revenue;
-                      }
-                      for (var costStr in totalCostList) {
-                        int cost = int.parse(costStr.trim());
-                        totalCost += cost;
-                      }
-                      for (var benefitStr in totalBenefitList) {
-                        int benefit = int.parse(benefitStr.trim());
-                        totalBenefit += benefit;
-                      }
-                    }
-                  }
-
-                  totalBudget = totalSum;
-                  totalBudgetBenefit = totalBenefit;
-                  totalBudgetCost = totalCost;
 
                   return BudgetHistoryWidget(
                     documents: documents,
