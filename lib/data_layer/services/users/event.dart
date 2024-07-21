@@ -1,11 +1,13 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventMethods {
-  Stream<QuerySnapshot> getGeneratedEventsDetails(String uid) {
+  Stream<QuerySnapshot> getGeneratedEventsDetails(
+      String uid, String EntrepreneurId) {
     return FirebaseFirestore.instance
         .collection('users')
         .doc(uid)
         .collection('events')
+        .where('EntrepreneurId', isEqualTo: EntrepreneurId)
         .where('isValid', isEqualTo: true)
         .snapshots();
   }

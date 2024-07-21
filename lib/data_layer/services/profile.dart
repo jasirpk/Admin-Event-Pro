@@ -16,6 +16,7 @@ class UserProfile {
     bool validate = false,
     required List<Map<String, dynamic>> images,
     required List<Map<String, dynamic>> links,
+    required double rating,
   }) async {
     try {
       File imageFile = File(imagePath);
@@ -42,6 +43,7 @@ class UserProfile {
         'isValid': validate,
         'uid': uid,
         'createdAt': FieldValue.serverTimestamp(),
+        'rating': rating,
       });
 
       print('Vendor details added successfully to sub-collection.');

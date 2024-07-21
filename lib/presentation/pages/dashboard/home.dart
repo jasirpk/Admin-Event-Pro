@@ -23,7 +23,7 @@ class HomeScreen extends StatelessWidget {
       bottomNavigationBar: CurvedNavigationBar(
         backgroundColor: myColor,
         color: Colors.black,
-        animationDuration: Duration(milliseconds: 400),
+        animationDuration: Duration(milliseconds: 200),
         items: <Widget>[
           Icon(
             Icons.home,

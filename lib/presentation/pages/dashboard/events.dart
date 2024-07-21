@@ -4,15 +4,22 @@ import 'package:admineventpro/presentation/components/shimmer/shimmer_with_subli
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/pages/dashboard/event_detail.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
 class EventsListScreen extends StatelessWidget {
-  final String uid;
+  final String userUid;
 
-  const EventsListScreen({super.key, required this.uid});
+  const EventsListScreen({super.key, required this.userUid});
   @override
   Widget build(BuildContext context) {
+    final entrepreneur = FirebaseAuth.instance.currentUser;
+    if (entrepreneur == null) {
+      return Center(
+        child: Text("User not logged in"),
+      );
+    }
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
 
@@ -20,7 +27,8 @@ class EventsListScreen extends StatelessWidget {
     return Scaffold(
       appBar: CustomAppBarWithDivider(title: 'Events'),
       body: StreamBuilder<QuerySnapshot?>(
-        stream: eventMethods.getGeneratedEventsDetails(uid),
+        stream:
+            eventMethods.getGeneratedEventsDetails(userUid, entrepreneur.uid),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return ShimmerAllSubcategories(
@@ -59,7 +67,7 @@ class EventsListScreen extends StatelessWidget {
                 String documentId = document.id;
 
                 return FutureBuilder<DocumentSnapshot?>(
-                  future: eventMethods.getEventsById(uid, documentId),
+                  future: eventMethods.getEventsById(userUid, documentId),
                   builder: (context, subdetailSnapshot) {
                     if (subdetailSnapshot.connectionState ==
                         ConnectionState.waiting) {

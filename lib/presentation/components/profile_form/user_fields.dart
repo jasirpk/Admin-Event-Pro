@@ -141,7 +141,7 @@ class User_FieldsWidget extends StatelessWidget {
                     return {'image': imageFile?.path};
                   }).toList() ??
                   [];
-
+              double rating = 0.0;
               final user = FirebaseAuth.instance.currentUser;
               if (user != null) {
                 await UserProfile().addProfile(
@@ -154,7 +154,8 @@ class User_FieldsWidget extends StatelessWidget {
                     emailAddress: emailAddress,
                     website: website,
                     images: medias,
-                    links: links);
+                    links: links,
+                    rating: rating);
 
                 showCustomSnackBar('Sucess', 'Profile Created');
                 print('user profile added');

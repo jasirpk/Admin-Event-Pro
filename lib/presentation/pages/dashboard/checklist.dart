@@ -10,12 +10,6 @@ class ChecklistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // final user = FirebaseAuth.instance.currentUser;
-    // if (user == null) {
-    //   return Center(
-    //     child: Text("User not logged in"),
-    //   );
-    // }
     final EventUsersProfile eventUsersProfile = EventUsersProfile();
 
     return Scaffold(
@@ -49,9 +43,9 @@ class ChecklistScreen extends StatelessWidget {
                   crossAxisSpacing: 8),
               itemBuilder: (context, index) {
                 var data = documents[index];
-                var uid = documents[index].id;
+                var userUid = documents[index].id;
                 return FutureBuilder<DocumentSnapshot>(
-                  future: eventUsersProfile.getUserDetailById(uid),
+                  future: eventUsersProfile.getUserDetailById(userUid),
                   builder: (context, detailSnapshot) {
                     if (detailSnapshot.connectionState ==
                         ConnectionState.waiting) {
@@ -70,11 +64,11 @@ class ChecklistScreen extends StatelessWidget {
                     }
                     return InkWell(
                       onTap: () {
-                        Get.to(() => EventsListScreen(uid: uid));
+                        Get.to(() => EventsListScreen(userUid: userUid));
                       },
                       child: Container(
                         width: double.infinity,
-                        height: 50,
+                        height: 20,
                         child: ListTile(
                           title: Text(
                             data['email'],

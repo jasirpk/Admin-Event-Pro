@@ -1,6 +1,7 @@
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
+import 'package:admineventpro/data_layer/services/notifications.dart';
 import 'package:admineventpro/presentation/pages/dashboard/checklist.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview_name.dart';
@@ -11,8 +12,26 @@ import 'package:admineventpro/presentation/pages/dashboard/all_templates.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
-class HomePage extends StatelessWidget {
+class HomePage extends StatefulWidget {
+  @override
+  State<HomePage> createState() => _HomePageState();
+}
+
+class _HomePageState extends State<HomePage> {
   final DatabaseMethods databaseMethods = DatabaseMethods();
+  NotificationsServices notificationsServices = NotificationsServices();
+  @override
+  void initState() {
+    super.initState();
+    notificationsServices.requestNotificationpermission();
+    notificationsServices.firebaseInit(context);
+    notificationsServices.setupInteractMessage(context);
+    // notificationsServices.isTokenRefresh();
+    notificationsServices.getDevicetoken().then((value) {
+      print('Device token');
+      print(value);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {

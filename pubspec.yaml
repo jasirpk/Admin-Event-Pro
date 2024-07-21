@@ -55,6 +55,10 @@ dependencies:
   geolocator: ^8.0.1
   geocoding: ^3.0.0
   app_settings: ^5.1.1
+  firebase_messaging: ^14.9.4
+  flutter_local_notifications: ^17.2.1+2
+  googleapis_auth: ^1.6.0
+  http: ^1.2.2
   
 
 dev_dependencies:

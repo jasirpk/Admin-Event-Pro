@@ -1,5 +1,7 @@
 import 'package:admineventpro/common/style.dart';
+import 'package:admineventpro/presentation/pages/dashboard/message_list.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 class SilverAppBarWidget extends StatelessWidget {
   const SilverAppBarWidget({
@@ -16,16 +18,14 @@ class SilverAppBarWidget extends StatelessWidget {
         Transform.rotate(
           angle: 5.5,
           child: IconButton(
-              onPressed: () {},
-              icon: Icon(
-                Icons.send_sharp,
-              )),
+              onPressed: () {
+                Get.to(() => MessageListScreen());
+              },
+              icon: Icon(Icons.send_sharp, color: Colors.white)),
         ),
         IconButton(
             onPressed: () {},
-            icon: Icon(
-              Icons.notifications,
-            )),
+            icon: Icon(Icons.notifications, color: Colors.white)),
         sizedboxWidth
       ],
       expandedHeight: 150,
