@@ -41,4 +41,7 @@ class Assigns {
   static String phoneNumberdot = 'Phone Number:';
   static String placeHolderImage = 'assets/images/place holder.jpg';
   static String trackRevenue = 'Track Your Revenue With Efficient Chart';
+  static String totalRevenue = 'Total Revenue';
+  static String Benefit = 'Benefit';
+  static String cost = 'Cost';
 }

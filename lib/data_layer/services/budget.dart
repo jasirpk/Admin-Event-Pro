@@ -55,4 +55,32 @@ class BudgetTrack {
       throw Exception('Failed to get document by ID: $e');
     }
   }
+
+  Future<void> updateRevenue(
+      {required String uid,
+      required String budgetId,
+      required String eventType,
+      required String revenue,
+      required String date,
+      required String cost,
+      required String benefit}) async {
+    try {
+      DocumentReference documentReference = FirebaseFirestore.instance
+          .collection('entrepreneurs')
+          .doc(uid)
+          .collection('revenues')
+          .doc(budgetId);
+      await documentReference.update({
+        'eventType': eventType,
+        'date': date,
+        'totalRevenue': revenue,
+        'cost': cost,
+        'benefit': benefit
+      });
+      print('Updated revenue detail for document ID: $budgetId');
+    } catch (e) {
+      print('Error updating revenue: $e');
+      throw Exception('Failed to update document: $e');
+    }
+  }
 }

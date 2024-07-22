@@ -1,11 +1,14 @@
+import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/budget.dart';
+import 'package:admineventpro/presentation/components/budget/bottomsheet.dart';
+import 'package:admineventpro/presentation/components/budget/revenues.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 
 class BudgetHistoryWidget extends StatelessWidget {
-  const BudgetHistoryWidget({
+  BudgetHistoryWidget({
     super.key,
     required this.documents,
     required this.budgetTrack,
@@ -19,6 +22,11 @@ class BudgetHistoryWidget extends StatelessWidget {
   final String uid;
   final double screenHeight;
   final double screenWidth;
+  final TextEditingController eventTypeController = TextEditingController();
+  final TextEditingController dateController = TextEditingController();
+  final TextEditingController revenueController = TextEditingController();
+  final TextEditingController costController = TextEditingController();
+  final TextEditingController benefitController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -78,33 +86,52 @@ class BudgetHistoryWidget extends StatelessWidget {
                     ],
                   ),
                   sizedboxWidth,
-                  Row(
-                    children: [
-                      Text('Total Revenue'),
-                      sizedboxWidth,
-                      Text(
-                        data['totalRevenue'],
-                        style: TextStyle(color: myColor),
-                      ),
-                    ],
+                  RevenuesWidget(
+                    data: data,
+                    text: Assigns.totalRevenue,
+                    value: data['totalRevenue'],
+                  ),
+                  RevenuesWidget(
+                    data: data,
+                    text: Assigns.Benefit,
+                    value: data['benefit'],
                   ),
                   Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Text('Benefit'),
-                      sizedboxWidth,
-                      Text(
-                        data['benefit'],
-                        style: TextStyle(color: myColor),
+                      RevenuesWidget(
+                        data: data,
+                        text: Assigns.cost,
+                        value: data['cost'],
                       ),
-                    ],
-                  ),
-                  Row(
-                    children: [
-                      Text('Cost'),
-                      sizedboxWidth,
-                      Text(
-                        data['cost'],
-                        style: TextStyle(color: myColor),
+                      InkWell(
+                        onTap: () {
+                          showModalBottomSheet(
+                            backgroundColor: Colors.black,
+                            context: context,
+                            isScrollControlled: true,
+                            builder: (context) => BottomSheetWidget(
+                              isService: false,
+                              eventTypeController: eventTypeController,
+                              dateController: dateController,
+                              revenueController: revenueController,
+                              benefitController: benefitController,
+                              costController: costController,
+                              uid: uid,
+                              context: context,
+                              revenueType: data['eventType'],
+                              date: data['date'],
+                              revenue: data['totalRevenue'],
+                              cost: data['benefit'],
+                              benefit: data['cost'],
+                              budgetId: budgetId,
+                            ),
+                          );
+                        },
+                        child: Icon(
+                          Icons.edit,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),

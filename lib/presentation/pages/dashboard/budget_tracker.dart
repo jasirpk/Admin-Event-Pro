@@ -93,6 +93,7 @@ class _BudgetTrackerState extends State<BudgetTracker> {
             context: context,
             isScrollControlled: true,
             builder: (context) => BottomSheetWidget(
+                isService: true,
                 eventTypeController: eventTypeController,
                 dateController: dateController,
                 revenueController: revenueController,

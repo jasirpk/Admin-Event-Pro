@@ -5,9 +5,14 @@ import 'package:admineventpro/data_layer/services/budget.dart';
 import 'package:admineventpro/presentation/components/ui/custom_textfield.dart';
 import 'package:flutter/material.dart';
 
-class BottomSheetWidget extends StatelessWidget {
+class BottomSheetWidget extends StatefulWidget {
   const BottomSheetWidget({
     super.key,
+    this.revenueType,
+    this.date,
+    this.revenue,
+    this.benefit,
+    this.cost,
     required this.eventTypeController,
     required this.dateController,
     required this.revenueController,
@@ -15,6 +20,8 @@ class BottomSheetWidget extends StatelessWidget {
     required this.benefitController,
     required this.uid,
     required this.context,
+    required this.isService,
+    this.budgetId,
   });
 
   final TextEditingController eventTypeController;
@@ -22,8 +29,30 @@ class BottomSheetWidget extends StatelessWidget {
   final TextEditingController revenueController;
   final TextEditingController costController;
   final TextEditingController benefitController;
+  final bool isService;
   final String uid;
   final BuildContext context;
+  final String? revenueType;
+  final String? date;
+  final String? revenue;
+  final String? benefit;
+  final String? cost;
+  final String? budgetId;
+
+  @override
+  State<BottomSheetWidget> createState() => _BottomSheetWidgetState();
+}
+
+class _BottomSheetWidgetState extends State<BottomSheetWidget> {
+  @override
+  void initState() {
+    widget.eventTypeController.text = widget.revenueType ?? '';
+    widget.dateController.text = widget.date ?? '';
+    widget.revenueController.text = widget.revenue ?? '';
+    widget.benefitController.text = widget.benefit ?? '';
+    widget.costController.text = widget.cost ?? '';
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -40,14 +69,14 @@ class BottomSheetWidget extends StatelessWidget {
           children: [
             CustomTextFieldWidget(
               readOnly: false,
-              controller: eventTypeController,
+              controller: widget.eventTypeController,
               keyboardtype: TextInputType.text,
               labelText: 'Event Type',
               prefixIcon: Icons.event,
             ),
             SizedBox(height: 10),
             CustomTextFieldWidget(
-              controller: dateController,
+              controller: widget.dateController,
               keyboardtype: TextInputType.datetime,
               labelText: 'Date',
               prefixIcon: Icons.calendar_month,
@@ -60,14 +89,14 @@ class BottomSheetWidget extends StatelessWidget {
                   lastDate: DateTime(2101),
                 );
                 if (pickedDate != null) {
-                  dateController.text =
+                  widget.dateController.text =
                       "${pickedDate.day}/${pickedDate.month}/${pickedDate.year}";
                 }
               },
             ),
             SizedBox(height: 10),
             CustomTextFieldWidget(
-              controller: revenueController,
+              controller: widget.revenueController,
               readOnly: false,
               keyboardtype: TextInputType.number,
               labelText: 'Total Revenue',
@@ -75,7 +104,7 @@ class BottomSheetWidget extends StatelessWidget {
             ),
             SizedBox(height: 10),
             CustomTextFieldWidget(
-              controller: costController,
+              controller: widget.costController,
               readOnly: false,
               keyboardtype: TextInputType.number,
               labelText: 'Cost',
@@ -83,7 +112,7 @@ class BottomSheetWidget extends StatelessWidget {
             ),
             SizedBox(height: 10),
             CustomTextFieldWidget(
-              controller: benefitController,
+              controller: widget.benefitController,
               readOnly: false,
               keyboardtype: TextInputType.number,
               labelText: 'Benefit',
@@ -92,25 +121,44 @@ class BottomSheetWidget extends StatelessWidget {
             SizedBox(height: 20),
             ElevatedButton(
               onPressed: () async {
-                if (eventTypeController.text.isNotEmpty &&
-                    dateController.text.isNotEmpty &&
-                    revenueController.text.isNotEmpty &&
-                    costController.text.isNotEmpty &&
-                    benefitController.text.isNotEmpty) {
-                  if (uid != null) {
+                if (widget.eventTypeController.text.isNotEmpty &&
+                    widget.dateController.text.isNotEmpty &&
+                    widget.revenueController.text.isNotEmpty &&
+                    widget.costController.text.isNotEmpty &&
+                    widget.benefitController.text.isNotEmpty) {
+                  if (widget.uid != null && widget.isService) {
                     await BudgetTrack().addRevenue(
-                        uid: uid,
-                        eveneType: eventTypeController.text,
-                        date: dateController.text,
-                        revenue: revenueController.text,
-                        cost: costController.text,
-                        benefit: benefitController.text);
+                        uid: widget.uid,
+                        eveneType: widget.eventTypeController.text,
+                        date: widget.dateController.text,
+                        revenue: widget.revenueController.text,
+                        cost: widget.costController.text,
+                        benefit: widget.benefitController.text);
                     showCustomSnackBar('Success', 'Revenue added');
-                    eventTypeController.clear();
-                    dateController.clear();
-                    revenueController.clear();
-                    costController.clear();
-                    benefitController.clear();
+                    widget.eventTypeController.clear();
+                    widget.dateController.clear();
+                    widget.revenueController.clear();
+                    widget.costController.clear();
+                    widget.benefitController.clear();
+                  } else {
+                    Text('User Not logged In');
+                  }
+                  if (widget.uid != null && !widget.isService) {
+                    await BudgetTrack().updateRevenue(
+                        uid: widget.uid,
+                        eventType: widget.eventTypeController.text,
+                        date: widget.dateController.text,
+                        revenue: widget.revenueController.text,
+                        cost: widget.costController.text,
+                        benefit: widget.benefitController.text,
+                        budgetId: widget.budgetId ?? '');
+                    showCustomSnackBar('Success',
+                        widget.isService ? 'Revenue added' : 'Revenue Updated');
+                    widget.eventTypeController.clear();
+                    widget.dateController.clear();
+                    widget.revenueController.clear();
+                    widget.costController.clear();
+                    widget.benefitController.clear();
                   } else {
                     Text('User Not logged In');
                   }
