@@ -7,3 +7,17 @@ class TabChanged extends DashboardEvent {
 
   TabChanged(this.newIndex);
 }
+
+class LoadCoverImages extends DashboardEvent {}
+
+class SelectCoverImage extends DashboardEvent {
+  final int index;
+
+  SelectCoverImage(this.index);
+}
+
+class UploadCoverImage extends DashboardEvent {
+  final String uid;
+
+  UploadCoverImage(this.uid);
+}

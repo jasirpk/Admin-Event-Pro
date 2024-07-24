@@ -1,3 +1,4 @@
+import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_carousal.dart';
 import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
@@ -78,34 +79,50 @@ class ListViewWidget extends StatelessWidget {
                     child: Container(
                       decoration: BoxDecoration(
                         borderRadius: BorderRadius.circular(10),
-                        image: DecorationImage(
-                          image: imagePath.startsWith('http')
-                              ? NetworkImage(imagePath)
-                              : AssetImage(imagePath) as ImageProvider,
-                          fit: BoxFit.cover,
-                        ),
                       ),
-                      child: Align(
-                        alignment: Alignment.bottomLeft,
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.only(
-                              bottomLeft: Radius.circular(10),
+                      child: Stack(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(10),
+                            child: FadeInImage.assetNetwork(
+                              placeholder: Assigns.placeHolderImage,
+                              image: imagePath,
+                              fit: BoxFit.cover,
+                              width: screenWidth,
+                              height: screenHeight,
+                              imageErrorBuilder: (context, error, stackTrace) {
+                                return Image.asset(
+                                  Assigns.placeHolderImage,
+                                  fit: BoxFit.cover,
+                                  width: screenWidth,
+                                  height: screenHeight,
+                                );
+                              },
                             ),
-                            color: Colors.black.withOpacity(0.3),
                           ),
-                          width: screenWidth * 0.4,
-                          padding: EdgeInsets.only(left: 8, top: 8),
-                          child: Text(
-                            detailData['categoryName'] ?? 'No name',
-                            maxLines: 1,
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              fontSize: screenHeight * 0.016,
-                              letterSpacing: 1,
+                          Align(
+                            alignment: Alignment.bottomLeft,
+                            child: Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.only(
+                                  bottomLeft: Radius.circular(10),
+                                ),
+                                color: Colors.black.withOpacity(0.3),
+                              ),
+                              width: screenWidth * 0.4,
+                              padding: EdgeInsets.only(left: 8, top: 8),
+                              child: Text(
+                                detailData['categoryName'] ?? 'No name',
+                                maxLines: 1,
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: screenHeight * 0.016,
+                                  letterSpacing: 1,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
+                        ],
                       ),
                     ),
                   );

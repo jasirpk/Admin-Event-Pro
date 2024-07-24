@@ -4,8 +4,8 @@ import 'package:admineventpro/data_layer/profile_bloc/profile_bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
-class UserProfileNameWidget extends StatelessWidget {
-  const UserProfileNameWidget({
+class UserProfileImageWidget extends StatelessWidget {
+  const UserProfileImageWidget({
     super.key,
     required this.image,
     required this.screenWidth,

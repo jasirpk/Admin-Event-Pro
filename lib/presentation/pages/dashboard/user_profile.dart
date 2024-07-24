@@ -7,6 +7,19 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
 
 class ProfileScreen extends StatefulWidget {
+  final String? companyName;
+  final String? description;
+  final String? website;
+  final String? phoneNumber;
+  final String? email;
+
+  const ProfileScreen(
+      {super.key,
+      this.companyName,
+      this.description,
+      this.website,
+      this.phoneNumber,
+      this.email});
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -20,17 +33,27 @@ class _ProfileScreenState extends State<ProfileScreen> {
   TextEditingController WebsiteEditingContrller = TextEditingController();
   List<TextEditingController> fields = [];
   File? image;
-  ProfileBloc? _profileBoloc;
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    _profileBoloc = context.read<ProfileBloc>();
-  }
+  // ProfileBloc? _profileBoloc;
+  // @override
+  // void didChangeDependencies() {
+  //   super.didChangeDependencies();
+  //   _profileBoloc = context.read<ProfileBloc>();
+  // }
 
+  // @override
+  // void dispose() {
+  //   _profileBoloc?.add(ClearImages());
+  //   super.dispose();
+  // }
   @override
-  void dispose() {
-    _profileBoloc?.add(ClearImages());
-    super.dispose();
+  void initState() {
+    companyNameController.text = widget.companyName ?? '';
+    descriptionEditingController.text = widget.description ?? '';
+    PhoneEditingController.text = widget.phoneNumber ?? '';
+    EmailAddressContrller.text = widget.email ?? '';
+    WebsiteEditingContrller.text = widget.website ?? '';
+
+    super.initState();
   }
 
   @override

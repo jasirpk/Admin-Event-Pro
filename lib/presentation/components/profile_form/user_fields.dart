@@ -1,3 +1,5 @@
+// ignore_for_file: unnecessary_null_comparison
+
 import 'dart:io';
 import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
 import 'package:admineventpro/common/assigns.dart';
@@ -6,15 +8,15 @@ import 'package:admineventpro/data_layer/profile_bloc/profile_bloc.dart';
 import 'package:admineventpro/data_layer/services/profile.dart';
 import 'package:admineventpro/presentation/components/profile_form/link_fields.dart';
 import 'package:admineventpro/presentation/components/profile_form/medias.dart';
-import 'package:admineventpro/presentation/components/profile_form/profile_name.dart';
+import 'package:admineventpro/presentation/components/profile_form/profile_image.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text_with_icons.dart';
 import 'package:admineventpro/presentation/components/ui/custom_textfield.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:admineventpro/presentation/components/ui/single_text.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 class User_FieldsWidget extends StatelessWidget {
   const User_FieldsWidget({
@@ -76,7 +78,7 @@ class User_FieldsWidget extends StatelessWidget {
           maxLine: 4,
         ),
         SizedBox(height: 10),
-        UserProfileNameWidget(
+        UserProfileImageWidget(
             image: image, screenWidth: screenWidth, screenHeight: screenHeight),
         sizedbox,
         SingleTextWidget(
@@ -146,24 +148,37 @@ class User_FieldsWidget extends StatelessWidget {
                     return {'image': imageFile?.path};
                   }).toList() ??
                   [];
-              double rating = 0.0;
-              final user = FirebaseAuth.instance.currentUser;
-              if (user != null) {
-                await UserProfile().addProfile(
-                    uid: user.uid,
-                    companyName: companyName,
-                    about: about,
-                    validate: true,
-                    imagePath: imagePath,
-                    phoneNumber: phoneNumber,
-                    emailAddress: emailAddress,
-                    website: website,
-                    images: medias,
-                    links: links,
-                    rating: rating);
-
-                showCustomSnackBar('Sucess', 'Profile Created');
-                print('user profile added');
+              if (companyName.isNotEmpty &&
+                  about.isNotEmpty &&
+                  imagePath != null &&
+                  phoneNumber.isNotEmpty &&
+                  emailAddress.isNotEmpty &&
+                  website.isNotEmpty &&
+                  links != null &&
+                  images != null) {
+                double rating = 0.0;
+                final user = FirebaseAuth.instance.currentUser;
+                if (user != null) {
+                  await UserProfile().addProfile(
+                      uid: user.uid,
+                      companyName: companyName,
+                      about: about,
+                      validate: true,
+                      imagePath: imagePath,
+                      phoneNumber: phoneNumber,
+                      emailAddress: emailAddress,
+                      website: website,
+                      images: medias,
+                      links: links,
+                      rating: rating);
+                  Get.back();
+                  showCustomSnackBar('Sucess', 'Profile Created');
+                  print('user profile added');
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                      backgroundColor: Colors.red,
+                      content: Text('Please fill all the required fields')));
+                }
               } else {
                 print('user can not added');
               }

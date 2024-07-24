@@ -70,6 +70,21 @@ class UserProfile {
     return uploadedImages;
   }
 
+  Future<DocumentSnapshot> getUserProfile(String uid) async {
+    try {
+      DocumentReference documentRef =
+          FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
+      DocumentSnapshot documentSnapshot = await documentRef.get();
+      if (!documentSnapshot.exists) {
+        throw Exception('User profile does not exist for uid: $uid');
+      }
+      return documentSnapshot;
+    } catch (e) {
+      log('Error getting user profile: $e');
+      throw Exception('Failed to get user profile: $e');
+    }
+  }
+
   Future<String> uploadImageToFirebase(File image) async {
     try {
       String fileName =
@@ -85,52 +100,6 @@ class UserProfile {
     } catch (e) {
       log('Failed to upload image: $e');
       throw Exception('Failed to upload image: $e');
-    }
-  }
-
-  Future<void> updateProfile({
-    required String uid,
-    String? companyName,
-    String? about,
-    String? imagePath,
-    String? phoneNumber,
-    String? emailAddress,
-    String? website,
-    List<Map<String, dynamic>>? images,
-    List<Map<String, dynamic>>? links,
-  }) async {
-    try {
-      Map<String, dynamic> updateData = {};
-
-      if (companyName != null) updateData['companyName'] = companyName;
-      if (about != null) updateData['description'] = about;
-      if (phoneNumber != null) updateData['phoneNumber'] = phoneNumber;
-      if (emailAddress != null) updateData['emailAddress'] = emailAddress;
-      if (website != null) updateData['website'] = website;
-
-      if (imagePath != null) {
-        String finalImagePath = await uploadImageToFirebase(File(imagePath));
-        updateData['profileImage'] = finalImagePath;
-      }
-
-      if (images != null) {
-        List<Map<String, dynamic>> imageUrlList = await uploadImages(images);
-        updateData['images'] = imageUrlList;
-      }
-
-      if (links != null) {
-        updateData['links'] = links;
-      }
-
-      DocumentReference documentRef =
-          FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
-
-      await documentRef.update(updateData);
-
-      log('User profile updated successfully.');
-    } catch (e) {
-      log('Error updating user profile: $e');
-      throw Exception('Failed to update user profile: $e');
     }
   }
 

@@ -44,4 +44,14 @@ class Assigns {
   static String totalRevenue = 'Total Revenue';
   static String Benefit = 'Benefit';
   static String cost = 'Cost';
+  static String terms = 'Terms of Service';
+  static String privacy = 'Privacy Policy';
+  static String profile = 'Profile';
+  static String logout = 'Log Out';
+  static String image1 = 'assets/images/cover_img_1.png';
+  static String image2 = 'assets/images/cover_image_5.jpg';
+  static String image3 = 'assets/images/cover_image.jpg';
+  static String image4 = 'assets/images/cover_image2.jpg';
+  static String image5 = 'assets/images/cover_image3.avif';
+  static String image6 = 'assets/images/cover_imge4.jpg';
 }
