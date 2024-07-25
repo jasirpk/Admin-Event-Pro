@@ -1,3 +1,4 @@
+import 'package:admineventpro/common/style.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -8,13 +9,13 @@ class ChatScreen extends StatefulWidget {
   final String chatId;
   final String recipientId;
   final String userName;
-  // final String imageUrl;
+  final String imageUrl;
 
   ChatScreen({
     required this.chatId,
     required this.recipientId,
     required this.userName,
-    // required this.imageUrl,
+    required this.imageUrl,
   });
 
   @override
@@ -104,12 +105,12 @@ class _ChatScreenState extends State<ChatScreen> {
           widget.userName,
           style: TextStyle(fontFamily: 'JacquesFracois', color: Colors.white),
         ),
-        // actions: [
-        //   CircleAvatar(
-        //       // backgroundImage: NetworkImage(widget.imageUrl),
-        //       ),
-        //   sizedboxWidth
-        // ],
+        actions: [
+          CircleAvatar(
+            backgroundImage: NetworkImage(widget.imageUrl),
+          ),
+          sizedboxWidth
+        ],
       ),
       body: Column(
         children: <Widget>[

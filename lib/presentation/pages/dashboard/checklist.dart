@@ -1,4 +1,8 @@
+import 'package:admineventpro/bussiness_layer/repos/call_launcher.dart';
+import 'package:admineventpro/common/assigns.dart';
+import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/users/users_profile.dart';
+import 'package:admineventpro/presentation/components/shimmer/shimmer_subcategory.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/pages/dashboard/events.dart';
@@ -10,6 +14,8 @@ class ChecklistScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final screenHeight = MediaQuery.of(context).size.height;
+    final screenWidth = MediaQuery.of(context).size.width;
     final EventUsersProfile eventUsersProfile = EventUsersProfile();
 
     return Scaffold(
@@ -38,20 +44,21 @@ class ChecklistScreen extends StatelessWidget {
               itemCount: documents.length,
               gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
                   crossAxisCount: 1,
-                  mainAxisExtent: 100,
+                  mainAxisExtent: 80,
                   mainAxisSpacing: 8,
                   crossAxisSpacing: 8),
               itemBuilder: (context, index) {
                 var data = documents[index];
+                var profileImage = data['imagePath'];
+                var phoneNumber = data['phoneNumber'];
                 var userUid = documents[index].id;
                 return FutureBuilder<DocumentSnapshot>(
                   future: eventUsersProfile.getUserDetailById(userUid),
                   builder: (context, detailSnapshot) {
                     if (detailSnapshot.connectionState ==
                         ConnectionState.waiting) {
-                      return Center(
-                        child: CircularProgressIndicator(),
-                      );
+                      return ShimmerSubCategoryItem(
+                          screenHeight: screenHeight, screenWidth: screenWidth);
                     }
                     if (detailSnapshot.hasError) {
                       return Center(
@@ -66,14 +73,34 @@ class ChecklistScreen extends StatelessWidget {
                       onTap: () {
                         Get.to(() => EventsListScreen(userUid: userUid));
                       },
-                      child: Container(
-                        width: double.infinity,
-                        height: 20,
-                        child: ListTile(
-                          title: Text(
-                            data['email'],
-                            style: TextStyle(color: Colors.white),
-                          ), // Wrapped in Text widget
+                      child: Card(
+                        color: Colors.white24,
+                        child: Container(
+                          width: double.infinity,
+                          child: ListTile(
+                              leading: CircleAvatar(
+                                backgroundImage: profileImage.isNotEmpty
+                                    ? NetworkImage(profileImage)
+                                    : AssetImage(Assigns.personImage)
+                                        as ImageProvider,
+                              ),
+                              title: Text(
+                                data['userName'],
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              subtitle: Text(
+                                data['email'],
+                                style: TextStyle(color: Colors.white),
+                              ),
+                              trailing: IconButton(
+                                onPressed: () {
+                                  makePhoneCall(phoneNumber);
+                                },
+                                icon: Icon(
+                                  Icons.call,
+                                  color: myColor,
+                                ),
+                              )),
                         ),
                       ),
                     );

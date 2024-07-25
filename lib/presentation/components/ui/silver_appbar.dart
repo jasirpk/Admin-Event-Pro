@@ -1,6 +1,7 @@
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/services/profile.dart';
 import 'package:admineventpro/presentation/pages/dashboard/message_list.dart';
+import 'package:admineventpro/presentation/pages/dashboard/notification.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -30,7 +31,9 @@ class SilverAppBarWidget extends StatelessWidget {
               icon: Icon(Icons.send_sharp, color: Colors.white)),
         ),
         IconButton(
-            onPressed: () {},
+            onPressed: () {
+              Get.to(() => NotificationScreen());
+            },
             icon: Icon(Icons.notifications, color: Colors.white)),
         sizedboxWidth
       ],

@@ -1,5 +1,6 @@
+import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/services/users/users_profile.dart';
-import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
+import 'package:admineventpro/presentation/components/shimmer/shimmer_subcategory.dart';
 import 'package:admineventpro/presentation/pages/dashboard/chat_screen.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -52,6 +53,7 @@ class MessageListScreen extends StatelessWidget {
             itemCount: documents.length,
             itemBuilder: (context, index) {
               var data = documents[index];
+              var profileImage = data['imagePath'];
               var userUid = documents[index].id;
               return FutureBuilder<DocumentSnapshot>(
                 future: eventUsersProfile.getUserDetailById(userUid),
@@ -61,7 +63,7 @@ class MessageListScreen extends StatelessWidget {
                   String chatId = _getChatId(currentUserUid, userUid);
                   if (detailSnapshot.connectionState ==
                       ConnectionState.waiting) {
-                    return ShimmerAllSubcategories(
+                    return ShimmerSubCategoryItem(
                         screenHeight: screenHeight, screenWidth: screenWidth);
                   }
                   if (detailSnapshot.hasError) {
@@ -78,8 +80,8 @@ class MessageListScreen extends StatelessWidget {
                       Get.to(() => ChatScreen(
                             chatId: chatId,
                             recipientId: userUid,
-                            userName: data['email'],
-                            // imageUrl: userDetails['profileImage'],
+                            userName: data['userName'],
+                            imageUrl: profileImage,
                           ));
                     },
                     child: Padding(
@@ -90,11 +92,14 @@ class MessageListScreen extends StatelessWidget {
                             borderRadius: BorderRadius.circular(20)),
                         child: ListTile(
                           leading: CircleAvatar(
-                              maxRadius: 30,
-                              backgroundImage: AssetImage(
-                                  'assets/images/Circle-icons-profile.svg.png')),
+                            maxRadius: 30,
+                            backgroundImage: profileImage.isNotEmpty
+                                ? NetworkImage(profileImage)
+                                : AssetImage(Assigns.personImage)
+                                    as ImageProvider,
+                          ),
                           title: Text(
-                            data['email'],
+                            data['userName'],
                             style: TextStyle(
                                 color: Colors.white,
                                 fontSize:
@@ -111,8 +116,8 @@ class MessageListScreen extends StatelessWidget {
                           trailing: IconButton(
                               onPressed: () {
                                 Get.to(() => ChatScreen(
-                                    userName: data['companyName'],
-                                    // imageUrl: userDetails['profileImage'],
+                                    userName: data['userName'],
+                                    imageUrl: profileImage,
                                     chatId: chatId,
                                     recipientId: userUid));
                               },
