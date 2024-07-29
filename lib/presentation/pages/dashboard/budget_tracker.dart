@@ -27,7 +27,7 @@ class _BudgetTrackerState extends State<BudgetTracker> {
   final TextEditingController costController = TextEditingController();
   final TextEditingController benefitController = TextEditingController();
   final uid = FirebaseAuth.instance.currentUser!.uid;
-
+  late Stream<QuerySnapshot> budgetMethods;
   double totalBudget = 0;
   double totalBudgetCost = 0;
   double totalBudgetBenefit = 0;
@@ -35,7 +35,15 @@ class _BudgetTrackerState extends State<BudgetTracker> {
   @override
   void initState() {
     super.initState();
+    budgetMethods = BudgetTrack().getBudgetReveneu(uid);
     fetchData();
+  }
+
+  void refreshData() {
+    setState(() {
+      budgetMethods = BudgetTrack().getBudgetReveneu(uid);
+      fetchData();
+    });
   }
 
   void fetchData() async {
@@ -137,6 +145,7 @@ class _BudgetTrackerState extends State<BudgetTracker> {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               PieChartWidget(
+                  refreshData: refreshData,
                   screenHeight: screenHeight,
                   totalBudget: totalBudget,
                   totalBudgetCost: totalBudgetCost,

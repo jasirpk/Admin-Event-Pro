@@ -1,6 +1,6 @@
 // ignore_for_file: unnecessary_null_comparison
 
-import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
+import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:admineventpro/data_layer/services/budget.dart';
 import 'package:admineventpro/presentation/components/ui/custom_textfield.dart';
 import 'package:flutter/material.dart';

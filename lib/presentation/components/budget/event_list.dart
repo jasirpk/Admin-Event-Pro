@@ -34,7 +34,6 @@ class BudgetHistoryWidget extends StatelessWidget {
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
       itemCount: documents.length,
-      reverse: true,
       itemBuilder: (context, index) {
         var document = documents[index];
         String budgetId = document.id;

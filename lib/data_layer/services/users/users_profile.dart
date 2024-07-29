@@ -4,7 +4,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 
 class EventUsersProfile {
   Stream<QuerySnapshot> getUserProfile() {
-    return FirebaseFirestore.instance.collection('users').snapshots();
+    return FirebaseFirestore.instance
+        .collection('users')
+        .where('isValid', isEqualTo: true)
+        .snapshots();
   }
 
   Future<DocumentSnapshot> getUserDetailById(String uid) async {

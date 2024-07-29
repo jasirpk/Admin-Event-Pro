@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
+import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_add/submit_button.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';

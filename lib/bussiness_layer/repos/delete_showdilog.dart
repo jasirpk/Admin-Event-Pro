@@ -1,4 +1,4 @@
-import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
+import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:admineventpro/data_layer/services/generated_vendor.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

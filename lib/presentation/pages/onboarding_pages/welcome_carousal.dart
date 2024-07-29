@@ -1,5 +1,5 @@
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/bussiness_layer/entities/repos/carousal_list.dart';
+import 'package:admineventpro/bussiness_layer/entities/carousal_list.dart';
 import 'package:admineventpro/presentation/pages/auth/sign_in.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:carousel_slider/carousel_slider.dart';

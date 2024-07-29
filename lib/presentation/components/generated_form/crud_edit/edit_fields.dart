@@ -1,6 +1,6 @@
 import 'dart:io';
 
-import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
+import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:admineventpro/data_layer/services/generated_vendor.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_add/budget.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_add/category_image.dart';

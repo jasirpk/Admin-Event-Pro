@@ -1,7 +1,7 @@
 import 'dart:ui';
-import 'package:admineventpro/bussiness_layer/entities/repos/snackbar.dart';
+import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/bussiness_layer/entities/logic_models/admin_auth.dart';
+import 'package:admineventpro/bussiness_layer/entities/admin_auth.dart';
 import 'package:admineventpro/data_layer/auth_bloc/manage_bloc.dart';
 import 'package:admineventpro/presentation/components/auth/auth_bottom_text.dart';
 import 'package:admineventpro/presentation/components/ui/back_arrow_button.dart';
