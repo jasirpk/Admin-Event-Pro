@@ -10,11 +10,13 @@ class UserProfileImageWidget extends StatelessWidget {
     required this.image,
     required this.screenWidth,
     required this.screenHeight,
+    required this.profileImage,
   });
 
   final File? image;
   final double screenWidth;
   final double screenHeight;
+  final String profileImage;
 
   @override
   Widget build(BuildContext context) {
@@ -31,7 +33,10 @@ class UserProfileImageWidget extends StatelessWidget {
                     image: FileImage(image!),
                     fit: BoxFit.cover,
                   )
-                : null),
+                : profileImage.isNotEmpty
+                    ? DecorationImage(
+                        image: NetworkImage(profileImage), fit: BoxFit.cover)
+                    : null),
         child: Center(
           child: Icon(
             image == null ? Icons.collections_bookmark : Icons.edit,

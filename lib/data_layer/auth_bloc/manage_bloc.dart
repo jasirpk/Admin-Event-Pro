@@ -182,34 +182,34 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
 // Handle the Facebook Auth...!
 
-    on<FaceBookAuth>((event, emit) async {
-      emit(AuthLoading());
-      try {
-        final LoginResult result =
-            await FacebookAuth.instance.login(permissions: [
-          'email',
-        ]);
+    // on<FaceBookAuth>((event, emit) async {
+    //   emit(AuthLoading());
+    //   try {
+    //     final LoginResult result =
+    //         await FacebookAuth.instance.login(permissions: [
+    //       'email',
+    //     ]);
 
-        if (result.status == LoginStatus.success) {
-          final OAuthCredential FacebookAuthCredential =
-              FacebookAuthProvider.credential(result.accessToken!.tokenString);
-          final userCredential =
-              await auth.signInWithCredential(FacebookAuthCredential);
-          final user = userCredential.user!;
+    //     if (result.status == LoginStatus.success) {
+    //       final OAuthCredential FacebookAuthCredential =
+    //           FacebookAuthProvider.credential(result.accessToken!.tokenString);
+    //       final userCredential =
+    //           await auth.signInWithCredential(FacebookAuthCredential);
+    //       final user = userCredential.user!;
 
-          await saveAuthState(user.uid, user.email!);
+    //       await saveAuthState(user.uid, user.email!);
 
-          print('facebook account is authenticated');
-          emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email, password: '')));
-        } else {
-          emit(AuthenticatedErrors(
-              message: 'Facebook login failed:${result.message}'));
-        }
-      } catch (e) {
-        emit(AuthenticatedErrors(message: 'facebook errors$e'));
-      }
-    });
+    //       print('facebook account is authenticated');
+    //       emit(Authenticated(
+    //           UserModel(uid: user.uid, email: user.email, password: '')));
+    //     } else {
+    //       emit(AuthenticatedErrors(
+    //           message: 'Facebook login failed:${result.message}'));
+    //     }
+    //   } catch (e) {
+    //     emit(AuthenticatedErrors(message: 'facebook errors$e'));
+    //   }
+    // });
 
 // facebook signOut...!
 
@@ -230,6 +230,11 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('uid', uid);
     await prefs.setString('email', email);
+    await FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).set({
+      'uid': uid,
+      'email': email,
+      'createdAt': DateTime.now(),
+    });
     log('Saved UID: $uid');
     log('Saved Email: $email');
   }

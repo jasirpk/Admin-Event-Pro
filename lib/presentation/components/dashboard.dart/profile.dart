@@ -1,6 +1,7 @@
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/auth_bloc/manage_bloc.dart';
 import 'package:admineventpro/data_layer/services/profile.dart';
+import 'package:admineventpro/presentation/pages/dashboard/privacy_plicy.dart';
 import 'package:admineventpro/presentation/components/settings/menu.dart';
 import 'package:admineventpro/presentation/components/settings/user_profile.dart';
 import 'package:admineventpro/presentation/pages/auth/sign_in.dart';
@@ -10,7 +11,6 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -40,7 +40,15 @@ class _ProfilePageState extends State<ProfilePage> {
     final screenHeight = MediaQuery.of(context).size.height;
     List<Map<String, dynamic>> items = [
       {'icon': Icons.share, 'text': 'Share this App', 'onTap': () {}},
-      {'icon': Icons.feedback, 'text': 'Feedback', 'onTap': () {}},
+      {
+        'icon': Icons.preview,
+        'text': 'Privacy Policy',
+        'onTap': () {
+          Get.to(
+            () => PrivacyPlicy(),
+          );
+        }
+      },
       {
         'icon': Icons.collections_bookmark,
         'text': 'Cover Images',
@@ -100,12 +108,9 @@ class _ProfilePageState extends State<ProfilePage> {
             if (!snapshot.hasData ||
                 !snapshot.data!.exists ||
                 snapshot.hasError) {
-              return Text('No data');
+              return Center(child: Text('No data'));
             }
             var userData = snapshot.data!.data() as Map<String, dynamic>;
-            print('Snapshot data: ${snapshot.data}');
-            print('User data: ${userData}');
-
             return UserProfileWidget(
                 userData: userData, screenHeight: screenHeight, items: items);
           },

@@ -2,7 +2,7 @@ import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/components/ui/silver_listview.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text.dart';
-
+import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 class AllTemplatesScreen extends StatelessWidget {
@@ -17,7 +17,11 @@ class AllTemplatesScreen extends StatelessWidget {
         title: 'Templates',
         actions: [
           CustomText(
-              screenHeight: screenHeight, onpressed: () {}, text: 'Close'),
+              screenHeight: screenHeight,
+              onpressed: () {
+                Get.back();
+              },
+              text: 'Close'),
           sizedboxWidth
         ],
       ),

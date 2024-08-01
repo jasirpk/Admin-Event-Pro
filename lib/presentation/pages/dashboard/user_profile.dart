@@ -12,6 +12,7 @@ class ProfileScreen extends StatefulWidget {
   final String? website;
   final String? phoneNumber;
   final String? email;
+  final String? imagePath;
 
   const ProfileScreen(
       {super.key,
@@ -19,7 +20,8 @@ class ProfileScreen extends StatefulWidget {
       this.description,
       this.website,
       this.phoneNumber,
-      this.email});
+      this.email,
+      this.imagePath});
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
 }
@@ -27,24 +29,24 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   TextEditingController companyNameController = TextEditingController();
   TextEditingController descriptionEditingController = TextEditingController();
-
   TextEditingController PhoneEditingController = TextEditingController();
   TextEditingController EmailAddressContrller = TextEditingController();
   TextEditingController WebsiteEditingContrller = TextEditingController();
   List<TextEditingController> fields = [];
   File? image;
-  // ProfileBloc? _profileBoloc;
-  // @override
-  // void didChangeDependencies() {
-  //   super.didChangeDependencies();
-  //   _profileBoloc = context.read<ProfileBloc>();
-  // }
+  ProfileBloc? _profileBoloc;
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    _profileBoloc = context.read<ProfileBloc>();
+  }
 
-  // @override
-  // void dispose() {
-  //   _profileBoloc?.add(ClearImages());
-  //   super.dispose();
-  // }
+  @override
+  void dispose() {
+    _profileBoloc?.add(ClearImages());
+    super.dispose();
+  }
+
   @override
   void initState() {
     companyNameController.text = widget.companyName ?? '';
@@ -105,6 +107,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 padding: EdgeInsets.symmetric(horizontal: 8, vertical: 8),
                 child: Container(
                   child: User_FieldsWidget(
+                    profileImage: widget.imagePath ?? '',
                     screenHeight: screenHeight,
                     companyNameController: companyNameController,
                     descriptionEditingController: descriptionEditingController,

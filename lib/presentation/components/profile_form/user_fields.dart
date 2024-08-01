@@ -33,6 +33,7 @@ class User_FieldsWidget extends StatelessWidget {
     required this.fields,
     required this.itemCount,
     required this.images,
+    required this.profileImage,
   });
 
   final double screenHeight;
@@ -47,6 +48,7 @@ class User_FieldsWidget extends StatelessWidget {
   final List<TextEditingController> fields;
   final int? itemCount;
   final List<File?>? images;
+  final String profileImage;
 
   @override
   Widget build(BuildContext context) {
@@ -79,7 +81,10 @@ class User_FieldsWidget extends StatelessWidget {
         ),
         SizedBox(height: 10),
         UserProfileImageWidget(
-            image: image, screenWidth: screenWidth, screenHeight: screenHeight),
+            profileImage: profileImage,
+            image: image,
+            screenWidth: screenWidth,
+            screenHeight: screenHeight),
         sizedbox,
         SingleTextWidget(
             screenHeight: screenHeight, text: Assigns.contactInformation),
@@ -137,7 +142,7 @@ class User_FieldsWidget extends StatelessWidget {
             onpressed: () async {
               String companyName = companyNameController.text;
               String about = descriptionEditingController.text;
-              String imagePath = image!.path;
+              String? imagePath = image != null ? image!.path : profileImage;
               String phoneNumber = PhoneEditingController.text;
               String emailAddress = EmailAddressContrller.text;
               String website = WebsiteEditingContrller.text;
@@ -148,14 +153,15 @@ class User_FieldsWidget extends StatelessWidget {
                     return {'image': imageFile?.path};
                   }).toList() ??
                   [];
+
               if (companyName.isNotEmpty &&
                   about.isNotEmpty &&
                   imagePath != null &&
-                  phoneNumber.isNotEmpty &&
-                  emailAddress.isNotEmpty &&
+                  phoneNumber.length == 10 &&
+                  emailAddress.contains('@gmail.com') &&
                   website.isNotEmpty &&
-                  links != null &&
-                  images != null) {
+                  links.isNotEmpty &&
+                  medias.isNotEmpty) {
                 double rating = 0.0;
                 final user = FirebaseAuth.instance.currentUser;
                 if (user != null) {
@@ -172,15 +178,13 @@ class User_FieldsWidget extends StatelessWidget {
                       links: links,
                       rating: rating);
                   Get.back();
-                  showCustomSnackBar('Sucess', 'Profile Created');
-                  print('user profile added');
-                } else {
-                  ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                      backgroundColor: Colors.red,
-                      content: Text('Please fill all the required fields')));
+                  showCustomSnackBar('Success', 'Profile Created');
+                  print('User profile added');
                 }
               } else {
-                print('user can not added');
+                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                    backgroundColor: Colors.red,
+                    content: Text('Please fill all the required fields')));
               }
             })
       ],

@@ -126,16 +126,16 @@ class GoogleAuthScreen extends StatelessWidget {
                                   imagePath: 'assets/images/google.png',
                                   title: 'Continue with Google',
                                 ),
-                                SizedBox(height: 10),
-                                SqureTile(
-                                  onpressed: () {
-                                    context
-                                        .read<ManageBloc>()
-                                        .add(FaceBookAuth());
-                                  },
-                                  imagePath: 'assets/images/facebook.png',
-                                  title: 'Continue with Facebook',
-                                ),
+                                // SizedBox(height: 10),
+                                // SqureTile(
+                                //   onpressed: () {
+                                //     context
+                                //         .read<ManageBloc>()
+                                //         .add(FaceBookAuth());
+                                //   },
+                                //   imagePath: 'assets/images/facebook.png',
+                                //   title: 'Continue with Facebook',
+                                // ),
                                 SizedBox(height: 10),
                                 AuthBottomText(
                                     onpressed: () {

@@ -19,14 +19,21 @@ class UserProfile {
     required double rating,
   }) async {
     try {
-      File imageFile = File(imagePath);
-      if (!imageFile.existsSync()) {
-        throw Exception("Image file does not exist at path: $imagePath");
+      String finalImagePath;
+      List<Map<String, dynamic>> imageUrlList = [{}];
+
+      if (Uri.parse(imagePath).isAbsolute) {
+        finalImagePath = imagePath;
+      } else {
+        File imageFile = File(imagePath);
+        if (await imageFile.exists()) {
+          finalImagePath = await uploadImageToFirebase(imageFile);
+        } else {
+          throw Exception("Image file does not exist at path: $imagePath");
+        }
       }
 
-      List<Map<String, dynamic>> imageUrlList = await uploadImages(images);
-
-      String finalImagePath = await uploadImageToFirebase(imageFile);
+      imageUrlList = await uploadImages(images);
 
       DocumentReference documentRef =
           FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
