@@ -1,11 +1,7 @@
-// ignore_for_file: unnecessary_null_comparison
-
 import 'dart:io';
-import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/profile_bloc/profile_bloc.dart';
-import 'package:admineventpro/data_layer/services/profile.dart';
 import 'package:admineventpro/presentation/components/profile_form/link_fields.dart';
 import 'package:admineventpro/presentation/components/profile_form/medias.dart';
 import 'package:admineventpro/presentation/components/profile_form/profile_image.dart';
@@ -13,10 +9,8 @@ import 'package:admineventpro/presentation/components/ui/custom_text_with_icons.
 import 'package:admineventpro/presentation/components/ui/custom_textfield.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:admineventpro/presentation/components/ui/single_text.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 
 class User_FieldsWidget extends StatelessWidget {
   const User_FieldsWidget({
@@ -26,14 +20,15 @@ class User_FieldsWidget extends StatelessWidget {
     required this.descriptionEditingController,
     required this.image,
     required this.screenWidth,
-    required this.PhoneEditingController,
-    required this.EmailAddressContrller,
-    required this.WebsiteEditingContrller,
+    required this.phoneEditingController,
+    required this.emailAddressController,
+    required this.websiteEditingController,
     required this.fieldCount,
     required this.fields,
     required this.itemCount,
     required this.images,
     required this.profileImage,
+    required this.onSavePressed,
   });
 
   final double screenHeight;
@@ -41,14 +36,15 @@ class User_FieldsWidget extends StatelessWidget {
   final TextEditingController descriptionEditingController;
   final File? image;
   final double screenWidth;
-  final TextEditingController PhoneEditingController;
-  final TextEditingController EmailAddressContrller;
-  final TextEditingController WebsiteEditingContrller;
+  final TextEditingController phoneEditingController;
+  final TextEditingController emailAddressController;
+  final TextEditingController websiteEditingController;
   final int? fieldCount;
   final List<TextEditingController> fields;
   final int? itemCount;
   final List<File?>? images;
   final String profileImage;
+  final VoidCallback onSavePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -91,7 +87,7 @@ class User_FieldsWidget extends StatelessWidget {
         SizedBox(height: 10),
         CustomTextFieldWidget(
           keyboardtype: TextInputType.number,
-          controller: PhoneEditingController,
+          controller: phoneEditingController,
           readOnly: false,
           labelText: 'Phone Number',
         ),
@@ -99,14 +95,14 @@ class User_FieldsWidget extends StatelessWidget {
         CustomTextFieldWidget(
           keyboardtype: TextInputType.emailAddress,
           readOnly: false,
-          controller: EmailAddressContrller,
+          controller: emailAddressController,
           labelText: 'Email Address',
         ),
         SizedBox(height: 10),
         CustomTextFieldWidget(
           keyboardtype: TextInputType.multiline,
           readOnly: false,
-          controller: WebsiteEditingContrller,
+          controller: websiteEditingController,
           labelText: 'Website',
         ),
         SizedBox(height: 10),
@@ -138,55 +134,7 @@ class User_FieldsWidget extends StatelessWidget {
             screenWidth: screenWidth,
             images: images),
         PushableButton_widget(
-            buttonText: 'Save Details',
-            onpressed: () async {
-              String companyName = companyNameController.text;
-              String about = descriptionEditingController.text;
-              String? imagePath = image != null ? image!.path : profileImage;
-              String phoneNumber = PhoneEditingController.text;
-              String emailAddress = EmailAddressContrller.text;
-              String website = WebsiteEditingContrller.text;
-              List<Map<String, dynamic>> links = fields.map((controller) {
-                return {'link': controller.text};
-              }).toList();
-              List<Map<String, dynamic>> medias = images?.map((imageFile) {
-                    return {'image': imageFile?.path};
-                  }).toList() ??
-                  [];
-
-              if (companyName.isNotEmpty &&
-                  about.isNotEmpty &&
-                  imagePath != null &&
-                  phoneNumber.length == 10 &&
-                  emailAddress.contains('@gmail.com') &&
-                  website.isNotEmpty &&
-                  links.isNotEmpty &&
-                  medias.isNotEmpty) {
-                double rating = 0.0;
-                final user = FirebaseAuth.instance.currentUser;
-                if (user != null) {
-                  await UserProfile().addProfile(
-                      uid: user.uid,
-                      companyName: companyName,
-                      about: about,
-                      validate: true,
-                      imagePath: imagePath,
-                      phoneNumber: phoneNumber,
-                      emailAddress: emailAddress,
-                      website: website,
-                      images: medias,
-                      links: links,
-                      rating: rating);
-                  Get.back();
-                  showCustomSnackBar('Success', 'Profile Created');
-                  print('User profile added');
-                }
-              } else {
-                ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-                    backgroundColor: Colors.red,
-                    content: Text('Please fill all the required fields')));
-              }
-            })
+            buttonText: 'Save Details', onpressed: onSavePressed)
       ],
     );
   }

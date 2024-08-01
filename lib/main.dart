@@ -1,5 +1,4 @@
 import 'dart:async';
-
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 import 'package:admineventpro/data_layer/profile_bloc/profile_bloc.dart';
@@ -47,7 +46,7 @@ class AdminEventPro extends StatelessWidget {
         BlocProvider(create: (context) => ManageBloc()),
         BlocProvider(create: (context) => DashboardBloc()),
         BlocProvider(create: (context) => GeneratedBloc()),
-        BlocProvider(create: (contex) => ProfileBloc())
+        BlocProvider(create: (contex) => ProfileBloc()),
       ],
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,

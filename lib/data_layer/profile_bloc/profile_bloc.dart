@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:admineventpro/data_layer/services/profile.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -25,6 +26,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<ClearImages>(clearImages);
     on<AddMoreFields>(addMoreFields);
     on<Reducefield>(reduceField);
+    on<SaveProfile>(saveProfile);
   }
   FutureOr<void> addMoreFields(
       AddMoreFields event, Emitter<ProfileState> emit) {
@@ -160,5 +162,26 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
       pickedImages: [null],
       pickImage: null,
     ));
+  }
+
+  FutureOr<void> saveProfile(
+      SaveProfile event, Emitter<ProfileState> emit) async {
+    emit(ProfileLoading());
+    try {
+      await UserProfile().addProfile(
+          uid: event.uid,
+          companyName: event.companyName,
+          about: event.about,
+          imagePath: event.imagePath,
+          phoneNumber: event.phoneNumber,
+          emailAddress: event.emailAddress,
+          website: event.website,
+          images: event.images,
+          links: event.links,
+          rating: event.rating);
+      emit(ProfileSuccess());
+    } catch (e) {
+      emit(ProfileError(error: e.toString()));
+    }
   }
 }

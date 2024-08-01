@@ -22,3 +22,15 @@ class GeneratedInitial extends ProfileState {
 }
 
 class ImagePickerInitial extends ProfileState {}
+
+final class UserDataInitial extends ProfileState {}
+
+class ProfileLoading extends ProfileState {}
+
+class ProfileSuccess extends ProfileState {}
+
+class ProfileError extends ProfileState {
+  final String error;
+
+  ProfileError({required this.error});
+}
