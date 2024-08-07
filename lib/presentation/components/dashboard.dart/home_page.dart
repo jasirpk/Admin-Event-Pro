@@ -1,6 +1,5 @@
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/data_layer/services/cover_images.dart';
-import 'package:admineventpro/data_layer/services/notifications.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/cover_image.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/place_holder.dart';
 
@@ -15,19 +14,6 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   final DatabaseMethods databaseMethods = DatabaseMethods();
-  NotificationsServices notificationsServices = NotificationsServices();
-  @override
-  void initState() {
-    super.initState();
-    notificationsServices.requestNotificationpermission();
-    notificationsServices.firebaseInit(context);
-    notificationsServices.setupInteractMessage(context);
-    // notificationsServices.isTokenRefresh();
-    notificationsServices.getDevicetoken().then((value) {
-      print('Device token');
-      print(value);
-    });
-  }
 
   final uid = FirebaseAuth.instance.currentUser!.uid;
   @override

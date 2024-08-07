@@ -46,22 +46,25 @@ class DefaultFirebaseOptions {
     messagingSenderId: '334593508928',
     projectId: 'event-master-2bf93',
     authDomain: 'event-master-2bf93.firebaseapp.com',
+    databaseURL: 'https://event-master-2bf93-default-rtdb.firebaseio.com',
     storageBucket: 'event-master-2bf93.appspot.com',
   );
 
   static const FirebaseOptions android = FirebaseOptions(
     apiKey: 'AIzaSyDsmz6muR2iWyQFx_iL43roclqFhbW07-Y',
-    appId: '1:334593508928:android:f0d412ef06983868cd01a5',
+    appId: '1:334593508928:android:cc59513d11e4c469cd01a5',
     messagingSenderId: '334593508928',
     projectId: 'event-master-2bf93',
+    databaseURL: 'https://event-master-2bf93-default-rtdb.firebaseio.com',
     storageBucket: 'event-master-2bf93.appspot.com',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
     apiKey: 'AIzaSyBQnP4X5kalPbXNiBmAahI0TkLNK9zH7rQ',
-    appId: '1:334593508928:ios:440a660c4dbd03f0cd01a5',
+    appId: '1:334593508928:ios:cdc540833e5a33a1cd01a5',
     messagingSenderId: '334593508928',
     projectId: 'event-master-2bf93',
+    databaseURL: 'https://event-master-2bf93-default-rtdb.firebaseio.com',
     storageBucket: 'event-master-2bf93.appspot.com',
     androidClientId: '334593508928-b49laga5iqbih3v4takm8jbp7dheocli.apps.googleusercontent.com',
     iosClientId: '334593508928-4evd7mkfm4es7snb5gbkasd2b22rr7ki.apps.googleusercontent.com',
@@ -70,9 +73,10 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions macos = FirebaseOptions(
     apiKey: 'AIzaSyBQnP4X5kalPbXNiBmAahI0TkLNK9zH7rQ',
-    appId: '1:334593508928:ios:440a660c4dbd03f0cd01a5',
+    appId: '1:334593508928:ios:cdc540833e5a33a1cd01a5',
     messagingSenderId: '334593508928',
     projectId: 'event-master-2bf93',
+    databaseURL: 'https://event-master-2bf93-default-rtdb.firebaseio.com',
     storageBucket: 'event-master-2bf93.appspot.com',
     androidClientId: '334593508928-b49laga5iqbih3v4takm8jbp7dheocli.apps.googleusercontent.com',
     iosClientId: '334593508928-4evd7mkfm4es7snb5gbkasd2b22rr7ki.apps.googleusercontent.com',
@@ -81,11 +85,11 @@ class DefaultFirebaseOptions {
 
   static const FirebaseOptions windows = FirebaseOptions(
     apiKey: 'AIzaSyBawLk7FXo_JLkHn2DAsvPq7jJ65oFxit4',
-    appId: '1:334593508928:web:802124db4f18063ccd01a5',
+    appId: '1:334593508928:web:c1e32322890b22d3cd01a5',
     messagingSenderId: '334593508928',
     projectId: 'event-master-2bf93',
     authDomain: 'event-master-2bf93.firebaseapp.com',
+    databaseURL: 'https://event-master-2bf93-default-rtdb.firebaseio.com',
     storageBucket: 'event-master-2bf93.appspot.com',
   );
-
 }

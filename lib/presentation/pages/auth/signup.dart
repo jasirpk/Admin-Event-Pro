@@ -10,9 +10,11 @@ import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:admineventpro/presentation/components/auth/text_field.dart';
 import 'package:admineventpro/presentation/pages/auth/sign_in.dart';
 import 'package:admineventpro/presentation/pages/dashboard/home.dart';
+import 'package:admineventpro/presentation/pages/dashboard/terms_of_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:flutter/gestures.dart';
 
 class SignupScreen extends StatelessWidget {
   final formKey = GlobalKey<FormState>();
@@ -26,7 +28,7 @@ class SignupScreen extends StatelessWidget {
         listener: (context, state) {
           if (state is Authenticated) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
-              showCustomSnackBar('Success', 'Successfully Registed');
+              showCustomSnackBar('Success', 'Successfully Registered');
               Get.offAll(() => HomeScreen());
             });
           } else if (state is ValidatonSuccess) {
@@ -139,6 +141,10 @@ class SignupScreen extends StatelessWidget {
                                               fontSize: 18,
                                               fontWeight: FontWeight.w500,
                                             ),
+                                            recognizer: TapGestureRecognizer()
+                                              ..onTap = () {
+                                                Get.to(() => TermsOfServices());
+                                              },
                                           ),
                                         ],
                                       ),

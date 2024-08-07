@@ -23,7 +23,7 @@ class UserProfileWidget extends StatelessWidget {
   Widget build(BuildContext context) {
     final String profileImage = userData?['profileImage'] ?? '';
     final String companyName = userData?['companyName'] ?? 'Not Registered';
-    final String phoneNumber = userData?['phoneNumber'] ?? '+ 91..';
+    final String phoneNumber = userData?['phoneNumber'] ?? '';
     final String emailAddress = userData?['emailAddress'] ?? 'No email';
     final String website = userData?['website'] ?? 'No website';
     final String description = userData?['description'] ?? 'No description';
@@ -157,7 +157,7 @@ class UserProfileWidget extends StatelessWidget {
             sizedbox,
             Padding(
               padding: EdgeInsets.only(top: 60),
-              child: Text('Version 1.0.0+1',
+              child: Text('Version 1.0.0+3',
                   style: TextStyle(color: Colors.white)),
             ),
           ],

@@ -11,6 +11,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
+import 'package:share_plus/share_plus.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({super.key});
@@ -39,7 +40,13 @@ class _ProfilePageState extends State<ProfilePage> {
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     List<Map<String, dynamic>> items = [
-      {'icon': Icons.share, 'text': 'Share this App', 'onTap': () {}},
+      {
+        'icon': Icons.share,
+        'text': 'Share this App',
+        'onTap': () {
+          Share.share('https://www.amazon.com/dp/B0DC3KH2M8/ref=apps_sf_sta');
+        }
+      },
       {
         'icon': Icons.preview,
         'text': 'Privacy Policy',
@@ -70,9 +77,10 @@ class _ProfilePageState extends State<ProfilePage> {
                 Get.back();
               },
               onConfirm: () {
+                Get.off(() => GoogleAuthScreen());
                 context.read<ManageBloc>().add(Logout());
                 context.read<ManageBloc>().add(SignOutWithGoogle());
-                context.read<ManageBloc>().add(SignOutWithFacebook());
+                // context.read<ManageBloc>().add(SignOutWithFacebook());
               });
         }
       },

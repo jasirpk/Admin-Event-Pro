@@ -1,5 +1,7 @@
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/auth_bloc/manage_bloc.dart';
+import 'package:admineventpro/presentation/pages/auth/sign_in.dart';
+import 'package:admineventpro/presentation/pages/dashboard/terms_of_services.dart';
 import 'package:admineventpro/presentation/pages/dashboard/user_profile.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -27,14 +29,17 @@ class MenuButtonWidget extends StatelessWidget {
                   Get.back();
                 },
                 onConfirm: () {
+                  Get.off(() => GoogleAuthScreen());
                   context.read<ManageBloc>().add(Logout());
                   context.read<ManageBloc>().add(SignOutWithGoogle());
-                  context.read<ManageBloc>().add(SignOutWithFacebook());
+                  // context.read<ManageBloc>().add(SignOutWithFacebook());
                 });
           } else if (value == 'profile') {
             Get.to(() {
               return ProfileScreen();
             });
+          } else if (value == 'terms') {
+            Get.to(() => TermsOfServices());
           }
         },
         itemBuilder: (context) {

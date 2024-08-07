@@ -1,28 +1,37 @@
 {
   "project_info": {
     "project_number": "334593508928",
+    "firebase_url": "https://event-master-2bf93-default-rtdb.firebaseio.com",
     "project_id": "event-master-2bf93",
     "storage_bucket": "event-master-2bf93.appspot.com"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:334593508928:android:f0d412ef06983868cd01a5",
+        "mobilesdk_app_id": "1:334593508928:android:cc59513d11e4c469cd01a5",
         "android_client_info": {
-          "package_name": "com.admin.admineventpro"
+          "package_name": "apps.admin.admineventpro"
         }
       },
       "oauth_client": [
         {
-          "client_id": "334593508928-b49laga5iqbih3v4takm8jbp7dheocli.apps.googleusercontent.com",
+          "client_id": "334593508928-e8j9husgjokn6s34fb0e42on8v99rql6.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
-            "package_name": "com.admin.admineventpro",
+            "package_name": "apps.admin.admineventpro",
             "certificate_hash": "0ade97a53112740bb90a4b532027e583de47cb77"
           }
         },
         {
-          "client_id": "334593508928-ulnrdu6if7qk5ngng61er14nn3ctuph3.apps.googleusercontent.com",
+          "client_id": "334593508928-i7klqgmb8ntphnvjtbkiq7ehk5br0qrd.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "apps.admin.admineventpro",
+            "certificate_hash": "719f6eafd5f00066d03a07658a24cf49942874f7"
+          }
+        },
+        {
+          "client_id": "334593508928-0m3r1e7dbk91eotu20hjq7cm0ttm5dc4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -35,7 +44,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "334593508928-ngab7hu9qq99snfvhp6mc0do0v5o2bmi.apps.googleusercontent.com",
+              "client_id": "334593508928-0m3r1e7dbk91eotu20hjq7cm0ttm5dc4.apps.googleusercontent.com",
               "client_type": 3
             },
             {
@@ -66,7 +75,7 @@
           }
         },
         {
-          "client_id": "334593508928-ulnrdu6if7qk5ngng61er14nn3ctuph3.apps.googleusercontent.com",
+          "client_id": "334593508928-0m3r1e7dbk91eotu20hjq7cm0ttm5dc4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -79,7 +88,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "334593508928-ngab7hu9qq99snfvhp6mc0do0v5o2bmi.apps.googleusercontent.com",
+              "client_id": "334593508928-0m3r1e7dbk91eotu20hjq7cm0ttm5dc4.apps.googleusercontent.com",
               "client_type": 3
             },
             {
@@ -110,7 +119,7 @@
           }
         },
         {
-          "client_id": "334593508928-ulnrdu6if7qk5ngng61er14nn3ctuph3.apps.googleusercontent.com",
+          "client_id": "334593508928-0m3r1e7dbk91eotu20hjq7cm0ttm5dc4.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -123,7 +132,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "334593508928-ngab7hu9qq99snfvhp6mc0do0v5o2bmi.apps.googleusercontent.com",
+              "client_id": "334593508928-0m3r1e7dbk91eotu20hjq7cm0ttm5dc4.apps.googleusercontent.com",
               "client_type": 3
             },
             {

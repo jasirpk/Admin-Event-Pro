@@ -165,6 +165,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
               message: 'Failed to authenticate with Google'));
         }
       } catch (e) {
+        print("Google Authentication error $e"); 
         // Error during authentication process
         emit(AuthenticatedErrors(message: 'Google authentication error: $e'));
       }
