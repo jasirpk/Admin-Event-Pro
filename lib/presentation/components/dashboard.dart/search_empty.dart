@@ -92,15 +92,22 @@ class EmptySearchWidget extends StatelessWidget {
                         children: [
                           Container(
                             width: screenWidth * 0.30,
-                            height: screenHeight * 0.15,
+                            height: screenHeight * 0.16,
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
-                              image: DecorationImage(
-                                image: imagePath.startsWith('http')
-                                    ? NetworkImage(imagePath)
-                                    : AssetImage(imagePath) as ImageProvider,
-                                fit: BoxFit.cover,
-                              ),
+                            ),
+                            child: ClipRRect(
+                              borderRadius: BorderRadius.circular(10),
+                              child: imagePath.startsWith('http')
+                                  ? FadeInImage.assetNetwork(
+                                      placeholder: Assigns.placeHolderImage,
+                                      image: imagePath,
+                                      fit: BoxFit.cover,
+                                    )
+                                  : Image.asset(
+                                      imagePath,
+                                      fit: BoxFit.cover,
+                                    ),
                             ),
                           ),
                           SizedBox(width: 8.0),
@@ -124,7 +131,10 @@ class EmptySearchWidget extends StatelessWidget {
                                     subDetailData['description'] ?? '',
                                     overflow: TextOverflow.ellipsis,
                                     maxLines: 4,
-                                    style: TextStyle(fontSize: 14.0),
+                                    style: TextStyle(
+                                      fontSize: 14.0,
+                                      fontFamily: 'JacquesFracois',
+                                    ),
                                   ),
                                 ],
                               ),

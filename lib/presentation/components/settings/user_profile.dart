@@ -40,14 +40,22 @@ class UserProfileWidget extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                          border: Border.all(color: Colors.white),
-                          borderRadius: BorderRadius.circular(100)),
+                        border: Border.all(color: Colors.white),
+                        borderRadius: BorderRadius.circular(100),
+                      ),
                       child: CircleAvatar(
-                          maxRadius: 60,
-                          backgroundImage: profileImage.isNotEmpty
-                              ? NetworkImage(profileImage)
-                              : AssetImage(Assigns.personImage)
-                                  as ImageProvider),
+                        maxRadius: 60,
+                        child: ClipOval(
+                          child: FadeInImage(
+                            placeholder: AssetImage(Assigns.personImage),
+                            image: profileImage.isNotEmpty
+                                ? NetworkImage(profileImage)
+                                : AssetImage(Assigns.personImage)
+                                    as ImageProvider,
+                            fit: BoxFit.cover,
+                          ),
+                        ),
+                      ),
                     ),
                     Positioned(
                       bottom: 0,

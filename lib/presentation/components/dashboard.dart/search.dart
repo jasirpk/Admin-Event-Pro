@@ -1,3 +1,4 @@
+import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/search_empty.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/search_stack.dart';
@@ -154,17 +155,25 @@ class _SearchPageState extends State<SearchPage> {
                                     children: [
                                       Container(
                                         width: screenWidth * 0.30,
-                                        height: screenHeight * 0.15,
+                                        height: screenHeight * 0.16,
                                         decoration: BoxDecoration(
                                           borderRadius:
                                               BorderRadius.circular(10),
-                                          image: DecorationImage(
-                                            image: imagePath.startsWith('http')
-                                                ? NetworkImage(imagePath)
-                                                : AssetImage(imagePath)
-                                                    as ImageProvider,
-                                            fit: BoxFit.cover,
-                                          ),
+                                        ),
+                                        child: ClipRRect(
+                                          borderRadius:
+                                              BorderRadius.circular(10),
+                                          child: imagePath.startsWith('http')
+                                              ? FadeInImage.assetNetwork(
+                                                  placeholder:
+                                                      Assigns.placeHolderImage,
+                                                  image: imagePath,
+                                                  fit: BoxFit.cover,
+                                                )
+                                              : Image.asset(
+                                                  imagePath,
+                                                  fit: BoxFit.cover,
+                                                ),
                                         ),
                                       ),
                                       SizedBox(width: 8.0),
@@ -183,6 +192,7 @@ class _SearchPageState extends State<SearchPage> {
                                                 style: TextStyle(
                                                   fontSize: 18,
                                                   fontWeight: FontWeight.bold,
+                                                  fontFamily: 'JacquesFracois',
                                                 ),
                                               ),
                                               SizedBox(height: 4.0),
@@ -191,8 +201,10 @@ class _SearchPageState extends State<SearchPage> {
                                                     '',
                                                 overflow: TextOverflow.ellipsis,
                                                 maxLines: 4,
-                                                style:
-                                                    TextStyle(fontSize: 14.0),
+                                                style: TextStyle(
+                                                  fontSize: 14.0,
+                                                  fontFamily: 'JacquesFracois',
+                                                ),
                                               ),
                                             ],
                                           ),

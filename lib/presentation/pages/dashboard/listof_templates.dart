@@ -179,7 +179,10 @@ class SubEventTemplatesScreen extends StatelessWidget {
                                   subDetailData['about'],
                                   overflow: TextOverflow.ellipsis,
                                   maxLines: 4,
-                                  style: TextStyle(fontSize: 14.0),
+                                  style: TextStyle(
+                                    fontSize: 14.0,
+                                    fontFamily: 'JacquesFracois',
+                                  ),
                                 ),
                               ],
                             ),

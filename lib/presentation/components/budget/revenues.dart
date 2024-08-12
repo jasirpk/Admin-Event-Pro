@@ -20,7 +20,7 @@ class RevenuesWidget extends StatelessWidget {
         Text(text),
         sizedboxWidth,
         Text(
-          value,
+          "${value} ₹",
           style: TextStyle(color: myColor),
         ),
       ],
