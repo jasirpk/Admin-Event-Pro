@@ -1,7 +1,7 @@
-import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_carousal.dart';
 import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -82,23 +82,34 @@ class ListViewWidget extends StatelessWidget {
                       ),
                       child: Stack(
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: FadeInImage.assetNetwork(
-                              placeholder: Assigns.placeHolderImage,
-                              image: imagePath,
-                              fit: BoxFit.cover,
-                              width: screenWidth,
-                              height: screenHeight,
-                              imageErrorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  Assigns.placeHolderImage,
-                                  fit: BoxFit.cover,
-                                  width: screenWidth,
-                                  height: screenHeight,
-                                );
-                              },
+                          CachedNetworkImage(
+                            imageUrl: imagePath,
+                            placeholder: (context, url) => Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
+                            errorWidget: (context, url, error) => Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey.shade300,
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.error,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                            fit: BoxFit.cover,
+                            width: screenWidth,
+                            height: screenHeight,
                           ),
                           Align(
                             alignment: Alignment.bottomLeft,

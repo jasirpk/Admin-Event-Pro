@@ -1,7 +1,7 @@
-import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_subcategory.dart';
 import 'package:admineventpro/presentation/pages/dashboard/add_vendors.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -88,23 +88,32 @@ class SubCategoryWidget extends StatelessWidget {
                       ),
                       child: Stack(
                         children: [
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(10),
-                            child: FadeInImage.assetNetwork(
-                              placeholder: Assigns.placeHolderImage,
-                              image: subimagePath,
-                              fit: BoxFit.cover,
-                              width: double.infinity,
-                              height: double.infinity,
-                              imageErrorBuilder: (context, error, stackTrace) {
-                                return Image.asset(
-                                  Assigns.placeHolderImage,
-                                  fit: BoxFit.cover,
-                                  width: double.infinity,
-                                  height: double.infinity,
-                                );
-                              },
+                          CachedNetworkImage(
+                            imageUrl: subimagePath,
+                            placeholder: (context, url) => Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.white,
+                                ),
+                              ),
                             ),
+                            errorWidget: (context, url, error) => Container(
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(4),
+                              ),
+                              child: Center(
+                                child: Icon(
+                                  Icons.error,
+                                  color: Colors.red,
+                                ),
+                              ),
+                            ),
+                            fit: BoxFit.cover,
+                            width: screenWidth * 0.90,
+                            height: screenHeight * 0.32,
                           ),
                           Align(
                             alignment: Alignment.bottomCenter,

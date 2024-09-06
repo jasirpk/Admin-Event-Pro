@@ -1,6 +1,6 @@
 import 'package:admineventpro/bussiness_layer/repos/search.dart';
-import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/services/favorites.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -143,18 +143,34 @@ class SubEventTemplatesScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: ClipRRect(
-                              borderRadius: BorderRadius.circular(10),
-                              child: subimagePath.startsWith('http')
-                                  ? FadeInImage.assetNetwork(
-                                      placeholder: Assigns.placeHolderImage,
-                                      image: subimagePath,
-                                      fit: BoxFit.cover,
-                                    )
-                                  : Image.asset(
-                                      subimagePath,
-                                      fit: BoxFit.cover,
-                                    ),
+                            child: CachedNetworkImage(
+                              imageUrl: subimagePath,
+                              placeholder: (context, url) => Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.error,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                              fit: BoxFit.cover,
+                              width: screenWidth * 0.30,
+                              height: screenHeight * 0.16,
                             ),
                           ),
                           SizedBox(width: 8.0),

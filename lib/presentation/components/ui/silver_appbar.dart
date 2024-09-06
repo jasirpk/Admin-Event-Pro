@@ -105,6 +105,7 @@ class SilverAppBarWidget extends StatelessWidget {
                       borderRadius: BorderRadius.circular(10)),
                   child: TextFormField(
                     decoration: InputDecoration(
+                        enabled: false,
                         prefixIcon: Icon(Icons.search),
                         labelText: 'Search Your Category Template',
                         border: InputBorder.none,

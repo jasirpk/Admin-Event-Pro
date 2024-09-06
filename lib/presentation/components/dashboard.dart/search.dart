@@ -1,9 +1,9 @@
-import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/search_empty.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/search_stack.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
@@ -160,20 +160,38 @@ class _SearchPageState extends State<SearchPage> {
                                           borderRadius:
                                               BorderRadius.circular(10),
                                         ),
-                                        child: ClipRRect(
-                                          borderRadius:
-                                              BorderRadius.circular(10),
-                                          child: imagePath.startsWith('http')
-                                              ? FadeInImage.assetNetwork(
-                                                  placeholder:
-                                                      Assigns.placeHolderImage,
-                                                  image: imagePath,
-                                                  fit: BoxFit.cover,
-                                                )
-                                              : Image.asset(
-                                                  imagePath,
-                                                  fit: BoxFit.cover,
-                                                ),
+                                        child: CachedNetworkImage(
+                                          imageUrl: imagePath,
+                                          placeholder: (context, url) =>
+                                              Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey.shade300,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Center(
+                                              child: CircularProgressIndicator(
+                                                color: Colors.white,
+                                              ),
+                                            ),
+                                          ),
+                                          errorWidget: (context, url, error) =>
+                                              Container(
+                                            decoration: BoxDecoration(
+                                              color: Colors.grey.shade300,
+                                              borderRadius:
+                                                  BorderRadius.circular(4),
+                                            ),
+                                            child: Center(
+                                              child: Icon(
+                                                Icons.error,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          ),
+                                          fit: BoxFit.cover,
+                                          width: screenWidth * 0.30,
+                                          height: screenHeight * 0.16,
                                         ),
                                       ),
                                       SizedBox(width: 8.0),

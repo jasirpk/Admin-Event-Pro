@@ -40,11 +40,12 @@ class UserProfileWidget extends StatelessWidget {
                   children: [
                     Container(
                       decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white),
+                        border: Border.all(color: Colors.white, width: 3.0),
                         borderRadius: BorderRadius.circular(100),
                       ),
                       child: CircleAvatar(
                         maxRadius: 60,
+                        backgroundColor: Colors.transparent,
                         child: ClipOval(
                           child: FadeInImage(
                             placeholder: AssetImage(Assigns.personImage),
@@ -53,6 +54,8 @@ class UserProfileWidget extends StatelessWidget {
                                 : AssetImage(Assigns.personImage)
                                     as ImageProvider,
                             fit: BoxFit.cover,
+                            width: 120,
+                            height: 120,
                           ),
                         ),
                       ),

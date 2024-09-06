@@ -1,5 +1,4 @@
 import 'dart:ui';
-
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/sub_category_widget.dart';
@@ -9,6 +8,7 @@ import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class SilverListViewWidget extends StatelessWidget {
   SilverListViewWidget({
@@ -87,17 +87,31 @@ class SilverListViewWidget extends StatelessWidget {
                         child: Stack(
                           children: [
                             ImageFiltered(
-                              imageFilter:
-                                  ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                              child: Image(
-                                image: imagePath.startsWith('http')
-                                    ? NetworkImage(imagePath)
-                                    : AssetImage(imagePath) as ImageProvider,
-                                fit: BoxFit.cover,
-                                height: screenHeight * 0.32,
-                                width: screenWidth * 0.90,
-                              ),
-                            ),
+                                imageFilter:
+                                    ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                child: FadeInImage(
+                                  placeholder: MemoryImage(
+                                      kTransparentImage), // Placeholder for showing transparent image before load
+                                  image: NetworkImage(imagePath),
+                                  fit: BoxFit.cover,
+                                  height: screenHeight * 0.32,
+                                  width: screenWidth * 0.90,
+                                  imageErrorBuilder:
+                                      (context, error, stackTrace) {
+                                    return Center(
+                                      child: Icon(Icons.error,
+                                          color: Colors
+                                              .red), // Show error icon if image fails to load
+                                    );
+                                  },
+                                  placeholderErrorBuilder:
+                                      (context, error, stackTrace) {
+                                    return Center(
+                                      child:
+                                          CircularProgressIndicator(), // Placeholder loading spinner
+                                    );
+                                  },
+                                )),
                             Column(
                               children: [
                                 Row(

@@ -77,7 +77,7 @@ class _ProfilePageState extends State<ProfilePage> {
                 Get.back();
               },
               onConfirm: () {
-                Get.off(() => GoogleAuthScreen());
+                Get.offAll(() => GoogleAuthScreen());
                 context.read<ManageBloc>().add(Logout());
                 context.read<ManageBloc>().add(SignOutWithGoogle());
                 // context.read<ManageBloc>().add(SignOutWithFacebook());
