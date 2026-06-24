@@ -33,15 +33,13 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       emit(AuthLoading());
 
       try {
-        final userCredential = await auth.signInWithEmailAndPassword(
-            email: event.email, password: event.password);
+        final userCredential = await auth.signInWithEmailAndPassword(email: event.email, password: event.password);
 
         final user = userCredential.user!;
         await saveAuthState(user.uid, user.email ?? '');
 
         print('Account is authenticated');
-        emit(Authenticated(
-            UserModel(uid: user.uid, email: user.email, password: '')));
+        emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
       } catch (e) {
         emit(AuthenticatedErrors(message: 'not authenticated'));
         print('Authentication failed: $e');
@@ -56,10 +54,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         );
         final user = userCredential.user;
         if (user != null) {
-          await FirebaseFirestore.instance
-              .collection('entrepreneurs')
-              .doc(user.uid)
-              .set({
+          await FirebaseFirestore.instance.collection('entrepreneurs').doc(user.uid).set({
             'uid': user.uid,
             'email': user.email,
             'password': event.userModel.password,
@@ -70,8 +65,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
           print('Current FirebaseAuth user UID: ${user.uid}');
           print('Current FirebaseAuth user Email: ${user.email}');
 
-          emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
           emit(UnAthenticated());
         }
@@ -107,8 +101,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         if (user != null) {
           print('User found in FirebaseAuth');
           Get.offAll(() => HomeScreen());
-          emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
           print('User NOt found in FirebaseAuth');
           Get.offAll(() => WelcomeAdmin());
@@ -133,48 +126,49 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       emit(AuthLoading());
 
       try {
-        final GoogleSignInAccount? googleUser = await GoogleSignIn().signIn();
+        final GoogleSignIn googleSignIn = GoogleSignIn.instance;
 
-        if (googleUser == null) {
-          // User canceled the Google sign-in process
-          emit(AuthenticatedErrors(message: 'Google sign-in canceled'));
-          return;
-        }
+        await googleSignIn.initialize();
 
-        final GoogleSignInAuthentication? googleAuth =
-            await googleUser.authentication;
+        final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
+
+        final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
         final credential = GoogleAuthProvider.credential(
-          accessToken: googleAuth?.accessToken,
-          idToken: googleAuth?.idToken,
+          idToken: googleAuth.idToken,
         );
 
-        final userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
+        final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
 
         final user = userCredential.user;
+
         if (user != null) {
-          // Authentication successful, save user data and emit Authenticated state
-          await saveAuthState(user.uid, user.email!);
-          emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email!, password: '')));
-          print('Google Authentication successful');
-        } else {
-          // Failed to get user after authentication
-          emit(AuthenticatedErrors(
-              message: 'Failed to authenticate with Google'));
+          await saveAuthState(
+            user.uid,
+            user.email ?? '',
+          );
+
+          emit(
+            Authenticated(
+              UserModel(
+                uid: user.uid,
+                email: user.email,
+                password: '',
+              ),
+            ),
+          );
         }
       } catch (e) {
-        print("Google Authentication error $e"); 
-        // Error during authentication process
-        emit(AuthenticatedErrors(message: 'Google authentication error: $e'));
+        emit(
+          AuthenticatedErrors(
+            message: e.toString(),
+          ),
+        );
       }
-    });
-
-// Google Sign-out..!
+    }); // Google Sign-out..!
     on<SignOutWithGoogle>((event, emit) async {
       try {
-        await GoogleSignIn().signOut();
+        await GoogleSignIn.instance.signOut();
         clearAuthState();
       } catch (e) {
         emit(AuthenticatedErrors(message: 'signOut error'));
@@ -251,12 +245,9 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
   // validation...!
 
-  FutureOr<void> validateTextField(
-      TextFieldTextChanged event, Emitter<ManageState> emit) {
+  FutureOr<void> validateTextField(TextFieldTextChanged event, Emitter<ManageState> emit) {
     try {
-      emit(isValidEmail(event.text)
-          ? TextValid()
-          : TextInvalid(message: 'Enter valid email'));
+      emit(isValidEmail(event.text) ? TextValid() : TextInvalid(message: 'Enter valid email'));
     } catch (e) {
       emit(AuthenticatedErrors(message: e.toString()));
     }
@@ -266,12 +257,9 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     return text.isNotEmpty && text.contains('@gmail.com');
   }
 
-  FutureOr<void> validatePasswordField(
-      TextFieldPasswordChanged event, Emitter<ManageState> emit) {
+  FutureOr<void> validatePasswordField(TextFieldPasswordChanged event, Emitter<ManageState> emit) {
     try {
-      emit(isValidPassword(event.password)
-          ? passwordValid()
-          : passwordInvalid(message: 'Enter valid password'));
+      emit(isValidPassword(event.password) ? passwordValid() : passwordInvalid(message: 'Enter valid password'));
     } catch (e) {
       emit(AuthenticatedErrors(message: e.toString()));
     }
@@ -283,8 +271,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
   // view Password...!
 
-  FutureOr<void> togglePasswordVisibility(
-      TogglePasswordVisibility event, Emitter<ManageState> emit) {
+  FutureOr<void> togglePasswordVisibility(TogglePasswordVisibility event, Emitter<ManageState> emit) {
     isPasswordVisible = !isPasswordVisible;
     emit(PasswordVisibilityToggled(isPasswordVisible));
   }
