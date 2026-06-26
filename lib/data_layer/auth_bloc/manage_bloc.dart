@@ -160,12 +160,13 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         }
       } catch (e) {
         emit(
-          AuthenticatedErrors(
-            message: e.toString(),
-          ),
+          AuthenticatedErrors(message: e.toString()),
         );
+        log(e.toString());
       }
-    }); // Google Sign-out..!
+    });
+
+    // Google Sign-out..!
     on<SignOutWithGoogle>((event, emit) async {
       try {
         await GoogleSignIn.instance.signOut();

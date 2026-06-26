@@ -18,8 +18,8 @@ Future<void> main() async {
 
   await FirebaseAppCheck.instance.activate(
     // webProvider: ReCaptchaV3Provider('recaptcha-v3-site-key'),
-    androidProvider: AndroidProvider.debug,
-    // appleProvider: AppleProvider.debug,
+    providerAndroid: AndroidDebugProvider(),
+    providerApple: AppleDebugProvider()
   );
   runApp(AdminEventPro());
 }
@@ -34,7 +34,7 @@ class AdminEventPro extends StatelessWidget {
         BlocProvider(create: (context) => ManageBloc()),
         BlocProvider(create: (context) => DashboardBloc()),
         BlocProvider(create: (context) => GeneratedBloc()),
-        BlocProvider(create: (contex) => ProfileBloc()),
+        BlocProvider(create: (context) => ProfileBloc()),
       ],
       child: GetMaterialApp(
         debugShowCheckedModeBanner: false,

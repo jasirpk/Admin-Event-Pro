@@ -31,7 +31,7 @@ class GoogleAuthScreen extends StatelessWidget {
           );
         } else if (state is Authenticated) {
           Get.offAll(() => HomeScreen());
-          showCustomSnackBar('Success', 'Successfully Registed');
+          showCustomSnackBar('Success', 'Successfully Registered');
         } else if (state is AuthenticatedErrors) {
           showCustomSnackBar('Error', state.message);
         }
@@ -66,16 +66,14 @@ class GoogleAuthScreen extends StatelessWidget {
                     SizedBox(height: MediaQuery.of(context).size.height * 0.18),
                     Text(
                       'Hi !',
-                      style:
-                          TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
+                      style: TextStyle(fontSize: 40, fontWeight: FontWeight.bold),
                     ),
                     SizedBox(height: MediaQuery.of(context).size.height * 0.02),
                     ClipRRect(
                       child: BackdropFilter(
                         filter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                         child: Container(
-                          padding: EdgeInsets.symmetric(
-                              horizontal: 16, vertical: 18),
+                          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 18),
                           decoration: BoxDecoration(
                             color: Color.fromARGB(0, 0, 0, 1).withOpacity(0.2),
                             borderRadius: BorderRadius.circular(30),
@@ -92,23 +90,18 @@ class GoogleAuthScreen extends StatelessWidget {
                                   obscureText: false,
                                 ),
                                 SizedBox(height: 10),
-                                PasswordField(
-                                    controller: userPasswordController,
-                                    hintText: 'Password'),
+                                PasswordField(controller: userPasswordController, hintText: 'Password'),
                                 SizedBox(height: 10),
                                 PushableButton_widget(
                                     buttonText: 'Continue',
                                     onpressed: () {
                                       final email = userEmailController.text;
-                                      final password =
-                                          userPasswordController.text;
+                                      final password = userPasswordController.text;
                                       if (email.isEmpty || password.isEmpty) {
-                                        showCustomSnackBar(
-                                            'Error', 'Please fill all fields');
+                                        showCustomSnackBar('Error', 'Please fill all fields');
                                         return;
                                       }
-                                      authBloc.add(LoginEvent(
-                                          email: email, password: password));
+                                      authBloc.add(LoginEvent(email: email, password: password));
                                     }),
                                 SizedBox(height: 10),
                                 Text(
@@ -119,23 +112,19 @@ class GoogleAuthScreen extends StatelessWidget {
                                 SizedBox(height: 8),
                                 SqureTile(
                                   onpressed: () {
-                                    context
-                                        .read<ManageBloc>()
-                                        .add(GoogleAuth());
+                                    context.read<ManageBloc>().add(GoogleAuth());
                                   },
                                   imagePath: 'assets/images/google.png',
                                   title: 'Continue with Google',
                                 ),
-                                // SizedBox(height: 10),
-                                // SqureTile(
-                                //   onpressed: () {
-                                //     context
-                                //         .read<ManageBloc>()
-                                //         .add(FaceBookAuth());
-                                //   },
-                                //   imagePath: 'assets/images/facebook.png',
-                                //   title: 'Continue with Facebook',
-                                // ),
+                                SizedBox(height: 10),
+                                SqureTile(
+                                  onpressed: () {
+                                    context.read<ManageBloc>().add(FaceBookAuth());
+                                  },
+                                  imagePath: 'assets/images/facebook.png',
+                                  title: 'Continue with Facebook',
+                                ),
                                 SizedBox(height: 10),
                                 AuthBottomText(
                                     onpressed: () {
