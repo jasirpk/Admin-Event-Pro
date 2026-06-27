@@ -7,7 +7,10 @@ class ManageInitial extends ManageState {}
 
 //Authentiacation...!
 
-class AuthLoading extends ManageState {}
+class AuthLoading extends ManageState {
+  final bool isLoaded;
+  AuthLoading(this.isLoaded);
+}
 
 class Authenticated extends ManageState {
   final UserModel user;

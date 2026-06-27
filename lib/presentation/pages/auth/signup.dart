@@ -26,18 +26,28 @@ class SignupScreen extends StatelessWidget {
     return Scaffold(
       body: BlocListener<ManageBloc, ManageState>(
         listener: (context, state) {
-          if (state is Authenticated) {
+          if(state is AuthLoading && state.isLoaded){
+            showDialog(
+              context: context,
+              barrierDismissible: false,
+              builder: (context) => Center(child: CircularProgressIndicator()),
+            );
+          }
+         else if (state is Authenticated) {
+            Navigator.of(context, rootNavigator: true).pop();
             WidgetsBinding.instance.addPostFrameCallback((_) {
               showCustomSnackBar('Success', 'Successfully Registered');
               Get.offAll(() => HomeScreen());
             });
           } else if (state is ValidatonSuccess) {
+            Navigator.of(context, rootNavigator: true).pop();
             UserModel user = UserModel(
               email: userEmailController.text,
               password: userPasswordController.text,
             );
             context.read<ManageBloc>().add(SignUp(userModel: user));
           } else if (state is AuthenticatedErrors) {
+            Navigator.of(context, rootNavigator: true).pop();
             WidgetsBinding.instance.addPostFrameCallback((_) {
               showCustomSnackBar('Error', 'Authentication Error!');
             });

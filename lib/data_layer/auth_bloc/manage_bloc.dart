@@ -30,7 +30,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
     // Handle login
     on<LoginEvent>((event, emit) async {
-      emit(AuthLoading());
+      emit(AuthLoading(true));
 
       try {
         final userCredential = await auth.signInWithEmailAndPassword(email: event.email, password: event.password);
@@ -46,7 +46,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       }
     });
     on<SignUp>((event, emit) async {
-      emit(AuthLoading());
+      emit(AuthLoading(true));
       try {
         final userCredential = await auth.createUserWithEmailAndPassword(
           email: event.userModel.email ?? '',
@@ -78,7 +78,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 // storing data in SharedPreference...!
 
     on<CheckUserEvent>((event, emit) async {
-      emit(AuthLoading());
+      emit(AuthLoading(true));
       await Future.delayed(Duration(seconds: 2));
       final prefs = await SharedPreferences.getInstance();
       final uid = prefs.getString('uid');
@@ -123,7 +123,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
 // Google Auth...!
     on<GoogleAuth>((event, emit) async {
-      emit(AuthLoading());
+      emit(AuthLoading(true));
 
       try {
         final GoogleSignIn googleSignIn = GoogleSignIn.instance;
@@ -178,34 +178,34 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
 // Handle the Facebook Auth...!
 
-    // on<FaceBookAuth>((event, emit) async {
-    //   emit(AuthLoading());
-    //   try {
-    //     final LoginResult result =
-    //         await FacebookAuth.instance.login(permissions: [
-    //       'email',
-    //     ]);
+    on<FaceBookAuth>((event, emit) async {
+      emit(AuthLoading(true));
+      try {
+        final LoginResult result =
+            await FacebookAuth.instance.login(permissions: [
+          'email',
+        ]);
 
-    //     if (result.status == LoginStatus.success) {
-    //       final OAuthCredential FacebookAuthCredential =
-    //           FacebookAuthProvider.credential(result.accessToken!.tokenString);
-    //       final userCredential =
-    //           await auth.signInWithCredential(FacebookAuthCredential);
-    //       final user = userCredential.user!;
+        if (result.status == LoginStatus.success) {
+          final OAuthCredential FacebookAuthCredential =
+              FacebookAuthProvider.credential(result.accessToken!.tokenString);
+          final userCredential =
+              await auth.signInWithCredential(FacebookAuthCredential);
+          final user = userCredential.user!;
 
-    //       await saveAuthState(user.uid, user.email!);
+          await saveAuthState(user.uid, user.email!);
 
-    //       print('facebook account is authenticated');
-    //       emit(Authenticated(
-    //           UserModel(uid: user.uid, email: user.email, password: '')));
-    //     } else {
-    //       emit(AuthenticatedErrors(
-    //           message: 'Facebook login failed:${result.message}'));
-    //     }
-    //   } catch (e) {
-    //     emit(AuthenticatedErrors(message: 'facebook errors$e'));
-    //   }
-    // });
+          print('facebook account is authenticated');
+          emit(Authenticated(
+              UserModel(uid: user.uid, email: user.email, password: '')));
+        } else {
+          emit(AuthenticatedErrors(
+              message: 'Facebook login failed:${result.message}'));
+        }
+      } catch (e) {
+        emit(AuthenticatedErrors(message: 'facebook errors$e'));
+      }
+    });
 
 // facebook signOut...!
 

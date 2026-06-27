@@ -24,15 +24,18 @@ class GoogleAuthScreen extends StatelessWidget {
     final authBloc = BlocProvider.of<ManageBloc>(context);
     return BlocListener<ManageBloc, ManageState>(
       listener: (context, state) {
-        if (state is AuthLoading) {
+        if (state is AuthLoading && state.isLoaded) {
           showDialog(
             context: context,
+            barrierDismissible: false,
             builder: (context) => Center(child: CircularProgressIndicator()),
           );
         } else if (state is Authenticated) {
+          Navigator.of(context, rootNavigator: true).pop();
           Get.offAll(() => HomeScreen());
           showCustomSnackBar('Success', 'Successfully Registered');
         } else if (state is AuthenticatedErrors) {
+          Navigator.of(context, rootNavigator: true).pop();
           showCustomSnackBar('Error', state.message);
         }
       },
@@ -120,7 +123,8 @@ class GoogleAuthScreen extends StatelessWidget {
                                 SizedBox(height: 10),
                                 SqureTile(
                                   onpressed: () {
-                                    context.read<ManageBloc>().add(FaceBookAuth());
+                                    // context.read<ManageBloc>().add(FaceBookAuth());
+                                    showCustomSnackBar('Coming Soon', 'Facebook sign-in will be available in a future update.');
                                   },
                                   imagePath: 'assets/images/facebook.png',
                                   title: 'Continue with Facebook',
