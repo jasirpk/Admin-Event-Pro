@@ -28,7 +28,7 @@ class SubEventTemplatesScreen extends StatelessWidget {
     if (user == null) {
       return Center(child: Text('User not logged in'));
     }
-    final FavoritesMehtods favoritesMehtods = FavoritesMehtods();
+    final FavoritesMehtods favoritesMethods = FavoritesMehtods();
     final subDatabaseMethods subdatabaseMethods = subDatabaseMethods();
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
@@ -41,10 +41,7 @@ class SubEventTemplatesScreen extends StatelessWidget {
             icon: Icon(Icons.search),
             color: Colors.white,
             onPressed: () {
-              showSearch(
-                  useRootNavigator: true,
-                  context: context,
-                  delegate: DataSearch(categoryId: categoryId));
+              showSearch(useRootNavigator: true, context: context, delegate: DataSearch(categoryId: categoryId));
             },
           ),
           sizedboxWidth,
@@ -94,17 +91,14 @@ class SubEventTemplatesScreen extends StatelessWidget {
                   subCategoryId,
                 ),
                 builder: (context, subdetailSnapshot) {
-                  if (subdetailSnapshot.connectionState ==
-                      ConnectionState.waiting) {
+                  if (subdetailSnapshot.connectionState == ConnectionState.waiting) {
                     return ShimmerAllSubcategories(
                       screenHeight: screenHeight,
                       screenWidth: screenWidth,
                     );
                   }
 
-                  if (!subdetailSnapshot.hasData ||
-                      subdetailSnapshot.data == null ||
-                      subdetailSnapshot.data!.data() == null) {
+                  if (!subdetailSnapshot.hasData || subdetailSnapshot.data == null || subdetailSnapshot.data!.data() == null) {
                     return Center(
                       child: Text(
                         'Details not found for $subCategoryId',
@@ -113,8 +107,7 @@ class SubEventTemplatesScreen extends StatelessWidget {
                     );
                   }
 
-                  var subDetailData =
-                      subdetailSnapshot.data!.data() as Map<String, dynamic>;
+                  var subDetailData = subdetailSnapshot.data!.data() as Map<String, dynamic>;
 
                   return InkWell(
                     onTap: () {
@@ -130,8 +123,7 @@ class SubEventTemplatesScreen extends StatelessWidget {
                         vertical: 8.0,
                       ),
                       decoration: BoxDecoration(
-                        border: Border.all(
-                            color: Colors.white.withOpacity(0.5), width: 0.5),
+                        border: Border.all(color: Colors.white.withOpacity(0.5), width: 0.5),
                         borderRadius: BorderRadius.circular(10),
                       ),
                       child: Row(
@@ -160,6 +152,8 @@ class SubEventTemplatesScreen extends StatelessWidget {
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade300,
                                   borderRadius: BorderRadius.circular(4),
+                                    image: DecorationImage(image: AssetImage('assets/images/venue_decoration_img.jpg'),fit: BoxFit.cover)
+
                                 ),
                                 child: Center(
                                   child: Icon(
@@ -182,11 +176,7 @@ class SubEventTemplatesScreen extends StatelessWidget {
                                 Text(
                                   subDetailData['subCategoryName'] ?? 'No Name',
                                   style: TextStyle(
-                                    fontSize: subDetailData['subCategoryName']
-                                                .length >
-                                            14
-                                        ? 16
-                                        : 18,
+                                    fontSize: subDetailData['subCategoryName'].length > 14 ? 16 : 18,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
@@ -207,41 +197,32 @@ class SubEventTemplatesScreen extends StatelessWidget {
                             mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                             children: [
                               StreamBuilder<DocumentSnapshot>(
-                                  stream: favoritesMehtods.getFavoritesStatus(
-                                      user.uid, subCategoryId),
+                                  stream: favoritesMethods.getFavoritesStatus(user.uid, subCategoryId),
                                   builder: (context, snapshot) {
-                                    bool isFavorite =
-                                        snapshot.data?.exists ?? false;
+                                    bool isFavorite = snapshot.data?.exists ?? false;
                                     return IconButton(
                                       onPressed: () async {
                                         if (isFavorite) {
-                                          favoritesMehtods.removeFavorite(
-                                              user.uid, subCategoryId);
+                                          favoritesMethods.removeFavorite(user.uid, subCategoryId);
                                         } else {
-                                          favoritesMehtods.addFavorite(user.uid,
-                                              categoryId, subCategoryId, {
+                                          favoritesMethods.addFavorite(user.uid, categoryId, subCategoryId, {
                                             'categoryId': categoryId,
                                             'subCategoryId': subCategoryId,
-                                            'subCategoryName': subDetailData[
-                                                'subCategoryName'],
+                                            'subCategoryName': subDetailData['subCategoryName'],
                                             'imagePath': subimagePath,
                                             'about': subDetailData['about'],
                                           });
                                         }
                                       },
-                                      icon: Icon(isFavorite
-                                          ? Icons.favorite
-                                          : Icons.favorite),
+                                      icon: Icon(isFavorite ? Icons.favorite : Icons.favorite),
                                       color: isFavorite ? myColor : Colors.grey,
                                     );
                                   }),
                               IconButton(
                                 onPressed: () async {
                                   Get.to(() => AddVendorsScreen(
-                                        categoryName:
-                                            subDetailData['subCategoryName'],
-                                        categoryDescription:
-                                            subDetailData['about'],
+                                        categoryName: subDetailData['subCategoryName'],
+                                        categoryDescription: subDetailData['about'],
                                         imagePath: subimagePath,
                                       ));
                                 },

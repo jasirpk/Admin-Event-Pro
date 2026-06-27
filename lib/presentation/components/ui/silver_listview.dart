@@ -30,8 +30,7 @@ class SilverListViewWidget extends StatelessWidget {
       stream: databaseMethods.getVendorDetail(selectedValue),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
-          return ShimmerAllTemplates(
-              screenHeight: screenHeight, screenWidth: screenWidth);
+          return ShimmerAllTemplates(screenHeight: screenHeight, screenWidth: screenWidth);
         }
         if (snapshot.hasError) {
           return Center(
@@ -58,8 +57,7 @@ class SilverListViewWidget extends StatelessWidget {
               future: databaseMethods.getCategoryDetailById(documentId),
               builder: (context, detailSnapshot) {
                 if (detailSnapshot.connectionState == ConnectionState.waiting) {
-                  return ShimmerAllTemplates(
-                      screenHeight: screenHeight, screenWidth: screenWidth);
+                  return ShimmerAllTemplates(screenHeight: screenHeight, screenWidth: screenWidth);
                 }
                 if (detailSnapshot.hasError) {
                   return Center(
@@ -69,8 +67,7 @@ class SilverListViewWidget extends StatelessWidget {
                 if (!detailSnapshot.hasData || detailSnapshot.data == null) {
                   return Center(child: Text('Details not found'));
                 }
-                var detailData =
-                    detailSnapshot.data!.data() as Map<String, dynamic>;
+                var detailData = detailSnapshot.data!.data() as Map<String, dynamic>;
 
                 return Center(
                   child: Padding(
@@ -87,47 +84,45 @@ class SilverListViewWidget extends StatelessWidget {
                         child: Stack(
                           children: [
                             ImageFiltered(
-                                imageFilter:
-                                    ImageFilter.blur(sigmaX: 5, sigmaY: 5),
+                                imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
                                 child: FadeInImage(
-                                  placeholder: MemoryImage(
-                                      kTransparentImage), // Placeholder for showing transparent image before load
+                                  placeholder: MemoryImage(kTransparentImage), // Placeholder for showing transparent image before load
                                   image: NetworkImage(imagePath),
                                   fit: BoxFit.cover,
                                   height: screenHeight * 0.32,
                                   width: screenWidth * 0.90,
-                                  imageErrorBuilder:
-                                      (context, error, stackTrace) {
-                                    return Center(
-                                      child: Icon(Icons.error,
-                                          color: Colors
-                                              .red), // Show error icon if image fails to load
+                                  imageErrorBuilder: (context, error, stackTrace) {
+                                    return Container(
+                                      decoration: BoxDecoration(
+                                          color: Colors.grey.shade300,
+                                          borderRadius: BorderRadius.circular(4),
+                                          image: DecorationImage(image: AssetImage('assets/images/venue_decoration_img.jpg'),fit: BoxFit.cover)
+                                      ),
+                                      child: Center(
+                                        child: Icon(
+                                          Icons.error,
+                                          color: Colors.red,
+                                        ),
+                                      ),
                                     );
                                   },
-                                  placeholderErrorBuilder:
-                                      (context, error, stackTrace) {
+                                  placeholderErrorBuilder: (context, error, stackTrace) {
                                     return Center(
-                                      child:
-                                          CircularProgressIndicator(), // Placeholder loading spinner
+                                      child: CircularProgressIndicator(), // Placeholder loading spinner
                                     );
                                   },
                                 )),
                             Column(
                               children: [
                                 Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                   children: [
                                     Padding(
                                       padding: EdgeInsets.all(8.0),
                                       child: Text(
                                         detailData['categoryName'],
                                         style: TextStyle(
-                                          fontSize: detailData['categoryName']
-                                                      .length >
-                                                  20
-                                              ? screenHeight * 0.016
-                                              : screenHeight * 0.020,
+                                          fontSize: detailData['categoryName'].length > 20 ? screenHeight * 0.016 : screenHeight * 0.020,
                                           letterSpacing: 1,
                                           color: Colors.white,
                                           fontWeight: FontWeight.bold,
@@ -142,8 +137,7 @@ class SilverListViewWidget extends StatelessWidget {
                                           Get.to(
                                             () => SubEventTemplatesScreen(
                                               categoryId: documentId,
-                                              categoryName:
-                                                  detailData['categoryName'],
+                                              categoryName: detailData['categoryName'],
                                             ),
                                           );
                                         },

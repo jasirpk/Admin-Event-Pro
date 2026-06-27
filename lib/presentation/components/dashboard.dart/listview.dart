@@ -47,15 +47,13 @@ class ListViewWidget extends StatelessWidget {
             itemCount: documents.length,
             itemBuilder: (context, index, pageIndex) {
               var data = documents[index].data() as Map<String, dynamic>;
-              String imagePath =
-                  data['imagePath'] ?? 'assets/images/venue_decoration_img.jpg';
+              String imagePath = data['imagePath'] ?? 'assets/images/venue_decoration_img.jpg';
               String documentId = documents[index].id;
 
               return FutureBuilder<DocumentSnapshot>(
                 future: databaseMethods.getCategoryDetailById(documentId),
                 builder: (context, detailSnapshot) {
-                  if (detailSnapshot.connectionState ==
-                      ConnectionState.waiting) {
+                  if (detailSnapshot.connectionState == ConnectionState.waiting) {
                     return ShimmerCarousal();
                   }
                   if (detailSnapshot.hasError) {
@@ -68,13 +66,10 @@ class ListViewWidget extends StatelessWidget {
                       child: Text('Details Not Found'),
                     );
                   }
-                  var detailData =
-                      detailSnapshot.data!.data() as Map<String, dynamic>;
+                  var detailData = detailSnapshot.data!.data() as Map<String, dynamic>;
                   return InkWell(
                     onTap: () {
-                      Get.to(() => SubEventTemplatesScreen(
-                          categoryId: documentId,
-                          categoryName: detailData['categoryName']));
+                      Get.to(() => SubEventTemplatesScreen(categoryId: documentId, categoryName: detailData['categoryName']));
                     },
                     child: Container(
                       decoration: BoxDecoration(
@@ -99,6 +94,7 @@ class ListViewWidget extends StatelessWidget {
                               decoration: BoxDecoration(
                                 color: Colors.grey.shade300,
                                 borderRadius: BorderRadius.circular(4),
+                                image: DecorationImage(image: AssetImage('assets/images/venue_decoration_img.jpg'),fit: BoxFit.cover)
                               ),
                               child: Center(
                                 child: Icon(
@@ -116,7 +112,7 @@ class ListViewWidget extends StatelessWidget {
                             child: Container(
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.only(
-                                  bottomLeft: Radius.circular(10),
+                                  bottomLeft: Radius.circular(4),
                                 ),
                                 color: Colors.black.withOpacity(0.3),
                               ),
