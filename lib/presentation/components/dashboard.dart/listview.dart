@@ -6,6 +6,7 @@ import 'package:carousel_slider/carousel_slider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 
 class ListViewWidget extends StatelessWidget {
   const ListViewWidget({
@@ -47,7 +48,7 @@ class ListViewWidget extends StatelessWidget {
             itemCount: documents.length,
             itemBuilder: (context, index, pageIndex) {
               var data = documents[index].data() as Map<String, dynamic>;
-              String imagePath = data['imagePath'] ?? 'assets/images/venue_decoration_img.jpg';
+              String imagePath = data['imagePath'] ?? kMediaPlaceholderAsset;
               String documentId = documents[index].id;
 
               return FutureBuilder<DocumentSnapshot>(
@@ -77,35 +78,38 @@ class ListViewWidget extends StatelessWidget {
                       ),
                       child: Stack(
                         children: [
-                          CachedNetworkImage(
-                            imageUrl: imagePath,
-                            placeholder: (context, url) => Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              decoration: BoxDecoration(
-                                color: Colors.grey.shade300,
-                                borderRadius: BorderRadius.circular(4),
-                                image: DecorationImage(image: AssetImage('assets/images/venue_decoration_img.jpg'),fit: BoxFit.cover)
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.error,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ),
-                            fit: BoxFit.cover,
-                            width: screenWidth,
-                            height: screenHeight,
+                          MediaUrl(
+                            imagePath: imagePath,
+                            builder: (context, url) => CachedNetworkImage(
+                                                        imageUrl: url ?? '',
+                                                        placeholder: (context, url) => Container(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey.shade300,
+                                                            borderRadius: BorderRadius.circular(4),
+                                                          ),
+                                                          child: Center(
+                                                            child: CircularProgressIndicator(
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        errorWidget: (context, url, error) => Container(
+                                                          decoration: BoxDecoration(
+                                                            color: Colors.grey.shade300,
+                                                            borderRadius: BorderRadius.circular(4),
+                                                            image: DecorationImage(image: AssetImage(kMediaPlaceholderAsset),fit: BoxFit.cover)
+                                                          ),
+                                                          child: Center(
+                                                            child: Icon(
+                                                              Icons.error,
+                                                              color: Colors.red,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        fit: BoxFit.cover,
+                                                        width: screenWidth,
+                                                        height: screenHeight,
+                                                      ),
                           ),
                           Align(
                             alignment: Alignment.bottomLeft,

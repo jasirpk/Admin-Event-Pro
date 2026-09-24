@@ -7,6 +7,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 
 class EmptySearchWidget extends StatelessWidget {
   const EmptySearchWidget({
@@ -97,34 +98,37 @@ class EmptySearchWidget extends StatelessWidget {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: CachedNetworkImage(
-                              imageUrl: imagePath,
-                              placeholder: (context, url) => Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.error,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                              fit: BoxFit.cover,
-                              width: screenWidth * 0.30,
-                              height: screenHeight * 0.16,
+                            child: MediaUrl(
+                              imagePath: imagePath,
+                              builder: (context, url) => CachedNetworkImage(
+                                                            imageUrl: url ?? '',
+                                                            placeholder: (context, url) => Container(
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.grey.shade300,
+                                                                borderRadius: BorderRadius.circular(4),
+                                                              ),
+                                                              child: Center(
+                                                                child: CircularProgressIndicator(
+                                                                  color: Colors.white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            errorWidget: (context, url, error) => Container(
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.grey.shade300,
+                                                                borderRadius: BorderRadius.circular(4),
+                                                              ),
+                                                              child: Center(
+                                                                child: Icon(
+                                                                  Icons.error,
+                                                                  color: Colors.red,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            fit: BoxFit.cover,
+                                                            width: screenWidth * 0.30,
+                                                            height: screenHeight * 0.16,
+                                                          ),
                             ),
                           ),
                           SizedBox(width: 8.0),

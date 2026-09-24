@@ -177,9 +177,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
           emailAddress: event.emailAddress,
           website: event.website,
           images: event.images,
-          links: event.links,
-          rating: event.rating,
-          validate: true);
+          links: event.links);
       emit(ProfileSuccess());
     } catch (e) {
       emit(ProfileError(error: e.toString()));

@@ -9,6 +9,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:transparent_image/transparent_image.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 
 class SilverListViewWidget extends StatelessWidget {
   SilverListViewWidget({
@@ -85,9 +86,12 @@ class SilverListViewWidget extends StatelessWidget {
                           children: [
                             ImageFiltered(
                                 imageFilter: ImageFilter.blur(sigmaX: 5, sigmaY: 5),
-                                child: FadeInImage(
+                                child: MediaImage(
+                                    imagePath: imagePath,
+                                    placeholder: kMediaPlaceholderImage,
+                                    builder: (context, image) => FadeInImage(
                                   placeholder: MemoryImage(kTransparentImage), // Placeholder for showing transparent image before load
-                                  image: NetworkImage(imagePath),
+                                  image: image ?? kMediaPlaceholderImage,
                                   fit: BoxFit.cover,
                                   height: screenHeight * 0.32,
                                   width: screenWidth * 0.90,
@@ -111,7 +115,8 @@ class SilverListViewWidget extends StatelessWidget {
                                       child: CircularProgressIndicator(), // Placeholder loading spinner
                                     );
                                   },
-                                )),
+                                ),
+                                  )),
                             Column(
                               children: [
                                 Row(

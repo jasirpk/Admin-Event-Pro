@@ -33,18 +33,21 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       emit(AuthLoading(true));
 
       try {
-        final userCredential = await auth.signInWithEmailAndPassword(email: event.email, password: event.password);
+        final userCredential = await auth.signInWithEmailAndPassword(
+            email: event.email, password: event.password);
 
         final user = userCredential.user!;
         await saveAuthState(user.uid, user.email ?? '');
 
         print('Account is authenticated');
-        emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
+        emit(Authenticated(
+            UserModel(uid: user.uid, email: user.email, password: '')));
       } catch (e) {
         emit(AuthenticatedErrors(message: 'not authenticated'));
         print('Authentication failed: $e');
       }
     });
+
     on<SignUp>((event, emit) async {
       emit(AuthLoading(true));
       try {
@@ -54,18 +57,25 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         );
         final user = userCredential.user;
         if (user != null) {
-          await FirebaseFirestore.instance.collection('entrepreneurs').doc(user.uid).set({
+          // Account bookkeeping only. The password is never persisted: the
+          // entrepreneur document is readable by consumers once an admin sets
+          // isValid, so anything stored here is effectively public. Firebase
+          // Auth already holds the credential.
+          await FirebaseFirestore.instance
+              .collection('entrepreneurs')
+              .doc(user.uid)
+              .set({
             'uid': user.uid,
             'email': user.email,
-            'password': event.userModel.password,
-            'createdAt': DateTime.now(),
-          });
+            'createdAt': FieldValue.serverTimestamp(),
+          }, SetOptions(merge: true));
           await saveAuthState(user.uid, user.email!);
           print('Account is authenticated');
           print('Current FirebaseAuth user UID: ${user.uid}');
           print('Current FirebaseAuth user Email: ${user.email}');
 
-          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(
+              UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
           emit(UnAthenticated());
         }
@@ -101,7 +111,8 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         if (user != null) {
           print('User found in FirebaseAuth');
           Get.offAll(() => HomeScreen());
-          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(
+              UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
           print('User NOt found in FirebaseAuth');
           Get.offAll(() => WelcomeAdmin());
@@ -130,7 +141,8 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
         await googleSignIn.initialize();
 
-        final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
+        final GoogleSignInAccount googleUser =
+            await googleSignIn.authenticate();
 
         final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
@@ -138,7 +150,8 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
           idToken: googleAuth.idToken,
         );
 
-        final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+        final userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
 
         final user = userCredential.user;
 
@@ -226,11 +239,14 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('uid', uid);
     await prefs.setString('email', email);
+    // Merge, never replace: this runs on every sign-in, and a replacing set()
+    // wiped companyName, isValid, images, links and the server-owned rating
+    // aggregate each time. Merging also keeps the write within what the
+    // security rules allow, since it no longer removes guarded fields.
     await FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).set({
       'uid': uid,
       'email': email,
-      'createdAt': DateTime.now(),
-    });
+    }, SetOptions(merge: true));
     log('Saved UID: $uid');
     log('Saved Email: $email');
   }
@@ -246,9 +262,12 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
   // validation...!
 
-  FutureOr<void> validateTextField(TextFieldTextChanged event, Emitter<ManageState> emit) {
+  FutureOr<void> validateTextField(
+      TextFieldTextChanged event, Emitter<ManageState> emit) {
     try {
-      emit(isValidEmail(event.text) ? TextValid() : TextInvalid(message: 'Enter valid email'));
+      emit(isValidEmail(event.text)
+          ? TextValid()
+          : TextInvalid(message: 'Enter valid email'));
     } catch (e) {
       emit(AuthenticatedErrors(message: e.toString()));
     }
@@ -258,9 +277,12 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     return text.isNotEmpty && text.contains('@gmail.com');
   }
 
-  FutureOr<void> validatePasswordField(TextFieldPasswordChanged event, Emitter<ManageState> emit) {
+  FutureOr<void> validatePasswordField(
+      TextFieldPasswordChanged event, Emitter<ManageState> emit) {
     try {
-      emit(isValidPassword(event.password) ? passwordValid() : passwordInvalid(message: 'Enter valid password'));
+      emit(isValidPassword(event.password)
+          ? passwordValid()
+          : passwordInvalid(message: 'Enter valid password'));
     } catch (e) {
       emit(AuthenticatedErrors(message: e.toString()));
     }
@@ -272,7 +294,8 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
   // view Password...!
 
-  FutureOr<void> togglePasswordVisibility(TogglePasswordVisibility event, Emitter<ManageState> emit) {
+  FutureOr<void> togglePasswordVisibility(
+      TogglePasswordVisibility event, Emitter<ManageState> emit) {
     isPasswordVisible = !isPasswordVisible;
     emit(PasswordVisibilityToggled(isPasswordVisible));
   }

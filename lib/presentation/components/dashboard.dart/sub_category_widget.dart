@@ -5,6 +5,7 @@ import 'package:cached_network_image/cached_network_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 
 class SubCategoryWidget extends StatelessWidget {
   const SubCategoryWidget({
@@ -88,32 +89,35 @@ class SubCategoryWidget extends StatelessWidget {
                       ),
                       child: Stack(
                         children: [
-                          CachedNetworkImage(
-                            imageUrl: subimagePath,
-                            placeholder: (context, url) => Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                ),
-                              ),
-                            ),
-                            errorWidget: (context, url, error) => Container(
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(4),
-                              ),
-                              child: Center(
-                                child: Icon(
-                                  Icons.error,
-                                  color: Colors.red,
-                                ),
-                              ),
-                            ),
-                            fit: BoxFit.cover,
-                            width: screenWidth * 0.90,
-                            height: screenHeight * 0.32,
+                          MediaUrl(
+                            imagePath: subimagePath,
+                            builder: (context, url) => CachedNetworkImage(
+                                                        imageUrl: url ?? '',
+                                                        placeholder: (context, url) => Container(
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(4),
+                                                          ),
+                                                          child: Center(
+                                                            child: CircularProgressIndicator(
+                                                              color: Colors.white,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        errorWidget: (context, url, error) => Container(
+                                                          decoration: BoxDecoration(
+                                                            borderRadius: BorderRadius.circular(4),
+                                                          ),
+                                                          child: Center(
+                                                            child: Icon(
+                                                              Icons.error,
+                                                              color: Colors.red,
+                                                            ),
+                                                          ),
+                                                        ),
+                                                        fit: BoxFit.cover,
+                                                        width: screenWidth * 0.90,
+                                                        height: screenHeight * 0.32,
+                                                      ),
                           ),
                           Align(
                             alignment: Alignment.bottomCenter,

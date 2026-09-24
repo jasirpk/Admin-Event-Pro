@@ -1,5 +1,6 @@
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/tabbarveiw_two.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:admineventpro/presentation/pages/dashboard/add_vendors.dart';
 import 'package:admineventpro/presentation/pages/dashboard/listof_templates.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/custom_tabbar.dart';
 import 'package:get/get.dart';
+import 'package:transparent_image/transparent_image.dart';
 
 class ReceiptPage extends StatelessWidget {
   @override
@@ -37,8 +39,7 @@ class ReceiptPage extends StatelessWidget {
                 stream: databaseMethods.getVendorDetail(Assigns.selectedValue),
                 builder: (context, snapshot) {
                   if (snapshot.connectionState == ConnectionState.waiting) {
-                    return ShimmerAllSubcategories(
-                        screenHeight: screenHeight, screenWidth: screenWidth);
+                    return ShimmerAllSubcategories(screenHeight: screenHeight, screenWidth: screenWidth);
                   }
 
                   if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
@@ -58,23 +59,17 @@ class ReceiptPage extends StatelessWidget {
                     itemBuilder: (context, index) {
                       var document = documents[index];
                       var data = document.data() as Map<String, dynamic>;
-                      String imagePath = data['imagePath'];
+                      String imagePath = data['imagePath'] ?? kMediaPlaceholderImage;
                       String? documentId = document.id;
 
                       return FutureBuilder<DocumentSnapshot?>(
-                        future:
-                            databaseMethods.getCategoryDetailById(documentId),
-                        builder: (context, subdetailSnapshot) {
-                          if (subdetailSnapshot.connectionState ==
-                              ConnectionState.waiting) {
-                            return ShimmerAllSubcategories(
-                                screenHeight: screenHeight,
-                                screenWidth: screenWidth);
+                        future: databaseMethods.getCategoryDetailById(documentId),
+                        builder: (context, subDetailSnapshot) {
+                          if (subDetailSnapshot.connectionState == ConnectionState.waiting) {
+                            return ShimmerAllSubcategories(screenHeight: screenHeight, screenWidth: screenWidth);
                           }
 
-                          if (!subdetailSnapshot.hasData ||
-                              subdetailSnapshot.data == null ||
-                              subdetailSnapshot.data!.data() == null) {
+                          if (!subDetailSnapshot.hasData || subDetailSnapshot.data == null || subDetailSnapshot.data!.data() == null) {
                             return Center(
                               child: Text(
                                 'Details not found for $documentId',
@@ -83,21 +78,16 @@ class ReceiptPage extends StatelessWidget {
                             );
                           }
 
-                          var subDetailData = subdetailSnapshot.data!.data()
-                              as Map<String, dynamic>;
+                          var subDetailData = subDetailSnapshot.data!.data() as Map<String, dynamic>;
 
                           return InkWell(
                             onTap: () {
-                              Get.to(() => SubEventTemplatesScreen(
-                                  categoryId: documentId,
-                                  categoryName: subDetailData['categoryName']));
+                              Get.to(() => SubEventTemplatesScreen(categoryId: documentId, categoryName: subDetailData['categoryName']));
                             },
                             child: Container(
                               margin: EdgeInsets.symmetric(vertical: 8.0),
                               decoration: BoxDecoration(
-                                border: Border.all(
-                                    color: Colors.white.withOpacity(0.5),
-                                    width: 0.5),
+                                border: Border.all(color: Colors.white.withOpacity(0.5), width: 0.5),
                                 borderRadius: BorderRadius.circular(10),
                               ),
                               child: Row(
@@ -109,51 +99,48 @@ class ReceiptPage extends StatelessWidget {
                                     decoration: BoxDecoration(
                                       borderRadius: BorderRadius.circular(10),
                                     ),
-                                    child: CachedNetworkImage(
-                                      imageUrl: imagePath,
-                                      placeholder: (context, url) => Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey.shade300,
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Center(
-                                          child: CircularProgressIndicator(
-                                            color: Colors.white,
-                                          ),
-                                        ),
+                                    child: MediaImage(
+                                      imagePath: imagePath,
+                                      placeholder: kMediaPlaceholderImage,
+                                      builder: (context, image) => FadeInImage(
+                                        placeholder: MemoryImage(kTransparentImage), // Placeholder for showing transparent image before load
+                                        image: image ?? kMediaPlaceholderImage,
+                                        fit: BoxFit.cover,
+                                        height: screenHeight * 0.32,
+                                        width: screenWidth * 0.90,
+                                        imageErrorBuilder: (context, error, stackTrace) {
+                                          return Container(
+                                            decoration: BoxDecoration(
+                                                color: Colors.grey.shade300,
+                                                borderRadius: BorderRadius.circular(4),
+                                                image: DecorationImage(image: AssetImage('assets/images/venue_decoration_img.jpg'),fit: BoxFit.cover)
+                                            ),
+                                            child: Center(
+                                              child: Icon(
+                                                Icons.error,
+                                                color: Colors.red,
+                                              ),
+                                            ),
+                                          );
+                                        },
+                                        placeholderErrorBuilder: (context, error, stackTrace) {
+                                          return Center(
+                                            child: CircularProgressIndicator(), // Placeholder loading spinner
+                                          );
+                                        },
                                       ),
-                                      errorWidget: (context, url, error) =>
-                                          Container(
-                                        decoration: BoxDecoration(
-                                          color: Colors.grey.shade300,
-                                          borderRadius:
-                                              BorderRadius.circular(4),
-                                        ),
-                                        child: Center(
-                                          child: Icon(
-                                            Icons.error,
-                                            color: Colors.red,
-                                          ),
-                                        ),
-                                      ),
-                                      fit: BoxFit.cover,
-                                      width: screenWidth * 0.30,
-                                      height: screenHeight * 0.16,
+
                                     ),
                                   ),
                                   SizedBox(width: 8.0),
                                   Expanded(
                                     child: Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          vertical: 8.0, horizontal: 8.0),
+                                      padding: EdgeInsets.symmetric(vertical: 8.0, horizontal: 8.0),
                                       child: Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
+                                        crossAxisAlignment: CrossAxisAlignment.start,
                                         children: [
                                           Text(
-                                            subDetailData['categoryName'] ??
-                                                'No Name',
+                                            subDetailData['categoryName'] ?? 'No Name',
                                             maxLines: 1,
                                             style: TextStyle(
                                               fontSize: 18,
@@ -172,8 +159,7 @@ class ReceiptPage extends StatelessWidget {
                                     ),
                                   ),
                                   Column(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceEvenly,
+                                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: [
                                       IconButton(
                                         onPressed: () {},
@@ -192,11 +178,7 @@ class ReceiptPage extends StatelessWidget {
                   );
                 },
               ),
-              TabBarViewTwo(
-                  uid: user.uid,
-                  databaseMethods: databaseMethods,
-                  screenWidth: screenWidth,
-                  screenHeight: screenHeight)
+              TabBarViewTwo(uid: user.uid, databaseMethods: databaseMethods, screenWidth: screenWidth, screenHeight: screenHeight)
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(

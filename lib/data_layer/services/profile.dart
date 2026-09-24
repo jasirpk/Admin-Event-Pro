@@ -13,10 +13,8 @@ class UserProfile {
     required String phoneNumber,
     required String emailAddress,
     required String website,
-    bool validate = false,
     required List<Map<String, dynamic>> images,
     required List<Map<String, dynamic>> links,
-    required double rating,
   }) async {
     try {
       String finalImagePath;
@@ -47,10 +45,8 @@ class UserProfile {
         'profileImage': finalImagePath,
         'images': imageUrlList,
         'links': links,
-        'isValid': validate,
         'uid': uid,
         'createdAt': FieldValue.serverTimestamp(),
-        'rating': rating,
       });
 
       print('Vendor details added successfully to sub-collection.');

@@ -169,7 +169,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       website.isNotEmpty &&
                       links.isNotEmpty &&
                       medias.isNotEmpty) {
-                    double rating = 0.0;
                     final user = FirebaseAuth.instance.currentUser;
                     if (user != null) {
                       context.read<ProfileBloc>().add(SaveProfile(
@@ -181,8 +180,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           emailAddress: emailAddress,
                           website: website,
                           images: medias,
-                          links: links,
-                          rating: rating));
+                          links: links));
                     }
                   } else {
                     ScaffoldMessenger.of(context).showSnackBar(SnackBar(

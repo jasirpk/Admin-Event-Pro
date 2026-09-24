@@ -11,6 +11,7 @@ import 'package:admineventpro/presentation/components/shimmer/shimmer_with_subli
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/pages/dashboard/add_vendors.dart';
 import 'package:admineventpro/common/style.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 
 class SubEventTemplatesScreen extends StatelessWidget {
   final String categoryId;
@@ -135,36 +136,39 @@ class SubEventTemplatesScreen extends StatelessWidget {
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(10),
                             ),
-                            child: CachedNetworkImage(
-                              imageUrl: subimagePath,
-                              placeholder: (context, url) => Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(4),
-                                    image: DecorationImage(image: AssetImage('assets/images/venue_decoration_img.jpg'),fit: BoxFit.cover)
+                            child: MediaUrl(
+                              imagePath: subimagePath,
+                              builder: (context, url) => CachedNetworkImage(
+                                                            imageUrl: url ?? '',
+                                                            placeholder: (context, url) => Container(
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.grey.shade300,
+                                                                borderRadius: BorderRadius.circular(4),
+                                                              ),
+                                                              child: Center(
+                                                                child: CircularProgressIndicator(
+                                                                  color: Colors.white,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            errorWidget: (context, url, error) => Container(
+                                                              decoration: BoxDecoration(
+                                                                color: Colors.grey.shade300,
+                                                                borderRadius: BorderRadius.circular(4),
+                                                                  image: DecorationImage(image: AssetImage('assets/images/venue_decoration_img.jpg'),fit: BoxFit.cover)
 
-                                ),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.error,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                              fit: BoxFit.cover,
-                              width: screenWidth * 0.30,
-                              height: screenHeight * 0.16,
+                                                              ),
+                                                              child: Center(
+                                                                child: Icon(
+                                                                  Icons.error,
+                                                                  color: Colors.red,
+                                                                ),
+                                                              ),
+                                                            ),
+                                                            fit: BoxFit.cover,
+                                                            width: screenWidth * 0.30,
+                                                            height: screenHeight * 0.16,
+                                                          ),
                             ),
                           ),
                           SizedBox(width: 8.0),

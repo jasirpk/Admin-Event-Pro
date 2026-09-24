@@ -35,7 +35,6 @@ class SaveProfile extends ProfileEvent {
   final String website;
   final List<Map<String, dynamic>> images;
   final List<Map<String, dynamic>> links;
-  final double rating;
 
   SaveProfile(
       {required this.uid,
@@ -46,6 +45,5 @@ class SaveProfile extends ProfileEvent {
       required this.emailAddress,
       required this.website,
       required this.images,
-      required this.links,
-      required this.rating});
+      required this.links});
 }
