@@ -33,15 +33,18 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       emit(AuthLoading(true));
 
       try {
-        final userCredential = await auth.signInWithEmailAndPassword(
-            email: event.email, password: event.password);
+        final userCredential = await auth.signInWithEmailAndPassword(email: event.email, password: event.password);
 
         final user = userCredential.user!;
-        await saveAuthState(user.uid, user.email ?? '');
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('entrepreneurs').doc(user.uid).get();
+        String platform = userDoc['platform'];
 
-        print('Account is authenticated');
-        emit(Authenticated(
-            UserModel(uid: user.uid, email: user.email, password: '')));
+        if(platform == 'mobile'){
+          await saveAuthState(user.uid, user.email ?? '');
+          print('Account is authenticated');
+          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
+        }
+
       } catch (e) {
         emit(AuthenticatedErrors(message: 'not authenticated'));
         print('Authentication failed: $e');
@@ -61,21 +64,18 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
           // entrepreneur document is readable by consumers once an admin sets
           // isValid, so anything stored here is effectively public. Firebase
           // Auth already holds the credential.
-          await FirebaseFirestore.instance
-              .collection('entrepreneurs')
-              .doc(user.uid)
-              .set({
+          await FirebaseFirestore.instance.collection('entrepreneurs').doc(user.uid).set({
             'uid': user.uid,
             'email': user.email,
-            'createdAt': FieldValue.serverTimestamp(),
+            'platform': 'mobile',
+            'createdAt': DateTime.now(),
           }, SetOptions(merge: true));
           await saveAuthState(user.uid, user.email!);
           print('Account is authenticated');
           print('Current FirebaseAuth user UID: ${user.uid}');
           print('Current FirebaseAuth user Email: ${user.email}');
 
-          emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
           emit(UnAthenticated());
         }
@@ -111,8 +111,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
         if (user != null) {
           print('User found in FirebaseAuth');
           Get.offAll(() => HomeScreen());
-          emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
           print('User NOt found in FirebaseAuth');
           Get.offAll(() => WelcomeAdmin());
@@ -141,8 +140,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
         await googleSignIn.initialize();
 
-        final GoogleSignInAccount googleUser =
-            await googleSignIn.authenticate();
+        final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
 
         final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
@@ -150,8 +148,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
           idToken: googleAuth.idToken,
         );
 
-        final userCredential =
-            await FirebaseAuth.instance.signInWithCredential(credential);
+        final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
 
         final user = userCredential.user;
 
@@ -194,26 +191,21 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     on<FaceBookAuth>((event, emit) async {
       emit(AuthLoading(true));
       try {
-        final LoginResult result =
-            await FacebookAuth.instance.login(permissions: [
+        final LoginResult result = await FacebookAuth.instance.login(permissions: [
           'email',
         ]);
 
         if (result.status == LoginStatus.success) {
-          final OAuthCredential FacebookAuthCredential =
-              FacebookAuthProvider.credential(result.accessToken!.tokenString);
-          final userCredential =
-              await auth.signInWithCredential(FacebookAuthCredential);
+          final OAuthCredential FacebookAuthCredential = FacebookAuthProvider.credential(result.accessToken!.tokenString);
+          final userCredential = await auth.signInWithCredential(FacebookAuthCredential);
           final user = userCredential.user!;
 
           await saveAuthState(user.uid, user.email!);
 
           print('facebook account is authenticated');
-          emit(Authenticated(
-              UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
-          emit(AuthenticatedErrors(
-              message: 'Facebook login failed:${result.message}'));
+          emit(AuthenticatedErrors(message: 'Facebook login failed:${result.message}'));
         }
       } catch (e) {
         emit(AuthenticatedErrors(message: 'facebook errors$e'));
@@ -262,12 +254,9 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
   // validation...!
 
-  FutureOr<void> validateTextField(
-      TextFieldTextChanged event, Emitter<ManageState> emit) {
+  FutureOr<void> validateTextField(TextFieldTextChanged event, Emitter<ManageState> emit) {
     try {
-      emit(isValidEmail(event.text)
-          ? TextValid()
-          : TextInvalid(message: 'Enter valid email'));
+      emit(isValidEmail(event.text) ? TextValid() : TextInvalid(message: 'Enter valid email'));
     } catch (e) {
       emit(AuthenticatedErrors(message: e.toString()));
     }
@@ -277,12 +266,9 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     return text.isNotEmpty && text.contains('@gmail.com');
   }
 
-  FutureOr<void> validatePasswordField(
-      TextFieldPasswordChanged event, Emitter<ManageState> emit) {
+  FutureOr<void> validatePasswordField(TextFieldPasswordChanged event, Emitter<ManageState> emit) {
     try {
-      emit(isValidPassword(event.password)
-          ? passwordValid()
-          : passwordInvalid(message: 'Enter valid password'));
+      emit(isValidPassword(event.password) ? passwordValid() : passwordInvalid(message: 'Enter valid password'));
     } catch (e) {
       emit(AuthenticatedErrors(message: e.toString()));
     }
@@ -294,8 +280,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
   // view Password...!
 
-  FutureOr<void> togglePasswordVisibility(
-      TogglePasswordVisibility event, Emitter<ManageState> emit) {
+  FutureOr<void> togglePasswordVisibility(TogglePasswordVisibility event, Emitter<ManageState> emit) {
     isPasswordVisible = !isPasswordVisible;
     emit(PasswordVisibilityToggled(isPasswordVisible));
   }
