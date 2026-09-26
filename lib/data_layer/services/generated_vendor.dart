@@ -4,6 +4,27 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
+/// Prefixes of object keys that already live in Cloudflare R2, written by the
+/// Admin Console when a category or sub-category picture was uploaded.
+///
+/// A value carrying one of these is a *reference to media that already exists*
+/// — not a path on this device. Treating it as a File would fail (nothing is
+/// there to read) and, if it did succeed, would duplicate an image the
+/// platform already stores.
+const List<String> kExistingMediaPrefixes = [
+  'category_images/',
+  'subcategory_images/',
+];
+
+/// Whether [path] already identifies stored media rather than a local file.
+///
+/// Covers both eras: a legacy Firebase Storage download URL and an R2 object
+/// key. Anything else is a picture the user just picked, which still needs
+/// uploading.
+bool isExistingMediaReference(String path) =>
+    path.startsWith('http') ||
+    kExistingMediaPrefixes.any((prefix) => path.startsWith(prefix));
+
 class GeneratedVendor {
   Future<void> addGeneratedCategoryDetail({
     required String uid,
@@ -22,7 +43,10 @@ class GeneratedVendor {
       List<Map<String, dynamic>> imageUrls = await uploadImages(images);
       String finalImagePath = imagePath;
 
-      if (!imagePath.startsWith('http')) {
+      // Re-upload only a genuinely local pick. An existing R2 object key or a
+      // legacy URL is stored as-is, so selecting a sub-category reuses its
+      // picture instead of copying it.
+      if (!isExistingMediaReference(imagePath)) {
         finalImagePath = await uploadImageToFirebase(File(imagePath));
       }
 
