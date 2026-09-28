@@ -182,6 +182,9 @@ class ReceiptPage extends StatelessWidget {
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(
+              // Opens the standalone form directly. A template is optional —
+              // the user can describe a vendor and pick their own main image
+              // without choosing a catalogue entry first.
               onPressed: () {
                 Get.to(() => AddVendorsScreen());
               },

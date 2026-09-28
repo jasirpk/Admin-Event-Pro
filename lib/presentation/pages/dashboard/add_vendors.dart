@@ -7,8 +7,22 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
 class AddVendorsScreen extends StatefulWidget {
-  AddVendorsScreen(
-      {this.categoryName, this.categoryDescription, this.imagePath});
+  AddVendorsScreen({
+    this.categoryId,
+    this.subCategoryId,
+    this.categoryName,
+    this.categoryDescription,
+    this.imagePath,
+  });
+
+  /// The catalogue entry this listing is created from, when there is one.
+  ///
+  /// Optional: a template is a convenience, not a requirement. Opening this
+  /// screen with no arguments is the standalone flow, where the user types
+  /// the details and picks their own main image.
+  final String? categoryId;
+  final String? subCategoryId;
+
   final String? categoryName;
   final String? categoryDescription;
   final String? imagePath;
@@ -69,11 +83,6 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
       ),
       body: BlocBuilder<GeneratedBloc, GeneratedState>(
         builder: (context, state) {
-          if (State is SaveVendorLoading) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
           int? itemCount = 0;
           List<File?>? images;
 
@@ -82,7 +91,15 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
             itemCount = state.listViewCount;
             images = state.pickedImages;
             image = state.pickImage;
-            locationController.text = state.pickLocation;
+            // Only when the bloc actually resolved a location. This used to
+            // assign unconditionally, and pickLocation is '' until the
+            // "use my location" button runs — so any rebuild (picking a
+            // component image, for one) blanked a location the user had
+            // typed, and Submit then reported "Please fill all fields".
+            if (state.pickLocation.isNotEmpty &&
+                locationController.text != state.pickLocation) {
+              locationController.text = state.pickLocation;
+            }
             if (imageNameControllers.isEmpty) {
               imageNameControllers = List.generate(
                 itemCount,
@@ -95,17 +112,21 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
               child: CircularProgressIndicator(),
             );
           }
-          if (State is SaveVendorLoading) {
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          }
+
+          // There is deliberately no SaveVendorLoading branch. Two used to sit
+          // here, both written `State is SaveVendorLoading` — the Flutter
+          // class, not this builder's `state` — so neither could ever be true.
+          // Correcting the typo would not have helped: that state carries none
+          // of the form's data, so rendering it would throw the picked images
+          // away mid-submission. Submit reports progress through snackbars.
           return SingleChildScrollView(
             child: Container(
               margin: EdgeInsets.symmetric(vertical: 18, horizontal: 8),
               child: ComponentsFieldsWidget(
                   screenHeight: screenHeight,
                   names: names,
+                  categoryId: widget.categoryId,
+                  subCategoryId: widget.subCategoryId,
                   nameEditingController: nameEditingController,
                   screenWidth: screenWidth,
                   itemCount: itemCount,

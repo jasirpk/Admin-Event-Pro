@@ -113,6 +113,8 @@ class SubEventTemplatesScreen extends StatelessWidget {
                   return InkWell(
                     onTap: () {
                       Get.to(() => AddVendorsScreen(
+                            categoryId: categoryId,
+                            subCategoryId: subCategoryId,
                             categoryName: subDetailData['subCategoryName'],
                             categoryDescription: subDetailData['about'],
                             imagePath: subimagePath,
@@ -225,6 +227,8 @@ class SubEventTemplatesScreen extends StatelessWidget {
                               IconButton(
                                 onPressed: () async {
                                   Get.to(() => AddVendorsScreen(
+                                        categoryId: categoryId,
+                                        subCategoryId: subCategoryId,
                                         categoryName: subDetailData['subCategoryName'],
                                         categoryDescription: subDetailData['about'],
                                         imagePath: subimagePath,

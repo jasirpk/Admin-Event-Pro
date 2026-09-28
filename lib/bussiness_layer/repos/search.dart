@@ -62,6 +62,7 @@ class DataSearch extends SearchDelegate<String> {
             var document = documents[index];
             var data = document.data() as Map<String, dynamic>;
             String imagePath = data['imagePath'];
+            String subCategoryId = document.id;
             return Card(
               color: Colors.black,
               child: Container(
@@ -95,6 +96,8 @@ class DataSearch extends SearchDelegate<String> {
                       context,
                       MaterialPageRoute(
                         builder: (context) => AddVendorsScreen(
+                          categoryId: categoryId,
+                          subCategoryId: subCategoryId,
                           categoryName: data['subCategoryName'],
                           categoryDescription: data['about'],
                           imagePath: data['imagePath'],

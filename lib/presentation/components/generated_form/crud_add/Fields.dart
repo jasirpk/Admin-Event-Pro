@@ -1,6 +1,7 @@
 import 'dart:io';
 import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_add/submit_button.dart';
+import 'package:admineventpro/data_layer/services/vendor_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get/get.dart';
@@ -23,6 +24,8 @@ class ComponentsFieldsWidget extends StatelessWidget {
     Key? key,
     required this.screenHeight,
     required this.names,
+    this.categoryId,
+    this.subCategoryId,
     required this.nameEditingController,
     required this.screenWidth,
     required this.itemCount,
@@ -39,6 +42,15 @@ class ComponentsFieldsWidget extends StatelessWidget {
 
   final double screenHeight;
   final List<Map<String, String>> names;
+
+  /// The catalogue entry this listing was opened from, when there is one.
+  ///
+  /// Both null for a standalone vendor. They travel together: the API treats
+  /// one without the other as a half-filled reference and refuses it, so
+  /// [_template] is the only thing that reads them.
+  final String? categoryId;
+  final String? subCategoryId;
+
   final TextEditingController nameEditingController;
   final double screenWidth;
   final int? itemCount;
@@ -164,17 +176,31 @@ class ComponentsFieldsWidget extends StatelessWidget {
           PushableButton_widget(
             buttonText: 'Submit',
             onpressed: () async {
-              Get.back();
-              context.read<GeneratedBloc>().add(VendorSaveLoading());
-
-              if (_validateForm()) {
+              // No VendorSaveLoading here. That event emits SaveVendorLoading,
+              // a state carrying none of the form's data, and every picked
+              // image, the main image and the item count live on
+              // GeneratedInitial — so dispatching it erased the component list
+              // the moment Submit was pressed, and nothing ever put it back.
+              // The spinner it was meant to show never rendered anyway: its
+              // two guards compare `State`, the Flutter class, not `state`.
+              if (!_hasMainImage()) {
+                // A listing needs a picture. Caught here so the user is told
+                // what to do rather than seeing a generic server rejection.
+                showCustomSnackBar('Error',
+                    'Please choose a main image for this vendor.');
+              } else if (_validateForm()) {
                 try {
+                  final template = _template();
+
                   await FormSubmitManager.submitForm(
                     categoryName: nameEditingController.text,
+                    categoryId: template?.categoryId,
+                    subCategoryId: template?.subCategoryId,
+                    mainImageFile: image,
+                    templateImageKey: _templateImageKey(),
                     description: descriptionEditingController.text,
                     location: locationController.text,
                     imagesData: _prepareImagesData(),
-                    imageUrl: _resolveImageUrl(),
                     budget: _prepareBudget(),
                     context: context,
                     locationController: locationController,
@@ -185,6 +211,12 @@ class ComponentsFieldsWidget extends StatelessWidget {
                     imageNameControllers: imageNameControllers,
                   );
                   showCustomSnackBar('Success', 'Succesfully Registered');
+                  Get.back();
+                } on VendorApiException catch (e) {
+                  // e.message is written for a user and never carries a token
+                  // or the Authorization header; e.toString() would append the
+                  // raw response body, so only the message is shown.
+                  showCustomSnackBar('Error', e.message);
                 } catch (e) {
                   showCustomSnackBar('Error', 'Failed to submit: $e');
                 }
@@ -198,6 +230,36 @@ class ComponentsFieldsWidget extends StatelessWidget {
     );
   }
 
+  /// The catalogue template, when this form was opened from one.
+  ///
+  /// Returns null unless *both* ids are present and non-blank: the API
+  /// refuses one without the other, so a half-filled pair is treated as no
+  /// template at all rather than sent and rejected.
+  ({String categoryId, String subCategoryId})? _template() {
+    final category = categoryId?.trim() ?? '';
+    final subCategory = subCategoryId?.trim() ?? '';
+
+    if (category.isEmpty || subCategory.isEmpty) return null;
+
+    return (categoryId: category, subCategoryId: subCategory);
+  }
+
+  /// The template's existing R2 object key, if this form has one to reuse.
+  ///
+  /// Only meaningful alongside a template — a bare key with no category to
+  /// go with it would be refused, so it is dropped here instead.
+  String? _templateImageKey() {
+    if (_template() == null) return null;
+
+    final key = imagePath?.trim() ?? '';
+
+    return key.isEmpty ? null : key;
+  }
+
+  /// Every listing needs a main picture: one the user picked, or the
+  /// template's own.
+  bool _hasMainImage() => image != null || _templateImageKey() != null;
+
   bool _validateForm() {
     return nameEditingController.text.isNotEmpty &&
         descriptionEditingController.text.isNotEmpty &&
@@ -205,7 +267,6 @@ class ComponentsFieldsWidget extends StatelessWidget {
         FromBudgetController.text.isNotEmpty &&
         ToBudgetController.text.isNotEmpty &&
         imageNameControllers.isNotEmpty &&
-        imagePath != null &&
         images != null;
   }
 
@@ -216,20 +277,17 @@ class ComponentsFieldsWidget extends StatelessWidget {
       if (images![i] != null) {
         imagesData.add({
           'image': images![i]!,
-          'text': imageNameControllers[i].text,
+          // ComponentsWidget creates each caption controller lazily as the row
+          // is built, so a slot scrolled out of view may have none yet. Reading
+          // past the end threw and lost the whole submission; an empty caption
+          // is the honest value for a field that was never shown.
+          'text': i < imageNameControllers.length
+              ? imageNameControllers[i].text
+              : '',
         });
       }
     }
     return imagesData;
-  }
-
-  String? _resolveImageUrl() {
-    if (image != null) {
-      return image!.path;
-    } else if (imagePath != null && imagePath!.isNotEmpty) {
-      return imagePath;
-    }
-    return null;
   }
 
   Map<String, double> _prepareBudget() {

@@ -1,128 +1,145 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:admineventpro/data_layer/services/vendor_api_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
-/// Prefixes of object keys that already live in Cloudflare R2, written by the
-/// Admin Console when a category or sub-category picture was uploaded.
+/// Prefixes of object keys that already live in Cloudflare R2.
 ///
-/// A value carrying one of these is a *reference to media that already exists*
-/// — not a path on this device. Treating it as a File would fail (nothing is
-/// there to read) and, if it did succeed, would duplicate an image the
-/// platform already stores.
+/// A value carrying one of these is a *reference to media that already
+/// exists* — catalogue artwork written by the Admin Console, or an image this
+/// registration already uploaded — not a path on this device.
 const List<String> kExistingMediaPrefixes = [
   'category_images/',
   'subcategory_images/',
+  'vendor_images/',
 ];
 
 /// Whether [path] already identifies stored media rather than a local file.
-///
-/// Covers both eras: a legacy Firebase Storage download URL and an R2 object
-/// key. Anything else is a picture the user just picked, which still needs
-/// uploading.
 bool isExistingMediaReference(String path) =>
-    path.startsWith('http') ||
     kExistingMediaPrefixes.any((prefix) => path.startsWith(prefix));
 
 class GeneratedVendor {
-  Future<void> addGeneratedCategoryDetail({
-    required String uid,
+  /// Registers a vendor listing.
+  ///
+  /// Every image goes to Cloudflare R2 through a presigned PUT; Firebase
+  /// Storage is no longer involved in this flow. Firestore stores object
+  /// keys, never URLs.
+  ///
+  /// The listing may come from a catalogue template or stand alone:
+  ///
+  ///  * template — [categoryId] and [subCategoryId] are both given, and
+  ///    [templateImageKey] may serve as the main image. That object already
+  ///    exists in R2, so it is referenced rather than re-uploaded.
+  ///  * standalone — neither id is given and [mainImageFile] is required.
+  ///
+  /// `uid`, `isValid`, `isAccepted`, `isRejected` and `createdAt` are absent
+  /// by design: the server derives the owner from the verified ID token and
+  /// sets the moderation flags itself. They cannot be passed from here
+  /// because there is no parameter for them.
+  ///
+  /// If anything fails after the first upload, the images already stored are
+  /// discarded, so an abandoned attempt does not leave objects behind.
+  Future<VendorCreation> addGeneratedCategoryDetail({
     required String categoryName,
     required String description,
     required String location,
     required List<Map<String, dynamic>> images,
-    required String imagePath,
     required Map<String, double> budget,
-    bool validate = false,
-    bool isAccepted = false,
-    bool isRejected = false,
+    File? mainImageFile,
+    String? templateImageKey,
+    String? categoryId,
+    String? subCategoryId,
     BuildContext? context,
   }) async {
+    final api = VendorApiService.instance;
+
+    final hasTemplate = categoryId != null && subCategoryId != null;
+
+    final reusableTemplateKey =
+        templateImageKey != null && isExistingMediaReference(templateImageKey)
+            ? templateImageKey
+            : null;
+
+    // A listing needs a picture: either one the user just chose, or the
+    // template's own. Checked before reserving an id so a hopeless attempt
+    // never creates a namespace.
+    if (mainImageFile == null &&
+        !(hasTemplate && reusableTemplateKey != null)) {
+      throw VendorApiException(
+        'Please choose a main image for this vendor.',
+      );
+    }
+
+    final vendorId = await api.createDraft();
+
     try {
-      List<Map<String, dynamic>> imageUrls = await uploadImages(images);
-      String finalImagePath = imagePath;
+      // An existing R2 key is referenced as-is. Only a freshly picked file is
+      // uploaded, so selecting a template never copies its picture.
+      final String mainImageKey = mainImageFile != null
+          ? await api.uploadImage(vendorId: vendorId, file: mainImageFile)
+          : reusableTemplateKey!;
 
-      // Re-upload only a genuinely local pick. An existing R2 object key or a
-      // legacy URL is stored as-is, so selecting a sub-category reuses its
-      // picture instead of copying it.
-      if (!isExistingMediaReference(imagePath)) {
-        finalImagePath = await uploadImageToFirebase(File(imagePath));
-      }
+      final uploaded = await uploadImages(vendorId, images);
 
-      CollectionReference subCollectionRef = FirebaseFirestore.instance
-          .collection('entrepreneurs')
-          .doc(uid)
-          .collection('vendorDetails');
+      final creation = await api.createVendor(
+        vendorId: vendorId,
+        categoryName: categoryName,
+        description: description,
+        location: location,
+        imagePathUrl: mainImageKey,
+        images: uploaded,
+        budget: budget,
+        categoryId: hasTemplate ? categoryId : null,
+        subCategoryId: hasTemplate ? subCategoryId : null,
+      );
 
-      await subCollectionRef.add({
-        'categoryName': categoryName,
-        'description': description,
-        'location': location,
-        'images': imageUrls,
-        'imagePathUrl': finalImagePath,
-        'budget': budget,
-        'uid': uid,
-        'isValid': validate,
-        'isAccepted': isAccepted,
-        'isRejected': isRejected,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      log('Vendor details added successfully to sub-collection.');
+      log('Vendor details registered successfully.');
+      return creation;
     } catch (e) {
-      log('Error adding vendor details to sub-collection: $e');
+      // Whatever went wrong — an upload part-way through, or the commit
+      // itself — the images for this vendorId are now unreferenced. Clearing
+      // them is best-effort and never masks the original failure.
+      await api.discardUploads(vendorId);
+
+      if (e is VendorApiException) rethrow;
+
+      log('Error registering vendor details: $e');
       throw Exception('Failed to add vendor details: $e');
     }
   }
 
+  /// Uploads each component image to R2 and pairs its object key with the
+  /// caption the user typed.
+  ///
+  /// Each entry of [images] is `{'image': File, 'text': String}`, the shape
+  /// the form already produces. The result is what Firestore stores:
+  /// `{'imagePath': <R2 object key>, 'text': <caption>}`.
   Future<List<Map<String, dynamic>>> uploadImages(
-      List<Map<String, dynamic>> images) async {
-    try {
-      List<Map<String, dynamic>> imageUrls = [];
-      for (var imageData in images) {
-        File imageFile = imageData['image'];
-        String text = imageData['text'];
-        String imageUrl = await uploadImageToFirebase(imageFile);
-        imageUrls.add({
-          'imageUrl': imageUrl,
-          'text': text, // Modify as per your requirement
-        });
-      }
+    String vendorId,
+    List<Map<String, dynamic>> images,
+  ) async {
+    final uploaded = <Map<String, dynamic>>[];
 
-      return imageUrls;
-    } catch (e) {
-      log('Error uploading images: $e');
-      throw Exception('Failed to upload images');
+    for (final imageData in images) {
+      final file = imageData['image'] as File;
+      final text = (imageData['text'] as String?) ?? '';
+
+      final objectKey = await VendorApiService.instance.uploadImage(
+        vendorId: vendorId,
+        file: file,
+      );
+
+      uploaded.add({'imagePath': objectKey, 'text': text});
     }
+
+    return uploaded;
   }
 
-  Future<String> uploadImageToFirebase(File imageFile) async {
+  Future<DocumentSnapshot?> getCategoryDetailById(String uid, String documentId) async {
     try {
-      final storageRef = FirebaseStorage.instance
-          .ref()
-          .child('generated_images/${DateTime.now().millisecondsSinceEpoch}');
-      UploadTask uploadTask = storageRef.putFile(imageFile);
-      TaskSnapshot snapshot = await uploadTask.whenComplete(() => {});
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-
-      log('Image uploaded successfully. URL: $downloadUrl');
-      return downloadUrl;
-    } catch (e) {
-      log('Error uploading image: $e');
-      throw Exception('Failed to upload image');
-    }
-  }
-
-  Future<DocumentSnapshot?> getCategoryDetailById(
-      String uid, String documentId) async {
-    try {
-      DocumentSnapshot documentSnapshot = await FirebaseFirestore.instance
-          .collection('entrepreneurs')
-          .doc(uid)
-          .collection('vendorDetails')
-          .doc(documentId)
-          .get();
+      DocumentSnapshot documentSnapshot =
+          await FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).collection('vendorDetails').doc(documentId).get();
 
       if (documentSnapshot.exists) {
         return documentSnapshot;
@@ -137,11 +154,7 @@ class GeneratedVendor {
   }
 
   Stream<QuerySnapshot> getGeneratedCategoryDetails(String uid) {
-    return FirebaseFirestore.instance
-        .collection('entrepreneurs')
-        .doc(uid)
-        .collection('vendorDetails')
-        .snapshots();
+    return FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).collection('vendorDetails').snapshots();
   }
 
   Future<void> updateGeneratedCategoryDetail({
@@ -164,24 +177,23 @@ class GeneratedVendor {
       if (budget != null) updateData['budget'] = budget;
       if (validate != null) updateData['isValid'] = validate;
 
-      // Upload new images if provided
+      // Edits store images the same way registration does: R2 object keys
+      // under this listing's own prefix. documentId is the vendorId, so a
+      // replaced picture lands beside the ones already there.
       if (images != null && images.isNotEmpty) {
-        List<Map<String, dynamic>> imageUrls = await uploadImages(images);
-        updateData['images'] = imageUrls;
+        updateData['images'] = await uploadImages(documentId, images);
       }
 
-      // Upload new imagePath if provided and it's a local file path
-      if (imagePath != null && !imagePath.startsWith('http')) {
-        String finalImagePath = await uploadImageToFirebase(File(imagePath));
-        updateData['imagePathUrl'] = finalImagePath;
+      // A value that already names stored media is kept as-is; only a
+      // freshly picked local file is uploaded.
+      if (imagePath != null && !isExistingMediaReference(imagePath)) {
+        updateData['imagePathUrl'] = await VendorApiService.instance.uploadImage(
+          vendorId: documentId,
+          file: File(imagePath),
+        );
       }
 
-      await FirebaseFirestore.instance
-          .collection('entrepreneurs')
-          .doc(uid)
-          .collection('vendorDetails')
-          .doc(documentId)
-          .update(updateData);
+      await FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).collection('vendorDetails').doc(documentId).update(updateData);
 
       log('Vendor details updated successfully.');
     } catch (e) {
@@ -190,15 +202,9 @@ class GeneratedVendor {
     }
   }
 
-  Future<void> deleteGeneratedCategoryDetail(
-      String uid, String documentId) async {
+  Future<void> deleteGeneratedCategoryDetail(String uid, String documentId) async {
     try {
-      await FirebaseFirestore.instance
-          .collection('entrepreneurs')
-          .doc(uid)
-          .collection('vendorDetails')
-          .doc(documentId)
-          .delete();
+      await FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).collection('vendorDetails').doc(documentId).delete();
 
       log('Vendor details deleted successfully.');
     } catch (e) {
@@ -207,13 +213,9 @@ class GeneratedVendor {
     }
   }
 
-  Future<void> updateIsValidField(String uid, String documentId,
-      {required bool isSumbit}) async {
+  Future<void> updateIsValidField(String uid, String documentId, {required bool isSumbit}) async {
     try {
-      CollectionReference vendorDetailsRef = FirebaseFirestore.instance
-          .collection('entrepreneurs')
-          .doc(uid)
-          .collection('vendorDetails');
+      CollectionReference vendorDetailsRef = FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).collection('vendorDetails');
 
       await vendorDetailsRef.doc(documentId).update({
         'isValid': isSumbit,

@@ -56,11 +56,7 @@ class FavoritePage extends StatelessWidget {
               String subCategoryId = document.id;
               return InkWell(
                 onTap: () {
-                  Get.to(() => AddVendorsScreen(
-                        categoryName: document['subCategoryName'],
-                        categoryDescription: document['about'],
-                        imagePath: subimagePath,
-                      ));
+                  _openVendorForm(data, subCategoryId, subimagePath);
                 },
                 child: Container(
                   margin: EdgeInsets.symmetric(horizontal: 8.0, vertical: 8.0),
@@ -171,11 +167,8 @@ class FavoritePage extends StatelessWidget {
                               }),
                           IconButton(
                             onPressed: () {
-                              Get.to(() => AddVendorsScreen(
-                                    categoryName: document['subCategoryName'],
-                                    categoryDescription: document['about'],
-                                    imagePath: subimagePath,
-                                  ));
+                              _openVendorForm(
+                                  data, subCategoryId, subimagePath);
                             },
                             icon: Icon(CupertinoIcons.forward),
                             color: Colors.white,
@@ -191,5 +184,31 @@ class FavoritePage extends StatelessWidget {
         },
       ),
     );
+  }
+
+  /// Opens the vendor form for a saved favourite.
+  ///
+  /// `categoryId` has only been recorded on favourites since the field was
+  /// added, so an older record cannot say which catalogue entry it came from.
+  /// Both ids are passed as null in that case, which opens the same form as
+  /// the standalone flow: the details still prefill, and the user picks their
+  /// own main image. A blank or half-filled pair is never sent — the API
+  /// refuses one id without the other.
+  void _openVendorForm(
+    Map<String, dynamic> data,
+    String subCategoryId,
+    String subimagePath,
+  ) {
+    final categoryId = (data['categoryId'] as String?)?.trim() ?? '';
+    final hasTemplate = categoryId.isNotEmpty;
+
+    Get.to(() => AddVendorsScreen(
+          categoryId: hasTemplate ? categoryId : null,
+          subCategoryId: hasTemplate ? subCategoryId : null,
+          categoryName: data['subCategoryName'],
+          categoryDescription: data['about'],
+          // Only meaningful with a template; the form drops it otherwise.
+          imagePath: hasTemplate ? subimagePath : null,
+        ));
   }
 }
