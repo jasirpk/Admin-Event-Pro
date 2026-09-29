@@ -1,5 +1,6 @@
 import 'dart:developer';
 import 'dart:io';
+import 'package:admineventpro/data_layer/models/vendor_document.dart';
 import 'package:admineventpro/data_layer/services/vendor_api_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -136,6 +137,49 @@ class GeneratedVendor {
     return uploaded;
   }
 
+  /// Builds the `images` array an edit should store.
+  ///
+  /// A row the user did not touch is carried over **verbatim**, keeping its
+  /// original field name: an older listing stores `imageUrl` holding a
+  /// Firebase Storage URL, and rewriting that as `imagePath` would relabel a
+  /// URL as an object key. Only the caption is refreshed.
+  ///
+  /// A row the user replaced is uploaded to R2 and stored as `imagePath`.
+  /// Nothing deletes the object it replaced — another listing, or an earlier
+  /// version of this one, may still reference it.
+  Future<List<Map<String, dynamic>>> resolveEditedImages({
+    required String vendorId,
+    required List<Map<String, dynamic>> existing,
+    required Map<int, File> replacements,
+    required List<String> captions,
+  }) async {
+    final resolved = <Map<String, dynamic>>[];
+
+    for (var i = 0; i < existing.length; i++) {
+      final text = i < captions.length
+          ? captions[i]
+          : vendorImageCaption(existing[i]);
+
+      final replacement = replacements[i];
+
+      if (replacement != null) {
+        final objectKey = await VendorApiService.instance.uploadImage(
+          vendorId: vendorId,
+          file: replacement,
+        );
+        resolved.add({'imagePath': objectKey, 'text': text});
+        continue;
+      }
+
+      // Untouched: copy the stored entry so whichever key it uses survives.
+      final kept = Map<String, dynamic>.from(existing[i]);
+      kept['text'] = text;
+      resolved.add(kept);
+    }
+
+    return resolved;
+  }
+
   Future<DocumentSnapshot?> getCategoryDetailById(String uid, String documentId) async {
     try {
       DocumentSnapshot documentSnapshot =
@@ -177,11 +221,11 @@ class GeneratedVendor {
       if (budget != null) updateData['budget'] = budget;
       if (validate != null) updateData['isValid'] = validate;
 
-      // Edits store images the same way registration does: R2 object keys
-      // under this listing's own prefix. documentId is the vendorId, so a
-      // replaced picture lands beside the ones already there.
-      if (images != null && images.isNotEmpty) {
-        updateData['images'] = await uploadImages(documentId, images);
+      // Already resolved by resolveEditedImages: each entry is a stored
+      // reference plus its caption, so this writes them as-is. Uploading here
+      // would try to re-upload keys that are already in R2.
+      if (images != null) {
+        updateData['images'] = images;
       }
 
       // A value that already names stored media is kept as-is; only a

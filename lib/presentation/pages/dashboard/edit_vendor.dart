@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
+import 'package:image_picker/image_picker.dart';
 
 class EditVendorScreen extends StatefulWidget {
   final String? vendorName;
@@ -37,8 +38,35 @@ class _EditVendorScreenState extends State<EditVendorScreen> {
   TextEditingController fromBudgetController = TextEditingController();
   TextEditingController toBudgetContrller = TextEditingController();
   List<TextEditingController> imageNameControllers = [];
+
+  /// A newly picked main image, or null to keep the stored one.
   File? image;
+
+  /// Newly picked component images, by row index. Rows absent here keep
+  /// whatever the listing already stores — that is what makes "change one
+  /// picture" leave the others alone.
+  final Map<int, File> componentReplacements = {};
+
   String? imagePath;
+
+  final ImagePicker _picker = ImagePicker();
+
+  Future<void> _pickMainImage() async {
+    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    if (picked == null || !mounted) return;
+    setState(() => image = File(picked.path));
+  }
+
+  Future<void> _pickComponentImage(int index) async {
+    final picked = await _picker.pickImage(source: ImageSource.gallery);
+    if (picked == null || !mounted) return;
+    setState(() => componentReplacements[index] = File(picked.path));
+  }
+
+  void _clearComponentReplacement(int index) {
+    if (!componentReplacements.containsKey(index)) return;
+    setState(() => componentReplacements.remove(index));
+  }
 
   @override
   void initState() {
@@ -61,11 +89,15 @@ class _EditVendorScreenState extends State<EditVendorScreen> {
   void dispose() {
     nameEditingController.dispose();
     descriptionEditingController.dispose();
-    imageNameControllers.clear();
     locationController.dispose();
-    for (var controller in imageNameControllers) {
+    fromBudgetController.dispose();
+    toBudgetContrller.dispose();
+    // Dispose before clearing: clearing first emptied the list, so the loop
+    // that followed ran zero times and every caption controller leaked.
+    for (final controller in imageNameControllers) {
       controller.dispose();
     }
+    imageNameControllers.clear();
     super.dispose();
   }
 
@@ -108,6 +140,10 @@ class _EditVendorScreenState extends State<EditVendorScreen> {
                   widget: widget,
                   imagePath: imagePath,
                   image: image,
+                  componentReplacements: componentReplacements,
+                  onPickMainImage: _pickMainImage,
+                  onPickComponentImage: _pickComponentImage,
+                  onClearComponentReplacement: _clearComponentReplacement,
                   descriptionEditingController: descriptionEditingController,
                   locationController: locationController,
                   fromBudgetController: fromBudgetController,

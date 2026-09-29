@@ -1,9 +1,11 @@
 import 'dart:io';
 
+import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:admineventpro/data_layer/services/generated_vendor.dart';
 import 'package:admineventpro/data_layer/services/vendor_api_service.dart';
+import 'package:get/get.dart';
 
 class FormSubmitManager {
   /// Uploads every image to R2 and registers the listing.
@@ -82,7 +84,8 @@ class FormSubmitManager {
     for (final controller in imageNameControllers) {
       controller.clear();
     }
-
+    Navigator.pop(context);
+    showCustomSnackBar('Success', 'Successfully Registered');
     return creation;
   }
 }

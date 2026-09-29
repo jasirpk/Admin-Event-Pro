@@ -11,11 +11,18 @@ class CategoryImageWidget extends StatelessWidget {
     required this.imagePath,
     required this.image,
     required this.screenHeight,
+    this.onTap,
   });
 
   final String? imagePath;
   final File? image;
   final double screenHeight;
+
+  /// Overrides the picker. The add form leaves this null and uses the shared
+  /// bloc; the edit screen supplies its own, because the bloc's picked-image
+  /// state is sized and cleared for the add form and carries no notion of
+  /// which listing is being edited.
+  final VoidCallback? onTap;
 
   /// Whether a template supplied a picture to fall back on.
   ///
@@ -30,9 +37,7 @@ class CategoryImageWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return GestureDetector(
-      onTap: () {
-        context.read<GeneratedBloc>().add(PickImage());
-      },
+      onTap: onTap ?? () => context.read<GeneratedBloc>().add(PickImage()),
       // The selected sub-category's picture is an R2 object key, not a URL, so
       // it has to be signed before it can be shown. MediaImage does that and
       // falls back to the placeholder while it resolves or if it fails. The

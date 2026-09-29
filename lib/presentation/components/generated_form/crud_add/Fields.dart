@@ -210,8 +210,7 @@ class ComponentsFieldsWidget extends StatelessWidget {
                     toBudgetController: ToBudgetController,
                     imageNameControllers: imageNameControllers,
                   );
-                  showCustomSnackBar('Success', 'Succesfully Registered');
-                  Get.back();
+
                 } on VendorApiException catch (e) {
                   // e.message is written for a user and never carries a token
                   // or the Authorization header; e.toString() would append the

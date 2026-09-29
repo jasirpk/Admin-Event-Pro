@@ -1,6 +1,9 @@
 import 'package:admineventpro/common/style.dart';
 import 'package:flutter/material.dart';
 
+import 'package:admineventpro/data_layer/models/vendor_document.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
+
 class componentsWidget extends StatelessWidget {
   const componentsWidget({
     super.key,
@@ -32,7 +35,7 @@ class componentsWidget extends StatelessWidget {
                         Icon(Icons.arrow_right, color: Colors.white),
                         sizedboxWidth,
                         Text(
-                          data['text'],
+                          vendorImageCaption(data),
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: screenWidth * 0.038,
@@ -41,12 +44,18 @@ class componentsWidget extends StatelessWidget {
                       ],
                     ),
                   ),
-                  CircleAvatar(
-                    maxRadius: 14,
-                    backgroundColor: Colors.blue,
-                    backgroundImage: data['imageUrl'].startsWith('http')
-                        ? NetworkImage(data['imageUrl'])
-                        : AssetImage(data['imageUrl']) as ImageProvider,
+                  // Reading data['imageUrl'] directly threw on every listing
+                  // written since the migration, which stores the key under
+                  // 'imagePath' instead — null.startsWith is a crash, not a
+                  // missing picture. vendorImageRef accepts either field.
+                  MediaImage(
+                    imagePath: vendorImageRef(data),
+                    placeholder: kMediaPlaceholderImage,
+                    builder: (context, image) => CircleAvatar(
+                      maxRadius: 14,
+                      backgroundColor: Colors.blue,
+                      backgroundImage: image,
+                    ),
                   ),
                 ],
               ),

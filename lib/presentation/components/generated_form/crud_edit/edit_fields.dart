@@ -36,6 +36,10 @@ class EditVendorFieldsWidget extends StatelessWidget {
     required this.locationController,
     required this.fromBudgetController,
     required this.toBudgetContrller,
+    required this.componentReplacements,
+    required this.onPickMainImage,
+    required this.onPickComponentImage,
+    required this.onClearComponentReplacement,
   });
 
   final double screenHeight;
@@ -50,6 +54,10 @@ class EditVendorFieldsWidget extends StatelessWidget {
   final TextEditingController locationController;
   final TextEditingController fromBudgetController;
   final TextEditingController toBudgetContrller;
+  final Map<int, File> componentReplacements;
+  final VoidCallback onPickMainImage;
+  final void Function(int index) onPickComponentImage;
+  final void Function(int index) onClearComponentReplacement;
 
   @override
   Widget build(BuildContext context) {
@@ -106,10 +114,13 @@ class EditVendorFieldsWidget extends StatelessWidget {
         ),
         ComponentEditsWidget(
             screenHeight: screenHeight,
-            itemCount: imageNameControllers.length,
+            itemCount: widget.images.length,
             imageNameControllers: imageNameControllers,
             screenWidth: screenWidth,
-            imagesData: widget.images),
+            imagesData: widget.images,
+            replacements: componentReplacements,
+            onPickImage: onPickComponentImage,
+            onClearReplacement: onClearComponentReplacement),
         Text(
           Assigns.moreDetails,
           style: TextStyle(
@@ -122,7 +133,10 @@ class EditVendorFieldsWidget extends StatelessWidget {
         ),
         SizedBox(height: 10),
         CategoryImageWidget(
-            imagePath: imagePath, image: image, screenHeight: screenHeight),
+            imagePath: imagePath,
+            image: image,
+            screenHeight: screenHeight,
+            onTap: onPickMainImage),
         SizedBox(height: 10),
         Description_Widget(
           descriptionEditingController: descriptionEditingController,
@@ -174,13 +188,35 @@ class EditVendorFieldsWidget extends StatelessWidget {
                     'to': double.parse(toBudgetContrller.text),
                   };
 
-                  await GeneratedVendor().updateGeneratedCategoryDetail(
+                  final vendor = GeneratedVendor();
+
+                  // Untouched rows keep their stored reference; replaced ones
+                  // are uploaded to R2 under this listing's own prefix. Only
+                  // sent when something actually changed, so a text-only edit
+                  // does not rewrite the array at all.
+                  final captions =
+                      imageNameControllers.map((c) => c.text).toList();
+
+                  final images = await vendor.resolveEditedImages(
+                    vendorId: widget.vendorId,
+                    existing: widget.images,
+                    replacements: componentReplacements,
+                    captions: captions,
+                  );
+
+                  await vendor.updateGeneratedCategoryDetail(
                     uid: user.uid,
                     documentId: widget.vendorId,
-                    categoryName: nameEditingController.text,
-                    description: descriptionEditingController.text,
-                    location: locationController.text,
+                    categoryName: nameEditingController.text.trim(),
+                    description: descriptionEditingController.text.trim(),
+                    location: locationController.text.trim(),
                     budget: budgetMap,
+                    images: images,
+                    // Only a freshly picked file. Passing the stored key would
+                    // be harmless — updateGeneratedCategoryDetail keeps an
+                    // existing media reference as-is — but sending nothing
+                    // makes "unchanged" explicit.
+                    imagePath: image?.path,
                   );
                   Get.back();
                   showCustomSnackBar(

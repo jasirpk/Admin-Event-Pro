@@ -7,6 +7,8 @@ import 'package:admineventpro/presentation/components/shimmer/shimmer_with_subli
 import 'package:admineventpro/presentation/pages/dashboard/edit_vendor.dart';
 import 'package:admineventpro/presentation/pages/dashboard/read_vendor.dart';
 import 'package:cached_network_image/cached_network_image.dart';
+import 'package:admineventpro/data_layer/models/vendor_document.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -93,10 +95,8 @@ class TabBarViewTwo extends StatelessWidget {
                             vendorImage: imagePath,
                             location: subDetailData['location'],
                             description: subDetailData['description'],
-                            images: List<Map<String, dynamic>>.from(
-                                subDetailData['images']),
-                            budget: Map<String, double>.from(
-                                subDetailData['budget'])));
+                            images: vendorImages(subDetailData['images']),
+                            budget: vendorBudget(subDetailData['budget'])));
                       },
                       child: Container(
                         margin: EdgeInsets.symmetric(vertical: 8.0),
@@ -114,34 +114,43 @@ class TabBarViewTwo extends StatelessWidget {
                               decoration: BoxDecoration(
                                 borderRadius: BorderRadius.circular(10),
                               ),
-                              child: CachedNetworkImage(
-                                imageUrl: imagePath,
-                                placeholder: (context, url) => Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Center(
-                                    child: CircularProgressIndicator(
-                                      color: Colors.white,
+                              // imagePathUrl is an R2 object key since the
+                              // migration, so it has to be signed before it is
+                              // a URL. MediaUrl does that and hands null to
+                              // CachedNetworkImage while it resolves, leaving
+                              // the existing placeholder/error states in place.
+                              child: MediaUrl(
+                                imagePath: imagePath,
+                                builder: (context, url) => CachedNetworkImage(
+                                  imageUrl: url ?? '',
+                                  placeholder: (context, url) => Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Center(
+                                      child: CircularProgressIndicator(
+                                        color: Colors.white,
+                                      ),
                                     ),
                                   ),
-                                ),
-                                errorWidget: (context, url, error) => Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(4),
-                                  ),
-                                  child: Center(
-                                    child: Icon(
-                                      Icons.error,
-                                      color: Colors.red,
+                                  errorWidget: (context, url, error) =>
+                                      Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.grey.shade300,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                    child: Center(
+                                      child: Icon(
+                                        Icons.error,
+                                        color: Colors.red,
+                                      ),
                                     ),
                                   ),
+                                  fit: BoxFit.cover,
+                                  width: screenWidth * 0.30,
+                                  height: screenHeight * 0.16,
                                 ),
-                                fit: BoxFit.cover,
-                                width: screenWidth * 0.30,
-                                height: screenHeight * 0.16,
                               ),
                             ),
                             SizedBox(width: 8.0),
@@ -227,10 +236,9 @@ class TabBarViewTwo extends StatelessWidget {
                                           location: subDetailData['location'],
                                           description:
                                               subDetailData['description'],
-                                          images:
-                                              List<Map<String, dynamic>>.from(
-                                                  subDetailData['images']),
-                                          budget: Map<String, double>.from(
+                                          images: vendorImages(
+                                              subDetailData['images']),
+                                          budget: vendorBudget(
                                               subDetailData['budget'])));
                                     } else if (value == 'delete') {
                                       showDeleteConfirmationDialog(
@@ -247,10 +255,9 @@ class TabBarViewTwo extends StatelessWidget {
                                           location: subDetailData['location'],
                                           description:
                                               subDetailData['description'],
-                                          images:
-                                              List<Map<String, dynamic>>.from(
-                                                  subDetailData['images']),
-                                          budget: Map<String, double>.from(
+                                          images: vendorImages(
+                                              subDetailData['images']),
+                                          budget: vendorBudget(
                                               subDetailData['budget'])));
                                     } else if (value == 'submit') {
                                       await generatedVendor.updateIsValidField(
