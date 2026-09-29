@@ -1,57 +1,50 @@
-import 'dart:io';
-
 import 'package:flutter/material.dart';
-import 'package:admineventpro/data_layer/models/vendor_document.dart';
-import 'package:admineventpro/presentation/components/media/media_image.dart';
 
+import 'package:admineventpro/presentation/components/media/media_image.dart';
+import 'package:admineventpro/presentation/pages/dashboard/edit_vendor.dart';
+
+/// The Essential Components editor.
+///
+/// Renders one tile per [ComponentRow]. A row may hold a stored R2 key, a
+/// freshly picked local file, or neither (a row just added). The picked file
+/// wins, so the preview always matches what Save will write.
 class ComponentEditsWidget extends StatelessWidget {
   final double screenHeight;
-  final int itemCount;
-  final List<TextEditingController> imageNameControllers;
   final double screenWidth;
-  final List<Map<String, dynamic>> imagesData;
-
-  /// Locally picked replacements, by row index. A row absent from this map
-  /// keeps whatever the listing already stores.
-  final Map<int, File> replacements;
-
-  /// Asks the screen to pick a replacement for a row.
+  final List<ComponentRow> rows;
   final void Function(int index) onPickImage;
-
-  /// Discards a row's pending replacement, restoring the stored image.
-  final void Function(int index) onClearReplacement;
+  final void Function(int index) onRemoveRow;
 
   const ComponentEditsWidget({
     Key? key,
     required this.screenHeight,
-    required this.itemCount,
-    required this.imageNameControllers,
     required this.screenWidth,
-    required this.imagesData,
-    required this.replacements,
+    required this.rows,
     required this.onPickImage,
-    required this.onClearReplacement,
+    required this.onRemoveRow,
   }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
+    if (rows.isEmpty) {
+      return Container(
+        height: screenHeight * 0.3,
+        alignment: Alignment.center,
+        child: Text(
+          'No components yet — use + to add one.',
+          style: TextStyle(color: Colors.white54),
+        ),
+      );
+    }
+
     return Container(
       height: screenHeight * 0.3,
       child: ListView.builder(
         scrollDirection: Axis.horizontal,
-        itemCount: itemCount,
+        itemCount: rows.length,
         itemBuilder: (context, index) {
-          final entry = imagesData[index];
-          final String imageName = vendorImageCaption(entry);
-          // Either field: 'imagePath' since the R2 migration, 'imageUrl' on
-          // older listings. Reading only 'imageUrl' made every recent listing
-          // crash here on `null.startsWith`.
-          final String? imageRef = vendorImageRef(entry);
-          final File? replacement = replacements[index];
-
-          if (imageNameControllers.length <= index) {
-            imageNameControllers.add(TextEditingController(text: imageName));
-          }
+          final row = rows[index];
+          final picked = row.picked;
 
           return Container(
             width: screenWidth * 0.4,
@@ -60,31 +53,28 @@ class ComponentEditsWidget extends StatelessWidget {
               child: Column(
                 children: [
                   GestureDetector(
-                    // The shared bloc's pickedImages list is sized for the add
-                    // form (it starts at one slot), so PickImageEvent(index)
-                    // threw a RangeError for the second component onwards.
-                    // The edit screen holds its own replacements instead.
                     onTap: () => onPickImage(index),
                     child: Stack(
                       children: [
                         MediaImage(
-                          // A pending local replacement wins over the stored
-                          // image, so the preview matches what Save will write.
-                          imagePath: replacement == null ? imageRef : null,
-                          placeholder: replacement == null
+                          // A stored key is resolved through the media API; a
+                          // local pick needs no resolving and takes priority.
+                          imagePath: picked == null ? row.existingRef : null,
+                          placeholder: picked == null
                               ? kMediaPlaceholderImage
-                              : FileImage(replacement) as ImageProvider,
+                              : FileImage(picked) as ImageProvider,
                           builder: (context, image) => Container(
                             decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(10),
-                                color: Colors.grey,
-                                image: image == null
-                                    ? null
-                                    : DecorationImage(
-                                        image: image, fit: BoxFit.cover)),
+                              borderRadius: BorderRadius.circular(10),
+                              color: Colors.grey,
+                              image: image == null
+                                  ? null
+                                  : DecorationImage(
+                                      image: image, fit: BoxFit.cover),
+                            ),
                             child: Center(
                               child: Icon(
-                                Icons.edit,
+                                row.hasImage ? Icons.edit : Icons.add_a_photo,
                                 color: Colors.white,
                                 size: 60,
                               ),
@@ -99,15 +89,12 @@ class ComponentEditsWidget extends StatelessWidget {
                           child: CircleAvatar(
                             backgroundColor: Colors.black,
                             child: IconButton(
-                              icon: Icon(
-                                Icons.close,
-                                color: Colors.white,
-                              ),
-                              // Discards the pending pick rather than the
-                              // stored image: removing an existing component
-                              // is not something this screen supports, and
-                              // silently dropping one on Save would lose it.
-                              onPressed: () => onClearReplacement(index),
+                              tooltip: 'Remove this component',
+                              icon: Icon(Icons.close, color: Colors.white),
+                              // Drops the row from what Save writes. The
+                              // stored object itself is left in R2 — see
+                              // EditVendorScreen._removeRow.
+                              onPressed: () => onRemoveRow(index),
                             ),
                           ),
                         ),
@@ -116,10 +103,7 @@ class ComponentEditsWidget extends StatelessWidget {
                   ),
                   SizedBox(height: 8),
                   TextFormField(
-                    controller: imageNameControllers[index],
-                    onChanged: (value) {
-                      imagesData[index]['text'] = value;
-                    },
+                    controller: row.caption,
                     decoration: InputDecoration(
                       enabledBorder: OutlineInputBorder(
                         borderSide: BorderSide(color: Colors.white),
@@ -133,9 +117,7 @@ class ComponentEditsWidget extends StatelessWidget {
                         borderRadius: BorderRadius.circular(10),
                       ),
                       labelText: 'Image Name',
-                      labelStyle: TextStyle(
-                        color: Colors.white54,
-                      ),
+                      labelStyle: TextStyle(color: Colors.white54),
                     ),
                   ),
                 ],

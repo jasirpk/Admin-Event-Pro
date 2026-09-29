@@ -91,6 +91,8 @@ class TabBarViewTwo extends StatelessWidget {
                     return InkWell(
                       onTap: () {
                         Get.to(() => ReadVendorScreen(
+                            vendorId: documentId,
+                            ownerUid: subDetailData['uid'] as String?,
                             vendorName: subDetailData['categoryName'],
                             vendorImage: imagePath,
                             location: subDetailData['location'],
@@ -230,6 +232,9 @@ class TabBarViewTwo extends StatelessWidget {
                                   onSelected: (value) async {
                                     if (value == 'View Detail') {
                                       Get.to(() => ReadVendorScreen(
+                                          vendorId: documentId,
+                                          ownerUid:
+                                              subDetailData['uid'] as String?,
                                           vendorName:
                                               subDetailData['categoryName'],
                                           vendorImage: imagePath,

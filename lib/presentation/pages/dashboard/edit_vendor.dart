@@ -1,11 +1,35 @@
 import 'dart:io';
+import 'package:admineventpro/data_layer/models/vendor_document.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_edit/edit_fields.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
-import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 import 'package:image_picker/image_picker.dart';
+
+/// One row of the Essential Components editor.
+///
+/// A row is either an existing component ([existingRef] set), a brand new one
+/// ([existingRef] null), or an existing one whose picture the user replaced
+/// ([picked] set as well). Keeping all three in one object is what lets the
+/// editor add and remove rows without the indices of the other rows shifting
+/// out from under their captions.
+class ComponentRow {
+  /// The stored reference — an R2 object key, or a legacy URL on an older
+  /// listing. Null for a row the user just added.
+  final String? existingRef;
+
+  /// A locally chosen image, not yet uploaded. Wins over [existingRef].
+  File? picked;
+
+  final TextEditingController caption;
+
+  ComponentRow({this.existingRef, this.picked, required this.caption});
+
+  /// A row with neither a stored image nor a pick contributes nothing.
+  bool get hasImage => picked != null || existingRef != null;
+
+  void dispose() => caption.dispose();
+}
 
 class EditVendorScreen extends StatefulWidget {
   final String? vendorName;
@@ -32,24 +56,68 @@ class EditVendorScreen extends StatefulWidget {
 }
 
 class _EditVendorScreenState extends State<EditVendorScreen> {
-  TextEditingController nameEditingController = TextEditingController();
-  TextEditingController descriptionEditingController = TextEditingController();
-  TextEditingController locationController = TextEditingController();
-  TextEditingController fromBudgetController = TextEditingController();
-  TextEditingController toBudgetContrller = TextEditingController();
-  List<TextEditingController> imageNameControllers = [];
+  final TextEditingController nameEditingController = TextEditingController();
+  final TextEditingController descriptionEditingController =
+      TextEditingController();
+  final TextEditingController locationController = TextEditingController();
+  final TextEditingController fromBudgetController = TextEditingController();
+  final TextEditingController toBudgetContrller = TextEditingController();
+
+  /// The editor's own component list.
+  ///
+  /// Deliberately not the shared GeneratedBloc: its picked-image list is
+  /// sized and cleared for the registration form, so adding a row here used
+  /// to do nothing and picking the second image threw a RangeError.
+  final List<ComponentRow> rows = [];
 
   /// A newly picked main image, or null to keep the stored one.
   File? image;
 
-  /// Newly picked component images, by row index. Rows absent here keep
-  /// whatever the listing already stores — that is what makes "change one
-  /// picture" leave the others alone.
-  final Map<int, File> componentReplacements = {};
-
   String? imagePath;
 
   final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    super.initState();
+    nameEditingController.text = widget.vendorName ?? '';
+    descriptionEditingController.text = widget.description ?? '';
+    imagePath = widget.vendorImage ?? '';
+    locationController.text = widget.location;
+
+    // .toString() on a num prints "25000.0"; the form should show what the
+    // user typed, and the API takes either.
+    fromBudgetController.text = _budgetText(widget.budget['from']);
+    toBudgetContrller.text = _budgetText(widget.budget['to']);
+
+    for (final entry in widget.images) {
+      rows.add(ComponentRow(
+        existingRef: vendorImageRef(entry),
+        caption: TextEditingController(text: vendorImageCaption(entry)),
+      ));
+    }
+  }
+
+  String _budgetText(double? value) {
+    if (value == null) return '';
+    return value == value.roundToDouble()
+        ? value.toInt().toString()
+        : value.toString();
+  }
+
+  @override
+  void dispose() {
+    nameEditingController.dispose();
+    descriptionEditingController.dispose();
+    locationController.dispose();
+    fromBudgetController.dispose();
+    toBudgetContrller.dispose();
+    for (final row in rows) {
+      row.dispose();
+    }
+    rows.clear();
+    super.dispose();
+  }
 
   Future<void> _pickMainImage() async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
@@ -60,60 +128,28 @@ class _EditVendorScreenState extends State<EditVendorScreen> {
   Future<void> _pickComponentImage(int index) async {
     final picked = await _picker.pickImage(source: ImageSource.gallery);
     if (picked == null || !mounted) return;
-    setState(() => componentReplacements[index] = File(picked.path));
+    setState(() => rows[index].picked = File(picked.path));
   }
 
-  void _clearComponentReplacement(int index) {
-    if (!componentReplacements.containsKey(index)) return;
-    setState(() => componentReplacements.remove(index));
+  void _addRow() {
+    setState(() => rows.add(ComponentRow(caption: TextEditingController())));
   }
 
-  @override
-  void initState() {
-    super.initState();
-    nameEditingController.text = widget.vendorName ?? '';
-    descriptionEditingController.text = widget.description ?? '';
-    imagePath = widget.vendorImage ?? '';
-    locationController.text = widget.location;
-    fromBudgetController.text = widget.budget['from'].toString();
-    toBudgetContrller.text = widget.budget['to'].toString();
-
-    imageNameControllers = List.generate(
-      widget.images.length,
-      (index) =>
-          TextEditingController(text: widget.images[index]['text'] ?? ''),
-    );
-  }
-
-  @override
-  void dispose() {
-    nameEditingController.dispose();
-    descriptionEditingController.dispose();
-    locationController.dispose();
-    fromBudgetController.dispose();
-    toBudgetContrller.dispose();
-    // Dispose before clearing: clearing first emptied the list, so the loop
-    // that followed ran zero times and every caption controller leaked.
-    for (final controller in imageNameControllers) {
-      controller.dispose();
-    }
-    imageNameControllers.clear();
-    super.dispose();
-  }
-
-  GeneratedBloc? generatedBloc;
-
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-    generatedBloc = context.read<GeneratedBloc>();
+  /// Removes a row, which drops it from the array the save writes.
+  ///
+  /// The stored object stays in R2. Deleting it would need an ownership-aware
+  /// delete the API does not offer for a committed listing, and a component
+  /// removed by mistake should be recoverable.
+  void _removeRow(int index) {
+    if (index < 0 || index >= rows.length) return;
+    setState(() => rows.removeAt(index).dispose());
   }
 
   @override
   Widget build(BuildContext context) {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
-    List<Map<String, String>> names = [
+    final List<Map<String, String>> names = [
       {'name': Assigns.dressCode},
       {'name': Assigns.styleAndTheme},
       {'name': Assigns.photography},
@@ -126,31 +162,28 @@ class _EditVendorScreenState extends State<EditVendorScreen> {
 
     return Scaffold(
       appBar: CustomAppBarWithDivider(title: 'Edit Vendor Details'),
-      body: BlocBuilder<GeneratedBloc, GeneratedState>(
-        builder: (context, state) {
-          return SingleChildScrollView(
-            child: Container(
-              margin: EdgeInsets.symmetric(vertical: 18, horizontal: 8),
-              child: EditVendorFieldsWidget(
-                  screenHeight: screenHeight,
-                  names: names,
-                  nameEditingController: nameEditingController,
-                  screenWidth: screenWidth,
-                  imageNameControllers: imageNameControllers,
-                  widget: widget,
-                  imagePath: imagePath,
-                  image: image,
-                  componentReplacements: componentReplacements,
-                  onPickMainImage: _pickMainImage,
-                  onPickComponentImage: _pickComponentImage,
-                  onClearComponentReplacement: _clearComponentReplacement,
-                  descriptionEditingController: descriptionEditingController,
-                  locationController: locationController,
-                  fromBudgetController: fromBudgetController,
-                  toBudgetContrller: toBudgetContrller),
-            ),
-          );
-        },
+      body: SingleChildScrollView(
+        child: Container(
+          margin: EdgeInsets.symmetric(vertical: 18, horizontal: 8),
+          child: EditVendorFieldsWidget(
+            screenHeight: screenHeight,
+            names: names,
+            nameEditingController: nameEditingController,
+            screenWidth: screenWidth,
+            widget: widget,
+            imagePath: imagePath,
+            image: image,
+            rows: rows,
+            onPickMainImage: _pickMainImage,
+            onPickComponentImage: _pickComponentImage,
+            onAddRow: _addRow,
+            onRemoveRow: _removeRow,
+            descriptionEditingController: descriptionEditingController,
+            locationController: locationController,
+            fromBudgetController: fromBudgetController,
+            toBudgetContrller: toBudgetContrller,
+          ),
+        ),
       ),
     );
   }

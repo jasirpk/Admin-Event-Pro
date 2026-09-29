@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:admineventpro/data_layer/services/generated_vendor.dart';
+import 'package:admineventpro/data_layer/services/vendor_api_service.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_add/budget.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_add/category_image.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_edit/component.dart';
 import 'package:admineventpro/presentation/pages/dashboard/edit_vendor.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/presentation/components/ui/vendor_names.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_add/category_name.dart';
@@ -17,7 +17,6 @@ import 'package:admineventpro/presentation/components/generated_form/crud_add/lo
 import 'package:admineventpro/presentation/components/ui/custom_text_with_icons.dart';
 import 'package:admineventpro/presentation/components/ui/custom_text_and_icon.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
-import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:get/get.dart';
 
@@ -28,7 +27,6 @@ class EditVendorFieldsWidget extends StatelessWidget {
     required this.names,
     required this.nameEditingController,
     required this.screenWidth,
-    required this.imageNameControllers,
     required this.widget,
     required this.imagePath,
     required this.image,
@@ -36,17 +34,17 @@ class EditVendorFieldsWidget extends StatelessWidget {
     required this.locationController,
     required this.fromBudgetController,
     required this.toBudgetContrller,
-    required this.componentReplacements,
+    required this.rows,
     required this.onPickMainImage,
     required this.onPickComponentImage,
-    required this.onClearComponentReplacement,
+    required this.onAddRow,
+    required this.onRemoveRow,
   });
 
   final double screenHeight;
   final List<Map<String, String>> names;
   final TextEditingController nameEditingController;
   final double screenWidth;
-  final List<TextEditingController> imageNameControllers;
   final EditVendorScreen widget;
   final String? imagePath;
   final File? image;
@@ -54,10 +52,11 @@ class EditVendorFieldsWidget extends StatelessWidget {
   final TextEditingController locationController;
   final TextEditingController fromBudgetController;
   final TextEditingController toBudgetContrller;
-  final Map<int, File> componentReplacements;
+  final List<ComponentRow> rows;
   final VoidCallback onPickMainImage;
   final void Function(int index) onPickComponentImage;
-  final void Function(int index) onClearComponentReplacement;
+  final VoidCallback onAddRow;
+  final void Function(int index) onRemoveRow;
 
   @override
   Widget build(BuildContext context) {
@@ -105,22 +104,17 @@ class EditVendorFieldsWidget extends StatelessWidget {
         CustomTextWithIconsWidget(
           screenHeight: screenHeight,
           text: Assigns.essentialComponent,
-          onAddpressed: () {
-            context.read<GeneratedBloc>().add(IncreamentEvent());
-          },
-          onRemovePressed: () {
-            context.read<GeneratedBloc>().add(DecrementEvent());
-          },
+          // These used to dispatch to the shared registration bloc, which
+          // this screen never listened to — so the buttons did nothing.
+          onAddpressed: onAddRow,
+          onRemovePressed: () => onRemoveRow(rows.length - 1),
         ),
         ComponentEditsWidget(
             screenHeight: screenHeight,
-            itemCount: widget.images.length,
-            imageNameControllers: imageNameControllers,
             screenWidth: screenWidth,
-            imagesData: widget.images,
-            replacements: componentReplacements,
+            rows: rows,
             onPickImage: onPickComponentImage,
-            onClearReplacement: onClearComponentReplacement),
+            onRemoveRow: onRemoveRow),
         Text(
           Assigns.moreDetails,
           style: TextStyle(
@@ -173,13 +167,11 @@ class EditVendorFieldsWidget extends StatelessWidget {
         PushableButton_widget(
           buttonText: 'Submit',
           onpressed: () async {
-            if (nameEditingController.text.isNotEmpty &&
-                descriptionEditingController.text.isNotEmpty &&
-                locationController.text.isNotEmpty &&
+            if (nameEditingController.text.trim().isNotEmpty &&
+                descriptionEditingController.text.trim().isNotEmpty &&
+                locationController.text.trim().isNotEmpty &&
                 fromBudgetController.text.isNotEmpty &&
-                toBudgetContrller.text.isNotEmpty &&
-                imageNameControllers.isNotEmpty &&
-                imagePath != null) {
+                toBudgetContrller.text.isNotEmpty) {
               final user = FirebaseAuth.instance.currentUser;
               if (user != null) {
                 try {
@@ -190,34 +182,33 @@ class EditVendorFieldsWidget extends StatelessWidget {
 
                   final vendor = GeneratedVendor();
 
-                  // Untouched rows keep their stored reference; replaced ones
-                  // are uploaded to R2 under this listing's own prefix. Only
-                  // sent when something actually changed, so a text-only edit
-                  // does not rewrite the array at all.
-                  final captions =
-                      imageNameControllers.map((c) => c.text).toList();
-
-                  final images = await vendor.resolveEditedImages(
+                  // Uploads happen first, so a failure here leaves the
+                  // listing untouched rather than half-edited. Rows the user
+                  // did not touch keep their stored reference and are never
+                  // re-uploaded; rows they removed are simply absent.
+                  final images = await vendor.resolveEditedRows(
                     vendorId: widget.vendorId,
-                    existing: widget.images,
-                    replacements: componentReplacements,
-                    captions: captions,
+                    rows: rows,
                   );
 
                   await vendor.updateGeneratedCategoryDetail(
-                    uid: user.uid,
                     documentId: widget.vendorId,
                     categoryName: nameEditingController.text.trim(),
                     description: descriptionEditingController.text.trim(),
                     location: locationController.text.trim(),
                     budget: budgetMap,
                     images: images,
-                    // Only a freshly picked file. Passing the stored key would
-                    // be harmless — updateGeneratedCategoryDetail keeps an
-                    // existing media reference as-is — but sending nothing
-                    // makes "unchanged" explicit.
-                    imagePath: image?.path,
+                    // Only a freshly picked file. Omitted when unchanged, so
+                    // the stored key — which may be catalogue artwork or a
+                    // legacy URL — is left exactly as it is.
+                    imagePathUrl: image == null
+                        ? null
+                        : await VendorApiService.instance.uploadImage(
+                            vendorId: widget.vendorId,
+                            file: image!,
+                          ),
                   );
+
                   Get.back();
                   showCustomSnackBar(
                       'Success', 'Vendor details updated successfully');

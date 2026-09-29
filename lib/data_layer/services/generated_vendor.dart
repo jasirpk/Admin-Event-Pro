@@ -1,6 +1,7 @@
 import 'dart:developer';
 import 'dart:io';
-import 'package:admineventpro/data_layer/models/vendor_document.dart';
+import 'package:admineventpro/presentation/pages/dashboard/edit_vendor.dart'
+    show ComponentRow;
 import 'package:admineventpro/data_layer/services/vendor_api_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -139,42 +140,44 @@ class GeneratedVendor {
 
   /// Builds the `images` array an edit should store.
   ///
-  /// A row the user did not touch is carried over **verbatim**, keeping its
-  /// original field name: an older listing stores `imageUrl` holding a
-  /// Firebase Storage URL, and rewriting that as `imagePath` would relabel a
-  /// URL as an object key. Only the caption is refreshed.
+  /// One entry per surviving row, in the order shown:
   ///
-  /// A row the user replaced is uploaded to R2 and stored as `imagePath`.
-  /// Nothing deletes the object it replaced — another listing, or an earlier
-  /// version of this one, may still reference it.
-  Future<List<Map<String, dynamic>>> resolveEditedImages({
+  ///  * a row the user replaced or newly filled is uploaded to R2 and stored
+  ///    as `{imagePath: <object key>, text}`;
+  ///  * an untouched row keeps its stored reference. A legacy URL stays under
+  ///    `imageUrl` — relabelling it `imagePath` would call a Firebase Storage
+  ///    URL an object key;
+  ///  * a row with no image at all is dropped, since there is nothing to
+  ///    store for it.
+  ///
+  /// Removing a row simply means it is not here. Nothing is deleted from R2:
+  /// that needs an ownership-aware delete the API does not offer for a
+  /// committed listing, and a component dropped by mistake stays recoverable.
+  Future<List<Map<String, dynamic>>> resolveEditedRows({
     required String vendorId,
-    required List<Map<String, dynamic>> existing,
-    required Map<int, File> replacements,
-    required List<String> captions,
+    required List<ComponentRow> rows,
   }) async {
     final resolved = <Map<String, dynamic>>[];
 
-    for (var i = 0; i < existing.length; i++) {
-      final text = i < captions.length
-          ? captions[i]
-          : vendorImageCaption(existing[i]);
+    for (final row in rows) {
+      final text = row.caption.text;
+      final picked = row.picked;
 
-      final replacement = replacements[i];
-
-      if (replacement != null) {
+      if (picked != null) {
         final objectKey = await VendorApiService.instance.uploadImage(
           vendorId: vendorId,
-          file: replacement,
+          file: picked,
         );
         resolved.add({'imagePath': objectKey, 'text': text});
         continue;
       }
 
-      // Untouched: copy the stored entry so whichever key it uses survives.
-      final kept = Map<String, dynamic>.from(existing[i]);
-      kept['text'] = text;
-      resolved.add(kept);
+      final ref = row.existingRef;
+      if (ref == null) continue;
+
+      resolved.add(ref.startsWith('http')
+          ? {'imageUrl': ref, 'text': text}
+          : {'imagePath': ref, 'text': text});
     }
 
     return resolved;
@@ -201,45 +204,43 @@ class GeneratedVendor {
     return FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).collection('vendorDetails').snapshots();
   }
 
-  Future<void> updateGeneratedCategoryDetail({
-    required String uid,
+  /// Applies an edit through the API.
+  ///
+  /// Previously this wrote `entrepreneurs/{uid}/vendorDetails/{id}.update()`
+  /// straight from the client, which meant the client decided what a listing
+  /// said. The server owns that now: it verifies the listing belongs to the
+  /// verified token, refuses `uid`, `createdAt`, `isValid`, `isAccepted` and
+  /// `isRejected`, and confirms every new image key exists in R2.
+  ///
+  /// Only non-null arguments are sent, so anything omitted keeps its stored
+  /// value — that is how a text-only edit leaves the images untouched.
+  ///
+  /// [images] must already be resolved to stored references by
+  /// [resolveEditedImages]; nothing is uploaded here.
+  Future<String> updateGeneratedCategoryDetail({
     required String documentId,
     String? categoryName,
     String? description,
     String? location,
     List<Map<String, dynamic>>? images,
-    String? imagePath,
+    String? imagePathUrl,
     Map<String, double>? budget,
-    bool? validate,
   }) async {
     try {
-      Map<String, dynamic> updateData = {};
-
-      if (categoryName != null) updateData['categoryName'] = categoryName;
-      if (description != null) updateData['description'] = description;
-      if (location != null) updateData['location'] = location;
-      if (budget != null) updateData['budget'] = budget;
-      if (validate != null) updateData['isValid'] = validate;
-
-      // Already resolved by resolveEditedImages: each entry is a stored
-      // reference plus its caption, so this writes them as-is. Uploading here
-      // would try to re-upload keys that are already in R2.
-      if (images != null) {
-        updateData['images'] = images;
-      }
-
-      // A value that already names stored media is kept as-is; only a
-      // freshly picked local file is uploaded.
-      if (imagePath != null && !isExistingMediaReference(imagePath)) {
-        updateData['imagePathUrl'] = await VendorApiService.instance.uploadImage(
-          vendorId: documentId,
-          file: File(imagePath),
-        );
-      }
-
-      await FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).collection('vendorDetails').doc(documentId).update(updateData);
+      final updatedAt = await VendorApiService.instance.updateVendor(
+        vendorId: documentId,
+        categoryName: categoryName,
+        description: description,
+        location: location,
+        budget: budget,
+        imagePathUrl: imagePathUrl,
+        images: images,
+      );
 
       log('Vendor details updated successfully.');
+      return updatedAt;
+    } on VendorApiException {
+      rethrow;
     } catch (e) {
       log('Error updating vendor details: $e');
       throw Exception('Failed to update vendor details: $e');

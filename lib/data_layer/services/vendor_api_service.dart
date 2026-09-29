@@ -250,6 +250,55 @@ class VendorApiService {
     return VendorCreation(vendorId: id, createdAt: createdAt);
   }
 
+  /// Applies an edit to an existing listing.
+  ///
+  /// A partial update: only the arguments given are sent, so anything left
+  /// out keeps its stored value. That is what makes "change the description"
+  /// leave the images alone — the request simply does not mention them.
+  ///
+  /// The server owns `uid`, `createdAt`, `isValid`, `isAccepted` and
+  /// `isRejected` and rejects a body naming any of them, so none of them
+  /// appear here. Submitting a listing for review stays a separate action.
+  Future<String> updateVendor({
+    required String vendorId,
+    String? categoryName,
+    String? description,
+    String? location,
+    Map<String, double>? budget,
+    String? imagePathUrl,
+    List<Map<String, dynamic>>? images,
+  }) async {
+    final payload = <String, dynamic>{};
+
+    if (categoryName != null) payload['categoryName'] = categoryName;
+    if (description != null) payload['description'] = description;
+    if (location != null) payload['location'] = location;
+    if (budget != null) payload['budget'] = budget;
+    if (imagePathUrl != null) payload['imagePathUrl'] = imagePathUrl;
+    if (images != null) payload['images'] = images;
+
+    if (payload.isEmpty) {
+      throw VendorApiException('There is nothing to save.');
+    }
+
+    final body = await _json(
+      'PATCH',
+      '/api/vendors/$vendorId',
+      body: payload,
+      failureMessage: 'The changes could not be saved.',
+    );
+
+    final updatedAt = body['updatedAt'] as String?;
+
+    if (updatedAt == null) {
+      throw VendorApiException(
+        'The server saved the changes but returned an incomplete response.',
+      );
+    }
+
+    return updatedAt;
+  }
+
   /// Deletes every image uploaded for a registration that was abandoned.
   ///
   /// Best-effort by design: it runs on a path where something has already
@@ -325,6 +374,11 @@ class VendorApiService {
           response =
               await _client.post(uri, headers: headers, body: encoded).timeout(_timeout);
           break;
+        case 'PATCH':
+          response = await _client
+              .patch(uri, headers: headers, body: encoded)
+              .timeout(_timeout);
+          break;
         case 'DELETE':
           response =
               await _client.delete(uri, headers: headers).timeout(_timeout);
@@ -379,6 +433,8 @@ class VendorApiService {
         return 'Your session has expired. Please sign in again.';
       case 403:
         return 'This account is not set up to register vendors yet.';
+      case 404:
+        return 'That listing no longer exists.';
       case 409:
         return 'This listing has already been registered.';
       case 413:

@@ -5,6 +5,8 @@ import 'package:admineventpro/presentation/components/event_detail/date_and_time
 import 'package:admineventpro/presentation/components/event_detail/gues_and_theme.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:get/get.dart';
 
 class EventDetailScreen extends StatelessWidget {
@@ -226,14 +228,18 @@ class EventDetailScreen extends StatelessWidget {
                             children: [
                               Row(
                                 children: [
-                                  CircleAvatar(
-                                    maxRadius: 20,
-                                    backgroundColor: myColor,
-                                    backgroundImage: vendor['imagePathUrl']
-                                            .startsWith('http')
-                                        ? NetworkImage(vendor['imagePathUrl'])
-                                        : AssetImage(vendor['imagePathUrl'])
-                                            as ImageProvider,
+                                  // Same R2 object key as the vendor's own
+                                  // screens, so it needs signing rather than
+                                  // an AssetImage lookup.
+                                  MediaImage(
+                                    imagePath:
+                                        vendor['imagePathUrl'] as String?,
+                                    placeholder: kMediaPlaceholderImage,
+                                    builder: (context, image) => CircleAvatar(
+                                      maxRadius: 20,
+                                      backgroundColor: myColor,
+                                      backgroundImage: image,
+                                    ),
                                   ),
                                   SizedBox(width: 8),
                                   Container(
