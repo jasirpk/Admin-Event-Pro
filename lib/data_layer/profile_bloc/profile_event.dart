@@ -26,24 +26,31 @@ class PickImage extends ProfileEvent {}
 class ClearImages extends ProfileEvent {}
 
 class SaveProfile extends ProfileEvent {
-  final String uid;
   final String companyName;
   final String about;
-  final String imagePath;
   final String phoneNumber;
   final String emailAddress;
   final String website;
-  final List<Map<String, dynamic>> images;
-  final List<Map<String, dynamic>> links;
 
-  SaveProfile(
-      {required this.uid,
-      required this.companyName,
-      required this.about,
-      required this.imagePath,
-      required this.phoneNumber,
-      required this.emailAddress,
-      required this.website,
-      required this.images,
-      required this.links});
+  /// The portfolio editor's rows, in display order.
+  final List<PortfolioRow> portfolio;
+  final List<String> links;
+
+  /// The stored avatar, carried over when the user did not replace it.
+  final String? existingProfileImage;
+
+  /// A freshly picked avatar, uploaded during the save.
+  final File? newProfileImage;
+
+  SaveProfile({
+    required this.companyName,
+    required this.about,
+    required this.phoneNumber,
+    required this.emailAddress,
+    required this.website,
+    required this.portfolio,
+    required this.links,
+    this.existingProfileImage,
+    this.newProfileImage,
+  });
 }

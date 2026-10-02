@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:io';
+import 'package:admineventpro/data_layer/models/profile_document.dart';
 import 'package:admineventpro/data_layer/services/profile.dart';
+import 'package:admineventpro/data_layer/services/profile_api_service.dart';
 import 'package:bloc/bloc.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
@@ -12,12 +14,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   int updatedItemCount = 0;
   int fieldUpdateCount = 0;
   ProfileBloc()
-      : super(GeneratedInitial(
-            pickedFields: [TextEditingController()],
-            pickImage: null,
-            listViewCount: 1,
-            pickedImages: [null],
-            fieldCount: 1)) {
+      : super(GeneratedInitial(pickedFields: [TextEditingController()], pickImage: null, listViewCount: 1, pickedImages: [null], fieldCount: 1)) {
     on<IncreamentEvent>(increamentEvent);
     on<DecrementEvent>(decrementEvent);
     on<PickImageEvent>(pickImage);
@@ -28,13 +25,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     on<Reducefield>(reduceField);
     on<SaveProfile>(saveProfile);
   }
-  FutureOr<void> addMoreFields(
-      AddMoreFields event, Emitter<ProfileState> emit) {
+  FutureOr<void> addMoreFields(AddMoreFields event, Emitter<ProfileState> emit) {
     if (state is GeneratedInitial) {
       fieldUpdateCount = (state as GeneratedInitial).fieldCount + 1;
-      final updatedFields = List<TextEditingController>.from(
-          (state as GeneratedInitial).pickedFields)
-        ..add(TextEditingController());
+      final updatedFields = List<TextEditingController>.from((state as GeneratedInitial).pickedFields)..add(TextEditingController());
       emit(GeneratedInitial(
         pickedFields: updatedFields,
         fieldCount: fieldUpdateCount,
@@ -46,12 +40,9 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
   }
 
   FutureOr<void> reduceField(Reducefield event, Emitter<ProfileState> emit) {
-    if (state is GeneratedInitial &&
-        (state as GeneratedInitial).fieldCount > 1) {
+    if (state is GeneratedInitial && (state as GeneratedInitial).fieldCount > 1) {
       fieldUpdateCount = (state as GeneratedInitial).fieldCount - 1;
-      final updatedFields = List<TextEditingController>.from(
-          (state as GeneratedInitial).pickedFields)
-        ..removeLast();
+      final updatedFields = List<TextEditingController>.from((state as GeneratedInitial).pickedFields)..removeLast();
       emit(GeneratedInitial(
         pickedFields: updatedFields,
         fieldCount: fieldUpdateCount,
@@ -62,12 +53,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  FutureOr<void> increamentEvent(
-      IncreamentEvent event, Emitter<ProfileState> emit) {
+  FutureOr<void> increamentEvent(IncreamentEvent event, Emitter<ProfileState> emit) {
     if (state is GeneratedInitial) {
       updatedItemCount = (state as GeneratedInitial).listViewCount + 1;
-      final updatedImages =
-          List<File?>.from((state as GeneratedInitial).pickedImages)..add(null);
+      final updatedImages = List<File?>.from((state as GeneratedInitial).pickedImages)..add(null);
       emit(GeneratedInitial(
         pickedFields: (state as GeneratedInitial).pickedFields,
         fieldCount: (state as GeneratedInitial).fieldCount,
@@ -78,14 +67,10 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  FutureOr<void> decrementEvent(
-      DecrementEvent event, Emitter<ProfileState> emit) {
-    if (state is GeneratedInitial &&
-        (state as GeneratedInitial).listViewCount > 1) {
+  FutureOr<void> decrementEvent(DecrementEvent event, Emitter<ProfileState> emit) {
+    if (state is GeneratedInitial && (state as GeneratedInitial).listViewCount > 1) {
       updatedItemCount = (state as GeneratedInitial).listViewCount - 1;
-      final updatedImages =
-          List<File?>.from((state as GeneratedInitial).pickedImages)
-            ..removeLast();
+      final updatedImages = List<File?>.from((state as GeneratedInitial).pickedImages)..removeLast();
       emit(GeneratedInitial(
         pickedFields: (state as GeneratedInitial).pickedFields,
         fieldCount: (state as GeneratedInitial).fieldCount,
@@ -96,10 +81,8 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  FutureOr<void> removeImage(
-      RemoveImageEvent event, Emitter<ProfileState> emit) {
-    final updatedImages =
-        List<File?>.from((state as GeneratedInitial).pickedImages);
+  FutureOr<void> removeImage(RemoveImageEvent event, Emitter<ProfileState> emit) {
+    final updatedImages = List<File?>.from((state as GeneratedInitial).pickedImages);
     updatedImages[event.index] = null;
     emit(GeneratedInitial(
       pickedFields: (state as GeneratedInitial).pickedFields,
@@ -110,14 +93,12 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     ));
   }
 
-  FutureOr<void> pickImage(
-      PickImageEvent event, Emitter<ProfileState> emit) async {
+  FutureOr<void> pickImage(PickImageEvent event, Emitter<ProfileState> emit) async {
     final picker = ImagePicker();
     final pickedFile = await picker.pickImage(source: ImageSource.gallery);
 
     if (pickedFile != null) {
-      final updatedImages =
-          List<File?>.from((state as GeneratedInitial).pickedImages);
+      final updatedImages = List<File?>.from((state as GeneratedInitial).pickedImages);
       updatedImages[event.index] = File(pickedFile.path);
 
       emit(GeneratedInitial(
@@ -130,8 +111,7 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     }
   }
 
-  FutureOr<void> pickImageDuplicate(
-      PickImage event, Emitter<ProfileState> emit) async {
+  FutureOr<void> pickImageDuplicate(PickImage event, Emitter<ProfileState> emit) async {
     final picker = ImagePicker();
     try {
       final XFile? image = await picker.pickImage(source: ImageSource.gallery);
@@ -164,23 +144,37 @@ class ProfileBloc extends Bloc<ProfileEvent, ProfileState> {
     ));
   }
 
-  FutureOr<void> saveProfile(
-      SaveProfile event, Emitter<ProfileState> emit) async {
+  FutureOr<void> saveProfile(SaveProfile event, Emitter<ProfileState> emit) async {
+    // ProfileLoading carries none of the form's data, so the screen must not
+    // rebuild its fields from it — see ProfileScreen, which keeps rendering
+    // the form and only disables the save button. Emitting it here is safe
+    // for that reason, and the avatar and portfolio now live in the screen's
+    // own state rather than in GeneratedInitial.
     emit(ProfileLoading());
     try {
-      await UserProfile().addProfile(
-          uid: event.uid,
-          companyName: event.companyName,
-          about: event.about,
-          imagePath: event.imagePath,
-          phoneNumber: event.phoneNumber,
-          emailAddress: event.emailAddress,
-          website: event.website,
-          images: event.images,
-          links: event.links);
+      await UserProfile().saveProfile(
+        companyName: event.companyName,
+        about: event.about,
+        phoneNumber: event.phoneNumber,
+        emailAddress: event.emailAddress,
+        website: event.website,
+        portfolio: event.portfolio,
+        links: event.links,
+        existingProfileImage: event.existingProfileImage,
+        newProfileImage: event.newProfileImage,
+      );
       emit(ProfileSuccess());
     } catch (e) {
-      emit(ProfileError(error: e.toString()));
+      // Back to the editing state so the form is interactive again — a
+      // failed save must not strand the user on a spinner.
+      emit(ProfileError(error: _message(e)));
     }
+  }
+
+  /// The user-facing text for a failure. A ProfileApiException already says
+  /// something useful; anything else would leak a stack-shaped string.
+  String _message(Object error) {
+    if (error is ProfileApiException) return error.message;
+    return 'Could not save your profile. Please try again.';
   }
 }

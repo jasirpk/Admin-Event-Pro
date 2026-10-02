@@ -68,6 +68,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
             'uid': user.uid,
             'email': user.email,
             'platform': 'mobile',
+            'isActive': true,
             'createdAt': DateTime.now(),
           }, SetOptions(merge: true));
           await saveAuthState(user.uid, user.email!);

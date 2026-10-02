@@ -1,6 +1,7 @@
 import 'package:admineventpro/data_layer/services/sub_category.dart';
 import 'package:admineventpro/presentation/pages/dashboard/add_vendors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:flutter/material.dart';
 
 class DataSearch extends SearchDelegate<String> {
@@ -67,15 +68,24 @@ class DataSearch extends SearchDelegate<String> {
               color: Colors.black,
               child: Container(
                 child: ListTile(
-                  leading: Container(
-                    width: 60,
-                    height: 60,
-                    decoration: BoxDecoration(
-                        image: DecorationImage(
-                            image: imagePath.startsWith('http')
-                                ? NetworkImage(imagePath)
-                                : AssetImage(imagePath) as ImageProvider,
-                            fit: BoxFit.cover)),
+                  // A sub-category's imagePath is an R2 object key since the
+                  // catalogue migration. `startsWith('http')` sent that down
+                  // the AssetImage branch, asking Flutter for a bundled asset
+                  // named "subcategory_images/...", which throws. MediaImage
+                  // signs the key through the media API instead, and shows the
+                  // placeholder rather than throwing when it cannot.
+                  leading: MediaImage(
+                    imagePath: imagePath,
+                    placeholder: kMediaPlaceholderImage,
+                    builder: (context, image) => Container(
+                      width: 60,
+                      height: 60,
+                      decoration: BoxDecoration(
+                          image: image == null
+                              ? null
+                              : DecorationImage(
+                                  image: image, fit: BoxFit.cover)),
+                    ),
                   ),
                   title: Text(
                     data['subCategoryName'],

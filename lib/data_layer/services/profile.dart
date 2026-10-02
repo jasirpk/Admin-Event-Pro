@@ -1,83 +1,96 @@
 import 'dart:developer';
 import 'dart:io';
 
+import 'package:admineventpro/data_layer/models/profile_document.dart';
+import 'package:admineventpro/data_layer/services/profile_api_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:firebase_storage/firebase_storage.dart';
 
 class UserProfile {
-  Future<void> addProfile({
-    required String uid,
+  /// Saves the profile through the API.
+  ///
+  /// Previously this wrote `entrepreneurs/{uid}` directly and uploaded every
+  /// picture to Firebase Storage. Both moved: images go to Cloudflare R2
+  /// through a presigned PUT, and the document is written server-side, which
+  /// is what stops the client deciding its own `uid` or resetting
+  /// `createdAt` on every save.
+  ///
+  /// [portfolio] is the editor's rows in display order. A row the user did
+  /// not touch keeps its stored reference and is never re-uploaded; a row
+  /// they picked is uploaded; a row they removed is simply absent, which is
+  /// how a removal reaches Firestore.
+  ///
+  /// Uploads happen before the save, so a failure part-way leaves the stored
+  /// profile exactly as it was.
+  Future<String> saveProfile({
     required String companyName,
     required String about,
-    required String imagePath,
     required String phoneNumber,
     required String emailAddress,
     required String website,
-    required List<Map<String, dynamic>> images,
-    required List<Map<String, dynamic>> links,
+    required List<PortfolioRow> portfolio,
+    required List<String> links,
+    String? existingProfileImage,
+    File? newProfileImage,
   }) async {
     try {
-      String finalImagePath;
-      List<Map<String, dynamic>> imageUrlList = [{}];
+      final api = ProfileApiService.instance;
 
-      if (Uri.parse(imagePath).isAbsolute) {
-        finalImagePath = imagePath;
-      } else {
-        File imageFile = File(imagePath);
-        if (await imageFile.exists()) {
-          finalImagePath = await uploadImageToFirebase(imageFile);
-        } else {
-          throw Exception("Image file does not exist at path: $imagePath");
+      // Only a freshly picked avatar is uploaded. An unchanged one is left
+      // out of the request entirely, so the stored value — R2 key or legacy
+      // URL — stays exactly as it is.
+      final String? profileImage = newProfileImage != null
+          ? await api.uploadImage(
+              kind: ProfileUploadKind.avatar,
+              file: newProfileImage,
+            )
+          : null;
+
+      final images = <Map<String, dynamic>>[];
+
+      for (final row in portfolio) {
+        final picked = row.picked;
+
+        if (picked != null) {
+          final objectKey = await api.uploadImage(
+            kind: ProfileUploadKind.portfolio,
+            file: picked,
+          );
+          images.add({'image': objectKey});
+          continue;
         }
+
+        final ref = row.existingRef;
+        if (ref == null) continue;
+
+        images.add({'image': ref});
       }
 
-      imageUrlList = await uploadImages(images);
+      final updatedAt = await api.updateProfile(
+        companyName: companyName,
+        description: about,
+        website: website,
+        phoneNumber: phoneNumber,
+        emailAddress: emailAddress,
+        profileImage: profileImage,
+        images: images,
+        links: links.map((link) => {'link': link}).toList(),
+      );
 
-      DocumentReference documentRef =
-          FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
-
-      await documentRef.update({
-        'companyName': companyName,
-        'description': about,
-        'website': website,
-        'phoneNumber': phoneNumber,
-        'emailAddress': emailAddress,
-        'profileImage': finalImagePath,
-        'images': imageUrlList,
-        'links': links,
-        'uid': uid,
-        'createdAt': FieldValue.serverTimestamp(),
-      });
-
-      print('Vendor details added successfully to sub-collection.');
+      log('Profile saved successfully.');
+      return updatedAt;
+    } on ProfileApiException {
+      rethrow;
     } catch (e) {
-      print('Error adding user Profile to sub-collection: $e');
-      throw Exception('Failed to add user Profile: $e');
+      log('Error saving profile: $e');
+      throw Exception('Failed to save profile: $e');
     }
-  }
-
-  Future<List<Map<String, dynamic>>> uploadImages(
-      List<Map<String, dynamic>> images) async {
-    List<Map<String, dynamic>> uploadedImages = [];
-    for (var image in images) {
-      if (image['image'] != null) {
-        try {
-          String imageUrl = await uploadImageToFirebase(File(image['image']));
-          uploadedImages.add({'image': imageUrl});
-        } catch (e) {
-          log('Failed to upload one of the images: $e');
-          throw Exception('Failed to upload images: $e');
-        }
-      }
-    }
-    return uploadedImages;
   }
 
   Future<DocumentSnapshot> getUserProfile(String uid) async {
     try {
-      DocumentReference documentRef =
+      final documentRef =
           FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
-      DocumentSnapshot documentSnapshot = await documentRef.get();
+      final documentSnapshot = await documentRef.get();
       if (!documentSnapshot.exists) {
         throw Exception('User profile does not exist for uid: $uid');
       }
@@ -88,30 +101,12 @@ class UserProfile {
     }
   }
 
-  Future<String> uploadImageToFirebase(File image) async {
-    try {
-      String fileName =
-          'profile_images/${DateTime.now().millisecondsSinceEpoch}_${image.path.split('/').last}';
-
-      Reference storageRef = FirebaseStorage.instance.ref().child(fileName);
-
-      UploadTask uploadTask = storageRef.putFile(image);
-      TaskSnapshot snapshot = await uploadTask;
-
-      String downloadUrl = await snapshot.ref.getDownloadURL();
-      return downloadUrl;
-    } catch (e) {
-      log('Failed to upload image: $e');
-      throw Exception('Failed to upload image: $e');
-    }
-  }
-
   Future<void> deleteProfile(String uid) async {
     try {
-      DocumentReference documentRef =
-          FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
-
-      await documentRef.delete();
+      await FirebaseFirestore.instance
+          .collection('entrepreneurs')
+          .doc(uid)
+          .delete();
 
       log('User profile deleted successfully.');
     } catch (e) {

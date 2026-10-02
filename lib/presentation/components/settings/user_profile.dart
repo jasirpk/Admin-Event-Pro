@@ -3,6 +3,8 @@ import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/presentation/components/settings/more_data.dart';
 import 'package:admineventpro/presentation/pages/dashboard/user_profile.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:admineventpro/data_layer/models/profile_document.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get/route_manager.dart';
@@ -46,16 +48,19 @@ class UserProfileWidget extends StatelessWidget {
                       child: CircleAvatar(
                         maxRadius: 60,
                         backgroundColor: Colors.transparent,
+                        // profileImage is an R2 object key since the
+                        // migration; NetworkImage was handed the raw key.
                         child: ClipOval(
-                          child: FadeInImage(
+                          child: MediaImage(
+                            imagePath: profileImage,
                             placeholder: AssetImage(Assigns.personImage),
-                            image: profileImage.isNotEmpty
-                                ? NetworkImage(profileImage)
-                                : AssetImage(Assigns.personImage)
-                                    as ImageProvider,
-                            fit: BoxFit.cover,
-                            width: 120,
-                            height: 120,
+                            builder: (context, image) => FadeInImage(
+                              placeholder: AssetImage(Assigns.personImage),
+                              image: image ?? AssetImage(Assigns.personImage),
+                              fit: BoxFit.cover,
+                              width: 120,
+                              height: 120,
+                            ),
                           ),
                         ),
                       ),
@@ -70,6 +75,11 @@ class UserProfileWidget extends StatelessWidget {
                             onPressed: () {
                               Get.to(() {
                                 return ProfileScreen(
+                                  // Without these the editor started empty
+                                  // and saving replaced the whole portfolio.
+                                  portfolio: profilePortfolioRefs(
+                                      userData?['images']),
+                                  links: profileLinks(userData?['links']),
                                   companyName: companyName,
                                   description: description,
                                   phoneNumber: phoneNumber,

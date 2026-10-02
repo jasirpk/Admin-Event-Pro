@@ -1,7 +1,7 @@
 import 'dart:io';
+import 'package:admineventpro/data_layer/models/profile_document.dart';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
-import 'package:admineventpro/data_layer/profile_bloc/profile_bloc.dart';
 import 'package:admineventpro/presentation/components/profile_form/link_fields.dart';
 import 'package:admineventpro/presentation/components/profile_form/medias.dart';
 import 'package:admineventpro/presentation/components/profile_form/profile_image.dart';
@@ -10,7 +10,6 @@ import 'package:admineventpro/presentation/components/ui/custom_textfield.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:admineventpro/presentation/components/ui/single_text.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 
 class User_FieldsWidget extends StatelessWidget {
   const User_FieldsWidget({
@@ -23,11 +22,16 @@ class User_FieldsWidget extends StatelessWidget {
     required this.phoneEditingController,
     required this.emailAddressController,
     required this.websiteEditingController,
-    required this.fieldCount,
     required this.fields,
-    required this.itemCount,
-    required this.images,
+    required this.portfolio,
     required this.profileImage,
+    required this.saving,
+    required this.onPickAvatar,
+    required this.onPickPortfolioImage,
+    required this.onAddPortfolioRow,
+    required this.onRemovePortfolioRow,
+    required this.onAddLinkField,
+    required this.onRemoveLinkField,
     required this.onSavePressed,
   });
 
@@ -39,12 +43,19 @@ class User_FieldsWidget extends StatelessWidget {
   final TextEditingController phoneEditingController;
   final TextEditingController emailAddressController;
   final TextEditingController websiteEditingController;
-  final int? fieldCount;
   final List<TextEditingController> fields;
-  final int? itemCount;
-  final List<File?>? images;
+  final List<PortfolioRow> portfolio;
   final String profileImage;
-  final VoidCallback onSavePressed;
+  final bool saving;
+  final VoidCallback onPickAvatar;
+  final void Function(int index) onPickPortfolioImage;
+  final VoidCallback onAddPortfolioRow;
+  final void Function(int index) onRemovePortfolioRow;
+  final VoidCallback onAddLinkField;
+  final VoidCallback onRemoveLinkField;
+
+  /// Null while a save is in flight, which disables the button.
+  final VoidCallback? onSavePressed;
 
   @override
   Widget build(BuildContext context) {
@@ -79,6 +90,7 @@ class User_FieldsWidget extends StatelessWidget {
         UserProfileImageWidget(
             profileImage: profileImage,
             image: image,
+            onTap: onPickAvatar,
             screenWidth: screenWidth,
             screenHeight: screenHeight),
         sizedbox,
@@ -109,32 +121,29 @@ class User_FieldsWidget extends StatelessWidget {
         CustomTextWithIconsWidget(
             screenHeight: screenHeight,
             text: Assigns.socialMedia,
-            onAddpressed: () {
-              context.read<ProfileBloc>().add(AddMoreFields());
-            },
-            onRemovePressed: () {
-              context.read<ProfileBloc>().add(Reducefield());
-            }),
+            onAddpressed: onAddLinkField,
+            onRemovePressed: onRemoveLinkField),
         sizedbox,
-        LinkFieldsWidget(fieldCount: fieldCount, fields: fields),
+        LinkFieldsWidget(fieldCount: fields.length, fields: fields),
         sizedbox,
         CustomTextWithIconsWidget(
             screenHeight: screenHeight,
             text: Assigns.portFolio,
-            onAddpressed: () {
-              context.read<ProfileBloc>().add(IncreamentEvent());
-            },
-            onRemovePressed: () {
-              context.read<ProfileBloc>().add(DecrementEvent());
-            }),
+            // These used to dispatch to the shared bloc, whose picked-image
+            // list held only local files — so an existing portfolio image
+            // had nowhere to live and was lost on save.
+            onAddpressed: onAddPortfolioRow,
+            onRemovePressed: () => onRemovePortfolioRow(portfolio.length - 1)),
         SizedBox(height: 10),
         MediasWidget(
             screenHeight: screenHeight,
-            itemCount: itemCount,
             screenWidth: screenWidth,
-            images: images),
+            portfolio: portfolio,
+            onPickImage: onPickPortfolioImage,
+            onRemoveRow: onRemovePortfolioRow),
         PushableButton_widget(
-            buttonText: 'Save Details', onpressed: onSavePressed)
+            buttonText: saving ? 'Saving…' : 'Save Details',
+            onpressed: onSavePressed ?? () {})
       ],
     );
   }

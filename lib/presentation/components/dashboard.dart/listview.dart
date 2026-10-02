@@ -81,35 +81,34 @@ class ListViewWidget extends StatelessWidget {
                           MediaUrl(
                             imagePath: imagePath,
                             builder: (context, url) => CachedNetworkImage(
-                                                        imageUrl: url ?? '',
-                                                        placeholder: (context, url) => Container(
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey.shade300,
-                                                            borderRadius: BorderRadius.circular(4),
-                                                          ),
-                                                          child: Center(
-                                                            child: CircularProgressIndicator(
-                                                              color: Colors.white,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        errorWidget: (context, url, error) => Container(
-                                                          decoration: BoxDecoration(
-                                                            color: Colors.grey.shade300,
-                                                            borderRadius: BorderRadius.circular(4),
-                                                            image: DecorationImage(image: AssetImage(kMediaPlaceholderAsset),fit: BoxFit.cover)
-                                                          ),
-                                                          child: Center(
-                                                            child: Icon(
-                                                              Icons.error,
-                                                              color: Colors.red,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                        fit: BoxFit.cover,
-                                                        width: screenWidth,
-                                                        height: screenHeight,
-                                                      ),
+                              imageUrl: url ?? '',
+                              placeholder: (context, url) => Container(
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade300,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
+                                child: Center(
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ),
+                              errorWidget: (context, url, error) => Container(
+                                decoration: BoxDecoration(
+                                    color: Colors.grey.shade300,
+                                    borderRadius: BorderRadius.circular(4),
+                                    image: DecorationImage(image: AssetImage(kMediaPlaceholderAsset), fit: BoxFit.cover)),
+                                child: Center(
+                                  child: Icon(
+                                    Icons.error,
+                                    color: Colors.red,
+                                  ),
+                                ),
+                              ),
+                              fit: BoxFit.cover,
+                              width: screenWidth,
+                              height: screenHeight,
+                            ),
                           ),
                           Align(
                             alignment: Alignment.bottomLeft,
