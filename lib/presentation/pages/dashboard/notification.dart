@@ -6,6 +6,7 @@ import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/pages/dashboard/events.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:get/get.dart';
 
 class NotificationScreen extends StatelessWidget {
@@ -68,11 +69,14 @@ class NotificationScreen extends StatelessWidget {
                     child: Stack(
                       children: [
                         ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: profileImage.isNotEmpty
-                                ? NetworkImage(profileImage)
-                                : AssetImage(Assigns.personImage)
-                                    as ImageProvider,
+                          // A consumer's avatar is an R2 object key since
+                          // the client profile migration.
+                          leading: MediaImage(
+                            imagePath: profileImage,
+                            placeholder: AssetImage(Assigns.personImage),
+                            builder: (context, image) => CircleAvatar(
+                              backgroundImage: image,
+                            ),
                           ),
                           title: RichText(
                             text: TextSpan(

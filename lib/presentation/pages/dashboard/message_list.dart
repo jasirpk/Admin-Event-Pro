@@ -5,6 +5,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:get/get.dart';
 
 class MessageListScreen extends StatelessWidget {
@@ -71,12 +72,15 @@ class MessageListScreen extends StatelessWidget {
                         color: Colors.white12,
                         borderRadius: BorderRadius.circular(20)),
                     child: ListTile(
-                      leading: CircleAvatar(
-                        maxRadius: 30,
-                        backgroundImage: profileImage.isNotEmpty
-                            ? NetworkImage(profileImage)
-                            : AssetImage(Assigns.personImage)
-                                as ImageProvider,
+                      // A consumer's avatar is an R2 object key since the
+                      // client profile migration.
+                      leading: MediaImage(
+                        imagePath: profileImage,
+                        placeholder: AssetImage(Assigns.personImage),
+                        builder: (context, image) => CircleAvatar(
+                          maxRadius: 30,
+                          backgroundImage: image,
+                        ),
                       ),
                       title: Text(
                         data['userName'],

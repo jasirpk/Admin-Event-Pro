@@ -6,6 +6,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:admineventpro/presentation/pages/dashboard/events.dart';
 import 'package:flutter/material.dart';
+import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:get/get.dart';
 
 class ChecklistScreen extends StatelessWidget {
@@ -58,11 +59,15 @@ class ChecklistScreen extends StatelessWidget {
                     child: Container(
                       width: double.infinity,
                       child: ListTile(
-                          leading: CircleAvatar(
-                            backgroundImage: profileImage.isNotEmpty
-                                ? NetworkImage(profileImage)
-                                : AssetImage(Assigns.personImage)
-                                    as ImageProvider,
+                          // A consumer's avatar is an R2 object key since
+                          // the client profile migration; NetworkImage was
+                          // handed the raw key.
+                          leading: MediaImage(
+                            imagePath: profileImage,
+                            placeholder: AssetImage(Assigns.personImage),
+                            builder: (context, image) => CircleAvatar(
+                              backgroundImage: image,
+                            ),
                           ),
                           title: Text(
                             data['userName'],
