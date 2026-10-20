@@ -1,0 +1,91 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+
+import 'package:admineventpro/data_layer/models/booking_summary.dart';
+
+/// Reads the entrepreneur's own bookings from the `entrepreneurBookings`
+/// index.
+///
+/// This replaced walking a directory of every customer and querying each
+/// one's `events` subcollection in turn. That approach needed a global list
+/// of consumers to exist at all, which is precisely what it should not need.
+///
+/// The index is written only by the Media API. Its rules allow a read solely
+/// where `entrepreneurId` equals the caller's uid, so the filter below is not
+/// a convenience — a query without it is refused outright, and an unfiltered
+/// listing is refused too.
+class BookingIndexService {
+  BookingIndexService({FirebaseFirestore? firestore, FirebaseAuth? auth})
+      : _injectedFirestore = firestore,
+        _injectedAuth = auth;
+
+  final FirebaseFirestore? _injectedFirestore;
+  final FirebaseAuth? _injectedAuth;
+
+  // Resolved on use rather than in the initializer: touching
+  // FirebaseAuth.instance at construction would throw wherever no Firebase
+  // app exists, which is every widget test.
+  FirebaseFirestore get _firestore =>
+      _injectedFirestore ?? FirebaseFirestore.instance;
+
+  FirebaseAuth get _auth => _injectedAuth ?? FirebaseAuth.instance;
+
+  static const String collection = 'entrepreneurBookings';
+
+  /// The signed-in entrepreneur, or null when there is no session.
+  ///
+  /// Read from the auth session, never from a route argument or a field on a
+  /// document, so a caller cannot ask for somebody else's bookings.
+  String? get currentEntrepreneurUid => _auth.currentUser?.uid;
+
+  /// The bookings addressed to [entrepreneurUid], newest first.
+  ///
+  /// A single equality filter and no `orderBy`, which Firestore serves from
+  /// the single-field index it maintains for `entrepreneurId` automatically.
+  /// No composite index is involved, so this query cannot fail with
+  /// `failed-precondition` for a missing one.
+  ///
+  /// Ordering therefore happens here rather than in Firestore. That is a real
+  /// trade: the whole result set is fetched and sorted in memory, so it is
+  /// correct at this collection's size and would not stay correct under a
+  /// server-side `limit`. See [sortedNewestFirst].
+  Stream<List<BookingSummary>> watchBookings(String entrepreneurUid) {
+    return _firestore
+        .collection(collection)
+        .where('entrepreneurId', isEqualTo: entrepreneurUid)
+        .snapshots()
+        .map((snapshot) => sortedNewestFirst(snapshot.docs
+            .map((doc) => BookingSummary.fromIndex(doc.id, doc.data()))
+            .toList()));
+  }
+
+  /// [bookings] newest first, as a new list.
+  ///
+  /// Replaces the `orderBy('createdAt', descending: true)` that Firestore
+  /// used to apply, and has to cope with what a server-side sort never saw:
+  /// a row whose `createdAt` is missing or of an unexpected type parses to
+  /// null, and null has no place on a timeline. Those rows sort last rather
+  /// than being dropped — a booking with a bad timestamp is still a booking,
+  /// and hiding it would be worse than showing it at the bottom.
+  ///
+  /// Ties, including null against null, break on `indexId` so the order is
+  /// stable between rebuilds instead of shuffling on every snapshot.
+  static List<BookingSummary> sortedNewestFirst(List<BookingSummary> bookings) {
+    final sorted = [...bookings];
+
+    sorted.sort((a, b) {
+      final at = a.createdAt;
+      final bt = b.createdAt;
+
+      if (at == null && bt == null) return a.indexId.compareTo(b.indexId);
+      if (at == null) return 1;
+      if (bt == null) return -1;
+
+      final byTime = bt.compareTo(at);
+
+      return byTime != 0 ? byTime : a.indexId.compareTo(b.indexId);
+    });
+
+    return sorted;
+  }
+}

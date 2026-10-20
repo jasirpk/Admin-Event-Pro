@@ -2,7 +2,7 @@ import 'package:admineventpro/data_layer/services/category.dart';
 import 'package:flutter/material.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/vendor.dart';
 import 'package:admineventpro/presentation/pages/dashboard/budget_tracker.dart';
-import 'package:admineventpro/presentation/pages/dashboard/checklist.dart';
+import 'package:admineventpro/presentation/pages/dashboard/bookings.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/listview_name.dart';
 import 'package:admineventpro/presentation/components/ui/silver_appbar.dart';
@@ -144,7 +144,7 @@ class CoverImageWidget extends StatelessWidget {
                       children: [
                         InkWell(
                           onTap: () {
-                            Get.to(() => ChecklistScreen(),
+                            Get.to(() => BookingsScreen(),
                                 transition: Transition.fade,
                                 duration: Duration(milliseconds: 800));
                           },
@@ -152,7 +152,7 @@ class CoverImageWidget extends StatelessWidget {
                             screenHeight: screenHeight,
                             screenWidth: screenWidth,
                             image: 'assets/images/checkList_card_img.png',
-                            text: 'Checklist',
+                            text: 'Bookings',
                           ),
                         ),
                         InkWell(
