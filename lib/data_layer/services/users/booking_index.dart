@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:admineventpro/data_layer/models/booking_detail.dart';
 import 'package:admineventpro/data_layer/models/booking_summary.dart';
 
 /// Reads the entrepreneur's own bookings from the `entrepreneurBookings`
@@ -57,6 +58,40 @@ class BookingIndexService {
         .map((snapshot) => sortedNewestFirst(snapshot.docs
             .map((doc) => BookingSummary.fromIndex(doc.id, doc.data()))
             .toList()));
+  }
+
+  /// The source booking behind an index row.
+  ///
+  /// Reads `users/{customerUid}/events/{eventId}` directly — the one document
+  /// the deployed rules let this entrepreneur see, because the booking names
+  /// them in `EntrepreneurId`. The customer's account is otherwise closed to
+  /// them: the parent user document, their other bookings and an unfiltered
+  /// listing of the subcollection are all refused.
+  ///
+  /// [customerUid] and [eventId] come from the index row, never from user
+  /// input, so this cannot be pointed at an arbitrary document — and if it
+  /// were, the rules would refuse it.
+  ///
+  /// Returns null when the booking has been deleted since it was indexed.
+  Future<BookingDetail?> fetchDetail({
+    required String customerUid,
+    required String eventId,
+  }) async {
+    // A malformed index row would otherwise reach `.doc('')`, which throws
+    // ArgumentError inside the request. There is no document to ask for, so
+    // this answers like a missing one instead of failing.
+    if (customerUid.isEmpty || eventId.isEmpty) return null;
+
+    final snapshot = await _firestore
+        .collection('users')
+        .doc(customerUid)
+        .collection('events')
+        .doc(eventId)
+        .get();
+
+    final data = snapshot.data();
+
+    return data == null ? null : BookingDetail.fromSource(data);
   }
 
   /// [bookings] newest first, as a new list.

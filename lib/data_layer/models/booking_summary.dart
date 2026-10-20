@@ -6,10 +6,10 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 /// every field here is a copy made at index time. The booking itself remains
 /// the system of record at `sourcePath`.
 ///
-/// Note what is absent. The index carries no customer email or phone — those
-/// are deliberately withheld by the server until the access policy is
-/// settled — and `clientName`, which the index does carry, is not read here
-/// for the same reason. See the Phase 4 report.
+/// Note what is absent. The index carries no customer email or phone; those
+/// stay in the source booking, which the assigned entrepreneur reads on
+/// demand when a card is opened. `clientName` is indexed and shown, per the
+/// agreed access decision.
 ///
 /// Every field is parsed defensively. These documents are written by a
 /// server that may be a version ahead or behind this app, and a single
@@ -28,6 +28,7 @@ class BookingSummary {
     required this.location,
     required this.guestCount,
     required this.imagePath,
+    required this.clientName,
     required this.customerSubmitted,
     this.amount,
     this.createdAt,
@@ -52,6 +53,9 @@ class BookingSummary {
   /// An R2 object key, a legacy HTTPS URL, or empty.
   final String imagePath;
 
+  /// The customer's name, as copied into the index.
+  final String clientName;
+
   /// The customer handed the booking over. **Not** an acceptance decision by
   /// this entrepreneur — no such workflow exists.
   final bool customerSubmitted;
@@ -74,6 +78,7 @@ class BookingSummary {
       location: _text(data['location']),
       guestCount: _text(data['guestCount']),
       imagePath: _text(data['imageURL']),
+      clientName: _text(data['clientName']),
       customerSubmitted: data['customerSubmitted'] == true,
       amount: _number(data['sum']),
       createdAt: _time(data['createdAt']),

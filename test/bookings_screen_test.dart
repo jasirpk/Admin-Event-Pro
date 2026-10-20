@@ -327,12 +327,16 @@ void main() {
   });
 
   group('privacy and status wording', () {
-    testWidgets('no customer name, email or phone is shown', (tester) async {
+    testWidgets('the card shows the name but never email or phone',
+        (tester) async {
       await pumpScreen(tester, stream: Stream.value([summary()]));
       await tester.pumpAndSettle();
 
-      expect(find.textContaining('A Customer'), findsNothing,
-          reason: 'clientName is withheld pending the access policy');
+      // clientName is indexed and shown, per the agreed access decision.
+      expect(find.text('A Customer'), findsOneWidget);
+
+      // Contact details are not in the index and must not reach the list;
+      // they are fetched only when a card is opened.
       expect(find.textContaining('@'), findsNothing);
     });
 
@@ -382,21 +386,15 @@ void main() {
   });
 
   group('no navigation is offered', () {
-    testWidgets('a card is not tappable', (tester) async {
+    testWidgets('a card opens the booking detail', (tester) async {
       await pumpScreen(tester, stream: Stream.value([summary()]));
       await tester.pumpAndSettle();
 
-      // The old list opened a customer-scoped screen; nothing here does.
-      // Scoped to the card: a ListView carries its own GestureDetector for
-      // scrolling, which says nothing about the card being tappable.
+      // The old list opened a customer-scoped screen, which was the wrong
+      // destination. A booking's own detail is the right one.
       expect(
         find.descendant(of: find.byType(Card), matching: find.byType(InkWell)),
-        findsNothing,
-      );
-      expect(
-        find.descendant(
-            of: find.byType(Card), matching: find.byType(GestureDetector)),
-        findsNothing,
+        findsOneWidget,
       );
     });
   });
