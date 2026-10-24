@@ -1,13 +1,9 @@
-import 'package:admineventpro/common/assigns.dart';
-import 'package:admineventpro/common/style.dart';
+import 'package:admineventpro/presentation/components/settings/settings_ui.dart';
 import 'package:admineventpro/presentation/components/settings/more_data.dart';
 import 'package:admineventpro/presentation/pages/dashboard/user_profile.dart';
-import 'package:flutter/cupertino.dart';
 import 'package:admineventpro/data_layer/models/profile_document.dart';
-import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'package:get/route_manager.dart';
 
 class UserProfileWidget extends StatelessWidget {
   const UserProfileWidget({
@@ -31,159 +27,82 @@ class UserProfileWidget extends StatelessWidget {
     final String description = userData?['description'] ?? 'No description';
     final List<dynamic> links = userData?['links'] ?? [];
 
-    return SingleChildScrollView(
-      child: Padding(
-        padding: EdgeInsets.all(8.0),
+    return SafeArea(
+      top: false,
+      child: SingleChildScrollView(
+        padding: const EdgeInsets.fromLTRB(16, 8, 16, 32),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Row(
-              children: [
-                Stack(
-                  children: [
-                    Container(
-                      decoration: BoxDecoration(
-                        border: Border.all(color: Colors.white, width: 3.0),
-                        borderRadius: BorderRadius.circular(100),
-                      ),
-                      child: CircleAvatar(
-                        maxRadius: 60,
-                        backgroundColor: Colors.transparent,
-                        // profileImage is an R2 object key since the
-                        // migration; NetworkImage was handed the raw key.
-                        child: ClipOval(
-                          child: MediaImage(
-                            imagePath: profileImage,
-                            placeholder: AssetImage(Assigns.personImage),
-                            builder: (context, image) => FadeInImage(
-                              placeholder: AssetImage(Assigns.personImage),
-                              image: image ?? AssetImage(Assigns.personImage),
-                              fit: BoxFit.cover,
-                              width: 120,
-                              height: 120,
-                            ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Positioned(
-                      bottom: 0,
-                      right: 0,
-                      child: CircleAvatar(
-                        maxRadius: 20,
-                        backgroundColor: Colors.white,
-                        child: IconButton(
-                            onPressed: () {
-                              Get.to(() {
-                                return ProfileScreen(
-                                  // Without these the editor started empty
-                                  // and saving replaced the whole portfolio.
-                                  portfolio: profilePortfolioRefs(
-                                      userData?['images']),
-                                  links: profileLinks(userData?['links']),
-                                  companyName: companyName,
-                                  description: description,
-                                  phoneNumber: phoneNumber,
-                                  email: emailAddress,
-                                  website: website,
-                                  imagePath: profileImage,
-                                );
-                              });
-                            },
-                            icon: Icon(
-                              Icons.edit,
-                              color: Colors.black,
-                            )),
-                      ),
-                    )
-                  ],
-                ),
-                sizedboxWidth,
-                Text(
-                  companyName,
-                  style: TextStyle(
-                      fontSize: screenHeight * 0.022,
-                      fontWeight: FontWeight.w500),
-                )
-              ],
+            SettingsHeader(
+              imagePath: profileImage,
+              name: companyName,
+              subtitle: emailAddress,
+              // Unchanged destination and arguments: without these the
+              // editor started empty and saving replaced the whole
+              // portfolio.
+              onEdit: () => Get.to(() => ProfileScreen(
+                    portfolio: profilePortfolioRefs(userData?['images']),
+                    links: profileLinks(userData?['links']),
+                    companyName: companyName,
+                    description: description,
+                    phoneNumber: phoneNumber,
+                    email: emailAddress,
+                    website: website,
+                    imagePath: profileImage,
+                  )),
             ),
-            sizedbox,
-            Row(
-              children: [
-                Icon(
-                  Icons.call,
-                  color: Colors.white,
+            const SettingsSectionLabel('Contact'),
+            SettingsMenuCard(
+              rows: [
+                SettingsRow(
+                  icon: Icons.call,
+                  label: phoneNumber.isEmpty ? 'No phone number' : phoneNumber,
                 ),
-                sizedboxWidth,
-                Text(
-                  "Phone: $phoneNumber",
+                SettingsRow(
+                  icon: Icons.mail,
+                  label: emailAddress,
                 ),
               ],
             ),
-            sizedBoxSmall,
-            Row(
-              children: [
-                Icon(
-                  Icons.mail,
-                  color: Colors.white,
-                ),
-                sizedboxWidth,
-                Text(
-                  emailAddress,
-                ),
-              ],
-            ),
+            // The company portfolio, unchanged.
             MoreDataWidget(
                 screenHeight: screenHeight,
                 website: website,
                 companyName: companyName,
                 links: links,
                 description: description),
-            sizedbox,
-            ListView.builder(
-              shrinkWrap: true,
-              physics: NeverScrollableScrollPhysics(),
-              itemCount: items.length,
-              itemBuilder: (context, index) {
-                var data = items[index];
-                return GestureDetector(
-                  onTap: data['onTap'],
-                  child: Padding(
-                    padding: EdgeInsets.only(top: 12),
-                    child: Container(
-                      margin: EdgeInsets.symmetric(vertical: 4),
-                      decoration: BoxDecoration(
-                          color: Colors.white38,
-                          borderRadius: BorderRadius.circular(20)),
-                      child: ListTile(
-                        leading: Icon(
-                          data['icon'],
-                          color: Colors.white,
-                        ),
-                        title: Text(
-                          data['text'],
-                          style: TextStyle(color: Colors.white),
-                        ),
-                        trailing: IconButton(
-                            onPressed: () {},
-                            icon: Icon(
-                              CupertinoIcons.forward,
-                              color: Colors.white,
-                            )),
-                      ),
-                    ),
-                  ),
-                );
-              },
-            ),
-            sizedbox,
-            Padding(
-              padding: EdgeInsets.only(top: 60),
+            for (final section in _sections)
+              if (_rowsFor(section).isNotEmpty) ...[
+                SettingsSectionLabel(section),
+                SettingsMenuCard(rows: _rowsFor(section)),
+              ],
+            const SizedBox(height: 28),
+            Center(
               child: Text('Version 1.0.0+3',
-                  style: TextStyle(color: Colors.white)),
+                  style: TextStyle(color: Colors.white38, fontSize: 12)),
             ),
           ],
         ),
       ),
     );
+  }
+
+  /// Section order. An item without a section falls into ABOUT, so an item
+  /// added later still appears.
+  static const List<String> _sections = ['ACCOUNT', 'ABOUT', 'DANGER'];
+
+  /// The screen's own item maps, rendered as rows. `onTap` is passed straight
+  /// through, so every destination stays exactly where it was defined.
+  List<SettingsRow> _rowsFor(String section) {
+    return items
+        .where((item) => (item['section'] as String? ?? 'ABOUT') == section)
+        .map((item) => SettingsRow(
+              icon: item['icon'] as IconData,
+              label: item['text'] as String,
+              onTap: item['onTap'] as VoidCallback?,
+              danger: section == 'DANGER',
+            ))
+        .toList();
   }
 }

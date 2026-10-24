@@ -15,6 +15,10 @@ class CoverImages extends StatefulWidget {
 }
 
 class _CoverImagesState extends State<CoverImages> {
+  /// Set the moment a save succeeds, so a repeated CoverImageUploaded
+  /// cannot pop a second route or raise a second message.
+  bool _saved = false;
+
   @override
   void initState() {
     super.initState();
@@ -30,8 +34,20 @@ class _CoverImagesState extends State<CoverImages> {
           if (state is CoverImageError) {
             Get.snackbar('Error', state.message);
           }
-          if (state is CoverImageUploaded) {
-            showCustomSnackBar('Success', 'Image update Successfully');
+          // Only reached once the Firestore write has succeeded. Home
+          // listens for the same state and reloads its background, so
+          // closing this screen reveals the new cover.
+          if (state is CoverImageUploaded && !_saved) {
+            _saved = true;
+
+            Get.back();
+
+            // After the pop, not before. Raising it first put the snackbar
+            // on this route's overlay, which Get.back() then tore down —
+            // the message could vanish before it was read.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              showCustomSnackBar('Success', 'Cover image updated successfully');
+            });
           }
         },
         builder: (context, state) {

@@ -1,6 +1,7 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 
+import 'package:admineventpro/data_layer/models/booking_customer.dart';
 import 'package:admineventpro/data_layer/models/booking_detail.dart';
 import 'package:admineventpro/data_layer/models/booking_summary.dart';
 
@@ -58,6 +59,18 @@ class BookingIndexService {
         .map((snapshot) => sortedNewestFirst(snapshot.docs
             .map((doc) => BookingSummary.fromIndex(doc.id, doc.data()))
             .toList()));
+  }
+
+  /// The distinct customers [entrepreneurUid] has bookings with, most
+  /// recent first.
+  ///
+  /// Built from the same owner-filtered index query the Bookings list uses,
+  /// so it inherits its authorisation: the rules only return rows whose
+  /// `entrepreneurId` is the caller's own. This is deliberately *not* a
+  /// directory of every consumer — it is the people this entrepreneur
+  /// actually has work with.
+  Stream<List<BookingCustomer>> watchCustomers(String entrepreneurUid) {
+    return watchBookings(entrepreneurUid).map(BookingCustomer.from);
   }
 
   /// The source booking behind an index row.

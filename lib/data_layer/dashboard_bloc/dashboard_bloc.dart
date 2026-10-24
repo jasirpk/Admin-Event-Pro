@@ -47,13 +47,31 @@ class DashboardBloc extends Bloc<DashboardEvent, DashboardState> {
         emit(CoverImageLoading());
         final selectedImage =
             currentState.images[currentState.selectedImageIndex!]['image'];
-        await CoverImageMethods().uploadImage(selectedImage, event.uid);
+        await CoverImageMethods().saveSelection(selectedImage, event.uid);
         emit(CoverImageUploaded());
         emit(CoverImageLoaded(
             images: currentState.images,
             selectedImageIndex: currentState.selectedImageIndex));
+      } on CoverImageUploadException catch (e) {
+        // The reason is a Firebase error code or a type name, never a
+        // message or URL, so it is safe to show and makes a single failed
+        // attempt diagnosable instead of anonymous.
+        emit(CoverImageError('Could not save the cover image (${e.reason})'));
+
+        // Put the grid back exactly as it was. CoverImageError is not a
+        // state the screen can render, so without this the list collapsed
+        // to "No images found" and the user's choice was lost along with
+        // it — a failed save must change nothing.
+        emit(CoverImageLoaded(
+            images: currentState.images,
+            selectedImageIndex: currentState.selectedImageIndex));
       } catch (e) {
-        emit(CoverImageError('Failed to upload image'));
+        emit(CoverImageError('Could not save the cover image '
+            '(${e.runtimeType})'));
+
+        emit(CoverImageLoaded(
+            images: currentState.images,
+            selectedImageIndex: currentState.selectedImageIndex));
       }
     }
   }

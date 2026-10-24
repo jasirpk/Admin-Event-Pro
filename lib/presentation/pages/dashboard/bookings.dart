@@ -4,12 +4,16 @@ import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/models/booking_detail.dart';
 import 'package:admineventpro/data_layer/models/booking_summary.dart';
+import 'package:admineventpro/bussiness_layer/repos/snackbar.dart';
 import 'package:admineventpro/data_layer/services/users/booking_index.dart';
+import 'package:admineventpro/data_layer/services/users/chat_identity.dart';
+import 'package:admineventpro/presentation/pages/dashboard/chat_screen.dart';
 import 'package:admineventpro/presentation/components/media/media_image.dart';
 import 'package:admineventpro/presentation/components/shimmer/shimmer_with_sublist.dart';
 import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 /// The bookings addressed to the signed-in entrepreneur.
 ///
@@ -315,6 +319,46 @@ class _DetailSheetState extends State<_DetailSheet> {
     eventId: widget.booking.eventId,
   );
 
+  bool _openingChat = false;
+
+  /// Opens the one-to-one conversation with this booking's customer.
+  ///
+  /// The thread is the existing pair conversation, not a per-booking one: a
+  /// customer who books three times still talks in one thread, and history
+  /// they already started appears straight away.
+  void _messageCustomer(BookingDetail? detail) {
+    if (_openingChat) return;
+
+    // Always the signed-in entrepreneur. The booking says who the customer
+    // is; it never says who *we* are.
+    final entrepreneurUid = widget.service.currentEntrepreneurUid;
+
+    if (entrepreneurUid == null || entrepreneurUid.isEmpty) {
+      showCustomSnackBar(
+          'Not signed in', 'Please sign in again to message this customer.');
+      return;
+    }
+
+    final customerUid = widget.booking.customerUid;
+
+    if (customerUid.isEmpty) {
+      showCustomSnackBar('Unavailable',
+          'This booking does not identify a customer to message.');
+      return;
+    }
+
+    _openingChat = true;
+
+    final name = _prefer(detail?.clientName, widget.booking.clientName);
+
+    Get.to(() => ChatScreen(
+          chatId: chatIdFor(entrepreneurUid, customerUid),
+          recipientId: customerUid,
+          userName: name.isEmpty ? 'Customer' : name,
+          imageUrl: _prefer(detail?.imagePath, widget.booking.imagePath),
+        ))?.whenComplete(() => _openingChat = false);
+  }
+
   @override
   Widget build(BuildContext context) {
     final b = widget.booking;
@@ -416,6 +460,25 @@ class _DetailSheetState extends State<_DetailSheet> {
                     _Row(
                       label: 'Estimate',
                       value: amount == null ? '' : amount.toStringAsFixed(0),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(top: 14),
+                      child: SizedBox(
+                        width: double.infinity,
+                        child: ElevatedButton.icon(
+                          onPressed: () => _messageCustomer(detail),
+                          icon: const Icon(Icons.chat_bubble_outline, size: 18),
+                          label: const Text('Message customer'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: myColor,
+                            foregroundColor: Colors.black,
+                            padding: const EdgeInsets.symmetric(vertical: 13),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(10),
+                            ),
+                          ),
+                        ),
+                      ),
                     ),
                     if (detail != null && detail.about.isNotEmpty) ...[
                       const _SectionTitle('About this event'),

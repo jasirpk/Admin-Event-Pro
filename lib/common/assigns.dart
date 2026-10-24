@@ -52,7 +52,7 @@ class Assigns {
   static String image2 = 'assets/images/cover_image_5.jpg';
   static String image3 = 'assets/images/cover_image.jpg';
   static String image4 = 'assets/images/cover_image2.jpg';
-  static String image5 = 'assets/images/cover_image3.avif';
+  static String image5 = 'assets/images/cover_image3.jpg';
   static String image6 = 'assets/images/cover_imge4.jpg';
   static String personImage = 'assets/images/Circle-icons-profile.svg.png';
   static String notification = 'Notifications';

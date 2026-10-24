@@ -9,7 +9,6 @@ import 'package:admineventpro/presentation/components/auth/password_field.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
 import 'package:admineventpro/presentation/components/auth/text_field.dart';
 import 'package:admineventpro/presentation/pages/auth/sign_in.dart';
-import 'package:admineventpro/presentation/pages/dashboard/home.dart';
 import 'package:admineventpro/presentation/pages/dashboard/terms_of_services.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -26,32 +25,24 @@ class SignupScreen extends StatelessWidget {
     return Scaffold(
       body: BlocListener<ManageBloc, ManageState>(
         listener: (context, state) {
-          if(state is AuthLoading && state.isLoaded){
-            showDialog(
-              context: context,
-              barrierDismissible: false,
-              builder: (context) => Center(child: CircularProgressIndicator()),
-            );
+          if (state is AuthLoading && state.isLoaded) {
+            showLoadingDialog();
           }
-         else if (state is Authenticated) {
-            Navigator.of(context, rootNavigator: true).pop();
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              showCustomSnackBar('Success', 'Successfully Registered');
-              Get.offAll(() => HomeScreen());
-            });
-          } else if (state is ValidatonSuccess) {
-            Navigator.of(context, rootNavigator: true).pop();
+          // `Authenticated` is deliberately not handled here. This screen is
+          // only ever pushed from GoogleAuthScreen, which therefore stays
+          // mounted beneath it and listens to the same app-wide ManageBloc.
+          // Handling it in both ran two Get.offAll calls for one event, the
+          // second starting while the first still held the navigator lock.
+          else if (state is ValidatonSuccess) {
+            dismissLoadingDialog();
             UserModel user = UserModel(
               email: userEmailController.text,
               password: userPasswordController.text,
             );
             context.read<ManageBloc>().add(SignUp(userModel: user));
-          } else if (state is AuthenticatedErrors) {
-            Navigator.of(context, rootNavigator: true).pop();
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              showCustomSnackBar('Error', 'Authentication Error!');
-            });
           }
+          // `AuthenticatedErrors` is likewise left to GoogleAuthScreen, which
+          // reports it with the actual message rather than a generic one.
         },
         child: SingleChildScrollView(
           child: Container(
