@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Matches scaffoldBackgroundColor (Colors.black) in lib/main.dart so the
+         native launch screen and the Flutter splash screen are the same colour. -->
+    <color name="splash_background">#FF000000</color>
+</resources>

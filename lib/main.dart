@@ -12,6 +12,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:get/get.dart';
+import 'package:lottie/lottie.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -24,7 +25,41 @@ Future<void> main() async {
     providerAndroid: AndroidDebugProvider(),
     providerApple: AppleDebugProvider()
   );
+  await _warmSplashAssets();
   runApp(AdminEventPro());
+}
+
+// Decode the splash logo and Lottie composition before the first frame so the
+// Flutter splash paints the artwork the native launch screen is already
+// showing, instead of a blank frame followed by a pop-in.
+Future<void> _warmSplashAssets() async {
+  try {
+    await Future.wait(<Future<void>>[
+      AssetLottie(kSplashAnimationAsset).load().then((_) {}),
+      _decodeAsset(const AssetImage(kSplashLogoAsset)),
+    ]);
+  } catch (error) {
+    // Warm-up is only an optimisation; the widgets load these assets
+    // themselves on first build, so a failure must not block startup.
+    debugPrint('Splash asset warm-up skipped: $error');
+  }
+}
+
+Future<void> _decodeAsset(ImageProvider provider) {
+  final completer = Completer<void>();
+  final stream = provider.resolve(ImageConfiguration.empty);
+  late final ImageStreamListener listener;
+  void finish() {
+    stream.removeListener(listener);
+    if (!completer.isCompleted) completer.complete();
+  }
+
+  listener = ImageStreamListener(
+    (_, __) => finish(),
+    onError: (_, __) => finish(),
+  );
+  stream.addListener(listener);
+  return completer.future;
 }
 
 class AdminEventPro extends StatelessWidget {
