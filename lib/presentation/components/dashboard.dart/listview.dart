@@ -48,7 +48,11 @@ class ListViewWidget extends StatelessWidget {
             itemCount: documents.length,
             itemBuilder: (context, index, pageIndex) {
               var data = documents[index].data() as Map<String, dynamic>;
-              String imagePath = data['imagePath'] ?? kMediaPlaceholderAsset;
+              // Kept nullable: an absent imagePath means "no artwork recorded",
+              // which _CategoryThumbnail renders directly. Defaulting it to the
+              // bundled placeholder used to push an asset path into a URL-only
+              // resolver, which can never produce one.
+              String? imagePath = (data['imagePath'] as String?)?.trim();
               String documentId = documents[index].id;
 
               return FutureBuilder<DocumentSnapshot>(
@@ -78,37 +82,10 @@ class ListViewWidget extends StatelessWidget {
                       ),
                       child: Stack(
                         children: [
-                          MediaUrl(
+                          _CategoryThumbnail(
                             imagePath: imagePath,
-                            builder: (context, url) => CachedNetworkImage(
-                              imageUrl: url ?? '',
-                              placeholder: (context, url) => Container(
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade300,
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: Center(
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                  ),
-                                ),
-                              ),
-                              errorWidget: (context, url, error) => Container(
-                                decoration: BoxDecoration(
-                                    color: Colors.grey.shade300,
-                                    borderRadius: BorderRadius.circular(4),
-                                    image: DecorationImage(image: AssetImage(kMediaPlaceholderAsset), fit: BoxFit.cover)),
-                                child: Center(
-                                  child: Icon(
-                                    Icons.error,
-                                    color: Colors.red,
-                                  ),
-                                ),
-                              ),
-                              fit: BoxFit.cover,
-                              width: screenWidth,
-                              height: screenHeight,
-                            ),
+                            width: screenWidth,
+                            height: screenHeight,
                           ),
                           Align(
                             alignment: Alignment.bottomLeft,
@@ -152,6 +129,85 @@ class ListViewWidget extends StatelessWidget {
           ),
         );
       },
+    );
+  }
+}
+
+/// The artwork for one Popular Categories tile.
+///
+/// A Firestore `imagePath` is one of three things, and only the last needs the
+/// network: absent, a bundled asset, or an R2 objectKey that must be signed.
+/// Routing the first two through [MediaUrl] yielded a null URL, which reached
+/// `CachedNetworkImage` as the empty string and drew the error state over
+/// artwork that was never actually missing.
+class _CategoryThumbnail extends StatelessWidget {
+  const _CategoryThumbnail({
+    required this.imagePath,
+    required this.width,
+    required this.height,
+  });
+
+  final String? imagePath;
+  final double width;
+  final double height;
+
+  /// Grey tile with a spinner: the objectKey is still being signed.
+  Widget _loading(BuildContext context) => Container(
+        decoration: BoxDecoration(
+          color: Colors.grey.shade300,
+          borderRadius: BorderRadius.circular(4),
+        ),
+        child: Center(
+          child: CircularProgressIndicator(
+            color: Colors.white,
+          ),
+        ),
+      );
+
+  /// Grey tile with the placeholder and an error badge: signing or the fetch
+  /// genuinely failed.
+  Widget _failed(BuildContext context) => Container(
+        decoration: BoxDecoration(
+            color: Colors.grey.shade300,
+            borderRadius: BorderRadius.circular(4),
+            image: DecorationImage(image: AssetImage(kMediaPlaceholderAsset), fit: BoxFit.cover)),
+        child: Center(
+          child: Icon(
+            Icons.error,
+            color: Colors.red,
+          ),
+        ),
+      );
+
+  /// A bundled image, with no error badge — nothing has gone wrong here.
+  Widget _asset(String assetPath) => Image.asset(
+        assetPath,
+        fit: BoxFit.cover,
+        width: width,
+        height: height,
+      );
+
+  @override
+  Widget build(BuildContext context) {
+    final path = imagePath;
+
+    if (path == null || path.isEmpty) return _asset(kMediaPlaceholderAsset);
+    if (path.startsWith('assets/')) return _asset(path);
+
+    return MediaUrl(
+      imagePath: path,
+      loadingBuilder: _loading,
+      errorBuilder: _failed,
+      builder: (context, url) => url == null
+          ? _failed(context)
+          : CachedNetworkImage(
+              imageUrl: url,
+              placeholder: (context, _) => _loading(context),
+              errorWidget: (context, _, __) => _failed(context),
+              fit: BoxFit.cover,
+              width: width,
+              height: height,
+            ),
     );
   }
 }

@@ -82,21 +82,48 @@ class _MediaImageState extends State<MediaImage> {
       widget.builder(context, _image ?? widget.placeholder);
 }
 
+/// Where a [MediaUrl] has got to.
+enum MediaUrlStatus {
+  /// An objectKey is being signed. Nothing displayable yet.
+  resolving,
+
+  /// A URL is available and is passed to the builder.
+  resolved,
+
+  /// No URL will arrive: signing failed, or the path is one that has no URL at
+  /// all (empty, or a bundled asset).
+  failed,
+}
+
 /// The URL counterpart of [MediaImage], for widgets that take a URL string
 /// rather than an [ImageProvider] — `CachedNetworkImage`, chiefly.
 ///
-/// [builder] receives the resolved URL, or null while an objectKey is being
-/// signed and if signing fails. Passing null through to the wrapped widget
-/// lets its own placeholder and error states do their job unchanged.
+/// [builder] receives the resolved URL. Supply [loadingBuilder] and
+/// [errorBuilder] to tell "still signing" apart from "cannot be shown"; a
+/// caller that supplies neither keeps the original contract, where [builder]
+/// is called with null in both of those states.
+///
+/// Prefer supplying them. Handing a null URL on to `CachedNetworkImage` means
+/// passing it the empty string, which fails immediately and renders the error
+/// widget, so a tile that is merely still loading is indistinguishable from
+/// one that genuinely failed.
 class MediaUrl extends StatefulWidget {
   const MediaUrl({
     super.key,
     required this.imagePath,
     required this.builder,
+    this.loadingBuilder,
+    this.errorBuilder,
   });
 
   final String? imagePath;
   final Widget Function(BuildContext context, String? url) builder;
+
+  /// Shown while an objectKey is being signed.
+  final WidgetBuilder? loadingBuilder;
+
+  /// Shown when no URL can be produced.
+  final WidgetBuilder? errorBuilder;
 
   @override
   State<MediaUrl> createState() => _MediaUrlState();
@@ -104,6 +131,7 @@ class MediaUrl extends StatefulWidget {
 
 class _MediaUrlState extends State<MediaUrl> {
   String? _url;
+  MediaUrlStatus _status = MediaUrlStatus.resolving;
 
   @override
   void initState() {
@@ -122,18 +150,42 @@ class _MediaUrlState extends State<MediaUrl> {
         MediaImageResolver.instance.resolveUrlSync(widget.imagePath);
     if (immediate != null) {
       _url = immediate;
+      _status = MediaUrlStatus.resolved;
+      return;
+    }
+
+    // An empty path or a bundled asset has no URL to wait for, so settle now
+    // rather than showing a spinner for a round-trip that will never happen.
+    if (MediaImageResolver.instance.hasNoResolvableUrl(widget.imagePath)) {
+      _url = null;
+      _status = MediaUrlStatus.failed;
       return;
     }
 
     _url = null;
+    _status = MediaUrlStatus.resolving;
 
     final requested = widget.imagePath;
-    MediaImageResolver.instance.resolveUrl(requested).then((resolved) {
-      if (!mounted || requested != widget.imagePath || resolved == null) return;
-      setState(() => _url = resolved);
+    MediaImageResolver.instance.resolveUrl(requested).then((url) {
+      if (!mounted || requested != widget.imagePath) return;
+      setState(() {
+        _url = url;
+        _status = url == null ? MediaUrlStatus.failed : MediaUrlStatus.resolved;
+      });
     });
   }
 
   @override
-  Widget build(BuildContext context) => widget.builder(context, _url);
+  Widget build(BuildContext context) {
+    switch (_status) {
+      case MediaUrlStatus.resolved:
+        return widget.builder(context, _url);
+      case MediaUrlStatus.resolving:
+        final loading = widget.loadingBuilder;
+        return loading != null ? loading(context) : widget.builder(context, null);
+      case MediaUrlStatus.failed:
+        final error = widget.errorBuilder;
+        return error != null ? error(context) : widget.builder(context, null);
+    }
+  }
 }

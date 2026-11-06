@@ -2,7 +2,7 @@ import 'dart:convert';
 import 'dart:io' show Platform;
 
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/foundation.dart' show debugPrint, kIsWeb;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:http/http.dart' as http;
 
@@ -64,16 +64,41 @@ class MediaService {
   /// Never cache or persist the returned URL — [MediaImageResolver] holds it
   /// only until shortly before it lapses.
   Future<String> getDownloadUrl(String objectKey) async {
-    final token = await _currentIdToken();
+    // Stage timings, so a failure says which step was slow rather than only
+    // that the whole thing gave up. Only the HTTP call is wrapped in
+    // [_timeout]; token retrieval and decoding are deliberately outside it,
+    // and these numbers are what tell those three apart.
+    final stopwatch = Stopwatch()..start();
 
-    final response = await _client.get(
-      Uri.parse('$baseUrl/api/media/public-download-url').replace(
-        queryParameters: {'objectKey': objectKey},
-      ),
-      headers: {'Authorization': 'Bearer $token'},
-    ).timeout(_timeout);
+    final token = await _currentIdToken();
+    final tokenMs = stopwatch.elapsedMilliseconds;
+
+    final http.Response response;
+    try {
+      response = await _client.get(
+        Uri.parse('$baseUrl/api/media/public-download-url').replace(
+          queryParameters: {'objectKey': objectKey},
+        ),
+        headers: {'Authorization': 'Bearer $token'},
+      ).timeout(_timeout);
+    } catch (error) {
+      // The URL is logged without its query string and without the
+      // Authorization header, so no token or signed URL can leak here.
+      debugPrint(
+        'MediaService: "$objectKey" FAILED in the HTTP stage — '
+        'token ${tokenMs}ms, http ${stopwatch.elapsedMilliseconds - tokenMs}ms, '
+        'limit ${_timeout.inSeconds}s, base $baseUrl [${error.runtimeType}]',
+      );
+      rethrow;
+    }
+    final httpMs = stopwatch.elapsedMilliseconds - tokenMs;
 
     if (response.statusCode != 200) {
+      debugPrint(
+        'MediaService: "$objectKey" HTTP ${response.statusCode} — '
+        'token ${tokenMs}ms, http ${httpMs}ms',
+      );
+
       throw MediaApiException(
         'Failed to obtain a download URL from the Media API',
         statusCode: response.statusCode,
@@ -90,6 +115,11 @@ class MediaService {
         statusCode: response.statusCode,
       );
     }
+
+    debugPrint(
+      'MediaService: "$objectKey" OK — token ${tokenMs}ms, http ${httpMs}ms, '
+      'decode ${stopwatch.elapsedMilliseconds - tokenMs - httpMs}ms',
+    );
 
     return downloadUrl;
   }

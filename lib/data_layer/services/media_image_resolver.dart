@@ -65,7 +65,8 @@ class MediaImageResolver {
 
     try {
       return NetworkImage(await _signedUrlFor(path));
-    } catch (_) {
+    } catch (error) {
+      _logFailure(path, error);
       return null;
     }
   }
@@ -97,7 +98,8 @@ class MediaImageResolver {
 
     try {
       return await _signedUrlFor(path);
-    } catch (_) {
+    } catch (error) {
+      _logFailure(path, error);
       return null;
     }
   }
@@ -146,6 +148,31 @@ class MediaImageResolver {
     // entry expires immediately and the next read re-signs.
     final usable = lifetime - _safetyMargin;
     return DateTime.now().add(usable > Duration.zero ? usable : Duration.zero);
+  }
+
+  /// True when [imagePath] can never yield a URL: it is empty, or a bundled
+  /// asset, which has no network address. Lets URL-only callers show their
+  /// fallback at once instead of awaiting a round-trip that cannot help.
+  bool hasNoResolvableUrl(String? imagePath) {
+    final path = imagePath?.trim();
+    return path == null || path.isEmpty || _isAssetPath(path);
+  }
+
+  /// Records why an objectKey could not be signed.
+  ///
+  /// Signing failures were previously silent, which left a broken tile with no
+  /// way to tell a missing object from a rejected key or a lapsed session.
+  /// [MediaApiException] already withholds the Authorization header and the
+  /// signed URL, so only the status and the API's own generic message are
+  /// reported here; the objectKey is a Firestore field, not a secret.
+  static void _logFailure(String objectKey, Object error) {
+    final status = error is MediaApiException ? error.statusCode : null;
+    final detail = error is MediaApiException ? error.message : '$error';
+
+    debugPrint(
+      'MediaImageResolver: signing failed for "$objectKey" '
+      '[${error.runtimeType}${status == null ? '' : ', HTTP $status'}] $detail',
+    );
   }
 
   static bool _isHttpUrl(String path) =>
