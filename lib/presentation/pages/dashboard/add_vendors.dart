@@ -2,9 +2,11 @@ import 'dart:io';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_add/Fields.dart';
-import 'package:admineventpro/presentation/components/ui/custom_appbar.dart';
+import 'package:admineventpro/presentation/components/generated_form/vendor_form_ui.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:get/get.dart';
 
 class AddVendorsScreen extends StatefulWidget {
   AddVendorsScreen({
@@ -78,8 +80,37 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
     final screenHeight = MediaQuery.of(context).size.height;
     final screenWidth = MediaQuery.of(context).size.width;
     return Scaffold(
-      appBar: CustomAppBarWithDivider(
-        title: Assigns.vendorPreview,
+      // A page-local bar rather than CustomAppBarWithDivider, which eleven
+      // other screens share and which offers no hook for a centred title.
+      // The back action is the one it had: Get.back().
+      appBar: AppBar(
+        backgroundColor: Colors.black,
+        surfaceTintColor: Colors.transparent,
+        elevation: 0,
+        scrolledUnderElevation: 0,
+        centerTitle: true,
+        titleSpacing: 0,
+        leading: IconButton(
+          tooltip: 'Back',
+          icon: const Icon(CupertinoIcons.back, color: Colors.white),
+          onPressed: () {
+            Get.back();
+          },
+        ),
+        title: Text(
+          Assigns.vendorPreview,
+          style: const TextStyle(
+            fontSize: 17,
+            fontWeight: FontWeight.w400,
+            fontFamily: 'JacquesFracois',
+            letterSpacing: 0.6,
+            color: Colors.white,
+          ),
+        ),
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(1),
+          child: Container(height: 1, color: VendorForm.border),
+        ),
       ),
       body: BlocBuilder<GeneratedBloc, GeneratedState>(
         builder: (context, state) {
@@ -120,26 +151,27 @@ class _AddVendorsScreenState extends State<AddVendorsScreen> {
           // of the form's data, so rendering it would throw the picked images
           // away mid-submission. Submit reports progress through snackbars.
           return SingleChildScrollView(
-            child: Container(
-              margin: EdgeInsets.symmetric(vertical: 18, horizontal: 8),
-              child: ComponentsFieldsWidget(
-                  screenHeight: screenHeight,
-                  names: names,
-                  categoryId: widget.categoryId,
-                  subCategoryId: widget.subCategoryId,
-                  nameEditingController: nameEditingController,
-                  screenWidth: screenWidth,
-                  itemCount: itemCount,
-                  imageNameControllers: imageNameControllers,
-                  images: images,
-                  imagePath: imagePath,
-                  image: image,
-                  descriptionEditingController: descriptionEditingController,
-                  locationController: locationController,
-                  errorText: errorText,
-                  FromBudgetController: FromBudgetController,
-                  ToBudgetController: ToBudgetController),
-            ),
+            // One place that owns the page gutter. The form widget used to add
+            // a second, nested scroll view with padding of its own on top of
+            // this margin.
+            padding: const EdgeInsets.fromLTRB(20, 18, 20, 36),
+            child: ComponentsFieldsWidget(
+                screenHeight: screenHeight,
+                names: names,
+                categoryId: widget.categoryId,
+                subCategoryId: widget.subCategoryId,
+                nameEditingController: nameEditingController,
+                screenWidth: screenWidth,
+                itemCount: itemCount,
+                imageNameControllers: imageNameControllers,
+                images: images,
+                imagePath: imagePath,
+                image: image,
+                descriptionEditingController: descriptionEditingController,
+                locationController: locationController,
+                errorText: errorText,
+                FromBudgetController: FromBudgetController,
+                ToBudgetController: ToBudgetController),
           );
         },
       ),

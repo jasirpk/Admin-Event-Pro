@@ -4,20 +4,12 @@ import 'package:admineventpro/presentation/components/generated_form/crud_add/su
 import 'package:admineventpro/data_layer/services/vendor_api_service.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:get/get.dart';
 import 'package:admineventpro/common/assigns.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
-import 'package:admineventpro/presentation/components/generated_form/crud_add/budget.dart';
-import 'package:admineventpro/presentation/components/generated_form/crud_add/category_image.dart';
-import 'package:admineventpro/presentation/components/generated_form/crud_add/category_name.dart';
 import 'package:admineventpro/presentation/components/generated_form/crud_add/component_list.dart';
-import 'package:admineventpro/presentation/components/generated_form/crud_add/description.dart';
-import 'package:admineventpro/presentation/components/generated_form/crud_add/location_widget.dart';
-import 'package:admineventpro/presentation/components/ui/custom_text_and_icon.dart';
-import 'package:admineventpro/presentation/components/ui/custom_text_with_icons.dart';
+import 'package:admineventpro/presentation/components/generated_form/vendor_form_ui.dart';
 import 'package:admineventpro/presentation/components/ui/pushable_button.dart';
-import 'package:admineventpro/presentation/components/ui/vendor_names.dart';
 
 class ComponentsFieldsWidget extends StatelessWidget {
   const ComponentsFieldsWidget({
@@ -66,166 +58,186 @@ class ComponentsFieldsWidget extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(
-            Assigns.textPreview,
-            style: TextStyle(
-              fontSize: screenHeight * 0.018,
-              fontWeight: FontWeight.w300,
-            ),
-          ),
-          SizedBox(height: 8),
-          Text(
-            Assigns.vendorNames,
-            style: TextStyle(
-              color: myColor,
-              fontFamily: 'JacquesFracois',
-              fontSize: screenHeight * 0.020,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 1,
-            ),
-          ),
-          Card(
-            color: Colors.white24,
-            child: Container(
-              margin: EdgeInsets.symmetric(vertical: 8, horizontal: 8),
-              child: Column(
-                children: [
-                  VendorNmesWidget(
-                    names: names,
-                    nameEditingController: nameEditingController,
-                    screenWidth: screenWidth,
-                    screenHeight: screenHeight,
-                  ),
-                  SizedBox(height: 8),
-                  CategoryNameWidget(
-                    nameEditingController: nameEditingController,
-                  ),
-                ],
+    // A plain Column: the screen already wraps this in a scroll view, and the
+    // SingleChildScrollView that used to sit here was a second, redundant
+    // viewport nested inside it.
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        VendorFormIntro(text: Assigns.textPreview),
+        const SizedBox(height: 22),
+
+        // ── Category ──────────────────────────────────────────────────────
+        VendorSectionHeader(
+          title: Assigns.vendorNames,
+          icon: Icons.local_offer_outlined,
+          subtitle: 'Choose a category, or type your own name below',
+        ),
+        const SizedBox(height: 12),
+        VendorFormCard(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              VendorCategoryChips(
+                names: names,
+                nameEditingController: nameEditingController,
               ),
-            ),
+              const SizedBox(height: 16),
+              TextFormField(
+                controller: nameEditingController,
+                cursorColor: myColor,
+                style: VendorForm.inputText,
+                textCapitalization: TextCapitalization.words,
+                decoration: VendorForm.input(
+                  labelText: 'Displayed Name',
+                  hintText: 'What clients will see',
+                  icon: Icons.badge_outlined,
+                ),
+              ),
+            ],
           ),
-          SizedBox(height: 8),
-          CustomTextWithIconsWidget(
-            screenHeight: screenHeight,
-            text: Assigns.essentialComponent,
-            onAddpressed: () {
+        ),
+        const SizedBox(height: 26),
+
+        // ── Essential components ──────────────────────────────────────────
+        VendorSectionHeader(
+          title: Assigns.essentialComponent,
+          icon: Icons.widgets_outlined,
+          subtitle: 'Photos of what this listing includes',
+          trailing: VendorStepper(
+            count: itemCount ?? 0,
+            onAdd: () {
               context.read<GeneratedBloc>().add(IncreamentEvent());
             },
-            onRemovePressed: () {
+            onRemove: () {
               context.read<GeneratedBloc>().add(DecrementEvent());
             },
           ),
-          ComponentsWidget(
-              screenHeight: screenHeight,
-              itemCount: itemCount,
-              imageNameControllers: imageNameControllers,
-              screenWidth: screenWidth,
-              images: images),
-          SizedBox(height: 8),
-          Text(
-            Assigns.moreDetails,
-            style: TextStyle(
-              color: myColor,
-              fontFamily: 'JacquesFracois',
-              fontSize: screenHeight * 0.020,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 1,
+        ),
+        const SizedBox(height: 12),
+        ComponentsWidget(
+            screenHeight: screenHeight,
+            itemCount: itemCount,
+            imageNameControllers: imageNameControllers,
+            screenWidth: screenWidth,
+            images: images),
+        const SizedBox(height: 26),
+
+        // ── More details ──────────────────────────────────────────────────
+        VendorSectionHeader(
+          title: Assigns.moreDetails,
+          icon: Icons.tune_rounded,
+          subtitle: 'The main photo, the write-up and where you operate',
+        ),
+        const SizedBox(height: 12),
+        VendorMainImagePicker(
+          imagePath: imagePath,
+          image: image,
+          onTap: () => context.read<GeneratedBloc>().add(PickImage()),
+        ),
+        const SizedBox(height: 14),
+        TextFormField(
+          controller: descriptionEditingController,
+          maxLines: 4,
+          cursorColor: myColor,
+          style: VendorForm.inputText,
+          textCapitalization: TextCapitalization.sentences,
+          decoration: VendorForm.input(
+            labelText: 'Description',
+            hintText: 'What makes this vendor worth booking?',
+            alignLabelWithHint: true,
+          ),
+        ),
+        const SizedBox(height: 14),
+        TextFormField(
+          controller: locationController,
+          readOnly: true,
+          cursorColor: myColor,
+          style: VendorForm.inputText,
+          decoration: VendorForm.input(
+            labelText: Assigns.location,
+            hintText: 'Tap the pin to use your current location',
+            icon: Icons.location_on_outlined,
+            // The field has always been handed the empty string, which Flutter
+            // reads as "there is an error, with no message" and paints the
+            // border red on a form the user has not touched yet. Only a real
+            // message is an error.
+            errorText: errorText.isEmpty ? null : errorText,
+            suffixIcon: IconButton(
+              tooltip: 'Use my current location',
+              onPressed: () {
+                context.read<GeneratedBloc>().add(FetchLocation());
+              },
+              icon: Icon(Icons.my_location_rounded, size: 20, color: myColor),
             ),
           ),
-          SizedBox(height: 8),
-          CategoryImageWidget(
-            imagePath: imagePath,
-            image: image,
-            screenHeight: screenHeight,
-          ),
-          SizedBox(height: 8),
-          Description_Widget(
-              descriptionEditingController: descriptionEditingController),
-          SizedBox(height: 8),
-          CustomTextAndIconWidget(
-            text: Assigns.location,
-            icon: Icons.location_on,
-            screenHeight: screenHeight,
-          ),
-          SizedBox(height: 8),
-          Location_widget(
-              locationController: locationController, errorText: errorText),
-          SizedBox(height: 8),
-          Text(
-            Assigns.budget,
-            style: TextStyle(
-              color: myColor,
-              fontFamily: 'JacquesFracois',
-              fontSize: screenHeight * 0.020,
-              fontWeight: FontWeight.w400,
-              letterSpacing: 1,
-            ),
-          ),
-          SizedBox(height: 8),
-          Budget_widget(
-              screenHeight: screenHeight,
-              screenWidth: screenWidth,
-              FromBudgetController: FromBudgetController,
-              ToBudgetController: ToBudgetController),
-          SizedBox(height: 16),
-          PushableButton_widget(
-            buttonText: 'Submit',
-            onpressed: () async {
-              // No VendorSaveLoading here. That event emits SaveVendorLoading,
-              // a state carrying none of the form's data, and every picked
-              // image, the main image and the item count live on
-              // GeneratedInitial — so dispatching it erased the component list
-              // the moment Submit was pressed, and nothing ever put it back.
-              // The spinner it was meant to show never rendered anyway: its
-              // two guards compare `State`, the Flutter class, not `state`.
-              if (!_hasMainImage()) {
-                // A listing needs a picture. Caught here so the user is told
-                // what to do rather than seeing a generic server rejection.
-                showCustomSnackBar('Error',
-                    'Please choose a main image for this vendor.');
-              } else if (_validateForm()) {
-                try {
-                  final template = _template();
+        ),
+        const SizedBox(height: 26),
 
-                  await FormSubmitManager.submitForm(
-                    categoryName: nameEditingController.text,
-                    categoryId: template?.categoryId,
-                    subCategoryId: template?.subCategoryId,
-                    mainImageFile: image,
-                    templateImageKey: _templateImageKey(),
-                    description: descriptionEditingController.text,
-                    location: locationController.text,
-                    imagesData: _prepareImagesData(),
-                    budget: _prepareBudget(),
-                    context: context,
-                    locationController: locationController,
-                    nameEditingController: nameEditingController,
-                    descriptionEditingController: descriptionEditingController,
-                    fromBudgetController: FromBudgetController,
-                    toBudgetController: ToBudgetController,
-                    imageNameControllers: imageNameControllers,
-                  );
+        // ── Budget ────────────────────────────────────────────────────────
+        VendorSectionHeader(
+          title: Assigns.budget,
+          icon: Icons.account_balance_wallet_outlined,
+          subtitle: 'The range you quote for this listing',
+        ),
+        const SizedBox(height: 12),
+        VendorBudgetRange(
+          fromController: FromBudgetController,
+          toController: ToBudgetController,
+        ),
+        const SizedBox(height: 30),
 
-                } on VendorApiException catch (e) {
-                  // e.message is written for a user and never carries a token
-                  // or the Authorization header; e.toString() would append the
-                  // raw response body, so only the message is shown.
-                  showCustomSnackBar('Error', e.message);
-                } catch (e) {
-                  showCustomSnackBar('Error', 'Failed to submit: $e');
-                }
-              } else {
-                showCustomSnackBar('Error', 'Please fill all fields');
+        PushableButton_widget(
+          buttonText: 'Submit',
+          onpressed: () async {
+            // No VendorSaveLoading here. That event emits SaveVendorLoading,
+            // a state carrying none of the form's data, and every picked
+            // image, the main image and the item count live on
+            // GeneratedInitial — so dispatching it erased the component list
+            // the moment Submit was pressed, and nothing ever put it back.
+            // The spinner it was meant to show never rendered anyway: its
+            // two guards compare `State`, the Flutter class, not `state`.
+            if (!_hasMainImage()) {
+              // A listing needs a picture. Caught here so the user is told
+              // what to do rather than seeing a generic server rejection.
+              showCustomSnackBar(
+                  'Error', 'Please choose a main image for this vendor.');
+            } else if (_validateForm()) {
+              try {
+                final template = _template();
+
+                await FormSubmitManager.submitForm(
+                  categoryName: nameEditingController.text,
+                  categoryId: template?.categoryId,
+                  subCategoryId: template?.subCategoryId,
+                  mainImageFile: image,
+                  templateImageKey: _templateImageKey(),
+                  description: descriptionEditingController.text,
+                  location: locationController.text,
+                  imagesData: _prepareImagesData(),
+                  budget: _prepareBudget(),
+                  context: context,
+                  locationController: locationController,
+                  nameEditingController: nameEditingController,
+                  descriptionEditingController: descriptionEditingController,
+                  fromBudgetController: FromBudgetController,
+                  toBudgetController: ToBudgetController,
+                  imageNameControllers: imageNameControllers,
+                );
+              } on VendorApiException catch (e) {
+                // e.message is written for a user and never carries a token
+                // or the Authorization header; e.toString() would append the
+                // raw response body, so only the message is shown.
+                showCustomSnackBar('Error', e.message);
+              } catch (e) {
+                showCustomSnackBar('Error', 'Failed to submit: $e');
               }
-            },
-          ),
-        ],
-      ),
+            } else {
+              showCustomSnackBar('Error', 'Please fill all fields');
+            }
+          },
+        ),
+      ],
     );
   }
 
