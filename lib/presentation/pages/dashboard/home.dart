@@ -5,6 +5,7 @@ import 'package:admineventpro/presentation/components/dashboard.dart/home_page.d
 import 'package:admineventpro/presentation/components/dashboard.dart/profile.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/search.dart';
 import 'package:admineventpro/presentation/components/dashboard.dart/vendor.dart';
+import 'package:admineventpro/presentation/components/auth/session_guard.dart';
 import 'package:curved_navigation_bar/curved_navigation_bar.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -19,61 +20,67 @@ class HomeScreen extends StatelessWidget {
       FavoritePage(),
       ProfilePage(),
     ];
-    return Scaffold(
-      bottomNavigationBar: BlocBuilder<DashboardBloc, DashboardState>(
-        builder: (context, state) {
-          int currentIndex = 0;
-          if (state is TabState) {
-            currentIndex = state.index;
-          }
-          return CurvedNavigationBar(
-            backgroundColor: myColor,
-            color: Colors.black,
-            index: currentIndex,
-            animationDuration: Duration(milliseconds: 200),
-            items: <Widget>[
-              Icon(
-                Icons.home,
-                size: 20,
-                color: Colors.white,
-              ),
-              Icon(
-                Icons.search,
-                size: 20,
-                color: Colors.white,
-              ),
-              Icon(
-                Icons.receipt,
-                size: 20,
-                color: Colors.white,
-              ),
-              Icon(
-                Icons.favorite,
-                size: 20,
-                color: Colors.white,
-              ),
-              Icon(
-                Icons.person,
-                size: 20,
-                color: Colors.white,
-              ),
-            ],
-            onTap: (index) {
-              context.read<DashboardBloc>().add(TabChanged(index));
-            },
-          );
-        },
-      ),
-      body: BlocBuilder<DashboardBloc, DashboardState>(
-        builder: (context, state) {
-          if (state is TabState) {
-            return IndexedStack(
-              index: state.index,
-              children: pages,
+    // Every page below reads FirebaseAuth.instance.currentUser!.uid when it
+    // mounts, and IndexedStack mounts them all at once, so without a session
+    // the dashboard throws before it paints. The guard keeps them unmounted
+    // and returns to the login screen instead.
+    return SessionGuard(
+      child: Scaffold(
+        bottomNavigationBar: BlocBuilder<DashboardBloc, DashboardState>(
+          builder: (context, state) {
+            int currentIndex = 0;
+            if (state is TabState) {
+              currentIndex = state.index;
+            }
+            return CurvedNavigationBar(
+              backgroundColor: myColor,
+              color: Colors.black,
+              index: currentIndex,
+              animationDuration: Duration(milliseconds: 200),
+              items: <Widget>[
+                Icon(
+                  Icons.home,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                Icon(
+                  Icons.search,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                Icon(
+                  Icons.receipt,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                Icon(
+                  Icons.favorite,
+                  size: 20,
+                  color: Colors.white,
+                ),
+                Icon(
+                  Icons.person,
+                  size: 20,
+                  color: Colors.white,
+                ),
+              ],
+              onTap: (index) {
+                context.read<DashboardBloc>().add(TabChanged(index));
+              },
             );
-          }
-          return pages[0];
-        },
+          },
+        ),
+        body: BlocBuilder<DashboardBloc, DashboardState>(
+          builder: (context, state) {
+            if (state is TabState) {
+              return IndexedStack(
+                index: state.index,
+                children: pages,
+              );
+            }
+            return pages[0];
+          },
+        ),
       ),
     );
   }

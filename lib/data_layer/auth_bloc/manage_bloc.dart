@@ -33,18 +33,22 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       emit(AuthLoading(true));
 
       try {
-        final userCredential = await auth.signInWithEmailAndPassword(email: event.email, password: event.password);
+        final userCredential = await auth.signInWithEmailAndPassword(
+            email: event.email, password: event.password);
 
         final user = userCredential.user!;
-        DocumentSnapshot userDoc = await FirebaseFirestore.instance.collection('entrepreneurs').doc(user.uid).get();
+        DocumentSnapshot userDoc = await FirebaseFirestore.instance
+            .collection('entrepreneurs')
+            .doc(user.uid)
+            .get();
         String platform = userDoc['platform'];
 
-        if(platform == 'mobile'){
+        if (platform == 'mobile') {
           await saveAuthState(user.uid, user.email ?? '');
           print('Account is authenticated');
-          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(
+              UserModel(uid: user.uid, email: user.email, password: '')));
         }
-
       } catch (e) {
         emit(AuthenticatedErrors(message: 'not authenticated'));
         print('Authentication failed: $e');
@@ -64,7 +68,10 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
           // entrepreneur document is readable by consumers once an admin sets
           // isValid, so anything stored here is effectively public. Firebase
           // Auth already holds the credential.
-          await FirebaseFirestore.instance.collection('entrepreneurs').doc(user.uid).set({
+          await FirebaseFirestore.instance
+              .collection('entrepreneurs')
+              .doc(user.uid)
+              .set({
             'uid': user.uid,
             'email': user.email,
             'platform': 'mobile',
@@ -76,7 +83,8 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
           print('Current FirebaseAuth user UID: ${user.uid}');
           print('Current FirebaseAuth user Email: ${user.email}');
 
-          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(
+              UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
           emit(UnAthenticated());
         }
@@ -86,46 +94,59 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       }
     });
 
-// storing data in SharedPreference...!
+// Startup authentication check...!
 
+    /// Decides where a cold start lands, using Firebase Auth as the only
+    /// authority on whether anyone is signed in.
+    ///
+    /// The uid in SharedPreferences is a local mirror, not a credential, and
+    /// it outlives the thing it mirrors in two ordinary situations: Android
+    /// Auto Backup restores `shared_prefs/` on reinstall (the manifest
+    /// declares no android:allowBackup, so it defaults to true), and a
+    /// sign-out that failed part-way leaves it behind. This used to enter
+    /// Home on that string alone, which put the dashboard in front of a user
+    /// Firebase had never heard of — every authenticated read then failed and
+    /// the page rendered blank.
     on<CheckUserEvent>((event, emit) async {
       emit(AuthLoading(true));
-      await Future.delayed(Duration(seconds: 2));
-      final prefs = await SharedPreferences.getInstance();
-      final uid = prefs.getString('uid');
-      final email = prefs.getString('email');
 
-      print('SharedPreferences UID: $uid');
-      print('SharedPreferences Email: $email');
+      // The splash has a deliberate two-second dwell. Starting it here rather
+      // than awaiting it first means the auth work happens *during* that
+      // dwell instead of after it, so the check is free in wall-clock terms.
+      final minimumSplash = Future<void>.delayed(const Duration(seconds: 2));
 
-      if (uid != null) {
-        print('User found in SharedPreferences');
-        Get.offAll(() => HomeScreen());
-        emit(Authenticated(UserModel(uid: uid, email: email, password: '')));
-      } else {
-        print('User not found in SharedPreferences, checking FirebaseAuth');
-        print('User NOt found in FirebaseAuth');
+      final user = await _restoredUser();
+
+      if (user == null) {
+        // Nothing to honour, so remove the mirror before it is read again.
+        await clearAuthState();
+        await minimumSplash;
         emit(UnAthenticated());
-
         Get.offAll(() => WelcomeAdmin());
-        final user = auth.currentUser;
-        if (user != null) {
-          print('User found in FirebaseAuth');
-          Get.offAll(() => HomeScreen());
-          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
-        } else {
-          print('User NOt found in FirebaseAuth');
-          Get.offAll(() => WelcomeAdmin());
-          emit(UnAthenticated());
-        }
+        return;
       }
+
+      if (!await _hasUsableCredential(user)) {
+        await auth.signOut();
+        await clearAuthState();
+        await minimumSplash;
+        emit(UnAthenticated());
+        Get.offAll(() => WelcomeAdmin());
+        return;
+      }
+
+      await minimumSplash;
+      emit(Authenticated(
+        UserModel(uid: user.uid, email: user.email, password: ''),
+      ));
+      Get.offAll(() => HomeScreen());
     });
 
     // // Handle logout
     on<Logout>((event, emit) async {
       try {
         await auth.signOut();
-        clearAuthState();
+        await clearAuthState();
         emit(UnAthenticated());
       } catch (e) {
         emit(AuthenticatedErrors(message: e.toString()));
@@ -141,7 +162,8 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
         await googleSignIn.initialize();
 
-        final GoogleSignInAccount googleUser = await googleSignIn.authenticate();
+        final GoogleSignInAccount googleUser =
+            await googleSignIn.authenticate();
 
         final GoogleSignInAuthentication googleAuth = googleUser.authentication;
 
@@ -149,7 +171,8 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
           idToken: googleAuth.idToken,
         );
 
-        final userCredential = await FirebaseAuth.instance.signInWithCredential(credential);
+        final userCredential =
+            await FirebaseAuth.instance.signInWithCredential(credential);
 
         final user = userCredential.user;
 
@@ -181,7 +204,7 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     on<SignOutWithGoogle>((event, emit) async {
       try {
         await GoogleSignIn.instance.signOut();
-        clearAuthState();
+        await clearAuthState();
       } catch (e) {
         emit(AuthenticatedErrors(message: 'signOut error'));
       }
@@ -192,21 +215,26 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     on<FaceBookAuth>((event, emit) async {
       emit(AuthLoading(true));
       try {
-        final LoginResult result = await FacebookAuth.instance.login(permissions: [
+        final LoginResult result =
+            await FacebookAuth.instance.login(permissions: [
           'email',
         ]);
 
         if (result.status == LoginStatus.success) {
-          final OAuthCredential FacebookAuthCredential = FacebookAuthProvider.credential(result.accessToken!.tokenString);
-          final userCredential = await auth.signInWithCredential(FacebookAuthCredential);
+          final OAuthCredential FacebookAuthCredential =
+              FacebookAuthProvider.credential(result.accessToken!.tokenString);
+          final userCredential =
+              await auth.signInWithCredential(FacebookAuthCredential);
           final user = userCredential.user!;
 
           await saveAuthState(user.uid, user.email!);
 
           print('facebook account is authenticated');
-          emit(Authenticated(UserModel(uid: user.uid, email: user.email, password: '')));
+          emit(Authenticated(
+              UserModel(uid: user.uid, email: user.email, password: '')));
         } else {
-          emit(AuthenticatedErrors(message: 'Facebook login failed:${result.message}'));
+          emit(AuthenticatedErrors(
+              message: 'Facebook login failed:${result.message}'));
         }
       } catch (e) {
         emit(AuthenticatedErrors(message: 'facebook errors$e'));
@@ -218,13 +246,77 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     on<SignOutWithFacebook>((event, emit) async {
       try {
         await FacebookAuth.instance.logOut();
-        clearAuthState();
+        await clearAuthState();
         emit(UnAthenticated());
       } catch (e) {
         emit(AuthenticatedErrors(message: 'Facebook clear statement error'));
       }
     });
   }
+
+  /// The signed-in user once Firebase has finished restoring a persisted
+  /// session, or null if there is none.
+  ///
+  /// `currentUser` is null for a short while after `Firebase.initializeApp`
+  /// while the stored session is read back from disk (Android) or the
+  /// Keychain (iOS), so reading it directly at startup is a race that
+  /// intermittently reports "signed out" for a user who is signed in. The
+  /// first event from [FirebaseAuth.authStateChanges] is emitted exactly when
+  /// that restore has settled.
+  Future<User?> _restoredUser() async {
+    try {
+      return await auth
+          .authStateChanges()
+          .first
+          .timeout(const Duration(seconds: 8));
+    } catch (error) {
+      // A stalled or failed stream must not strand the app on the splash
+      // screen; whatever Firebase has restored by now is the best answer
+      // available, and null simply routes to the welcome screen.
+      log('Auth state restore failed, falling back to currentUser: $error');
+      return auth.currentUser;
+    }
+  }
+
+  /// Whether [user] still has a credential the backend would accept.
+  ///
+  /// A restored or long-idle session can have been revoked, disabled or
+  /// deleted server-side, and the local user object says nothing about that —
+  /// only a forced token refresh does. Without this an entering user reaches
+  /// Home and every authenticated request then fails with a 401.
+  Future<bool> _hasUsableCredential(User user) async {
+    try {
+      await user.getIdToken(true);
+      return true;
+    } on FirebaseAuthException catch (error) {
+      if (_rejectedSessionCodes.contains(error.code)) {
+        log('Session rejected by Firebase (${error.code})');
+        return false;
+      }
+
+      // Anything else is a transport problem, not a verdict on the session:
+      // network-request-failed, too-many-requests, an unreachable host.
+      // Firebase still holds a valid refresh token, so signing the user out
+      // here would log them out every time they opened the app offline.
+      log('Could not refresh the ID token (${error.code}) — keeping session');
+      return true;
+    } catch (error) {
+      // Same reasoning for a non-Firebase failure, e.g. a socket error.
+      log('Could not refresh the ID token ($error) — keeping session');
+      return true;
+    }
+  }
+
+  /// Firebase error codes that mean the session itself is finished, as
+  /// opposed to a request that merely failed to complete.
+  static const Set<String> _rejectedSessionCodes = {
+    'user-not-found',
+    'user-disabled',
+    'user-token-expired',
+    'invalid-user-token',
+    'user-mismatch',
+    'invalid-credential',
+  };
 
 // User Credential storing in Sharedpreference...!
 
@@ -255,9 +347,12 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
   // validation...!
 
-  FutureOr<void> validateTextField(TextFieldTextChanged event, Emitter<ManageState> emit) {
+  FutureOr<void> validateTextField(
+      TextFieldTextChanged event, Emitter<ManageState> emit) {
     try {
-      emit(isValidEmail(event.text) ? TextValid() : TextInvalid(message: 'Enter valid email'));
+      emit(isValidEmail(event.text)
+          ? TextValid()
+          : TextInvalid(message: 'Enter valid email'));
     } catch (e) {
       emit(AuthenticatedErrors(message: e.toString()));
     }
@@ -267,9 +362,12 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     return text.isNotEmpty && text.contains('@gmail.com');
   }
 
-  FutureOr<void> validatePasswordField(TextFieldPasswordChanged event, Emitter<ManageState> emit) {
+  FutureOr<void> validatePasswordField(
+      TextFieldPasswordChanged event, Emitter<ManageState> emit) {
     try {
-      emit(isValidPassword(event.password) ? passwordValid() : passwordInvalid(message: 'Enter valid password'));
+      emit(isValidPassword(event.password)
+          ? passwordValid()
+          : passwordInvalid(message: 'Enter valid password'));
     } catch (e) {
       emit(AuthenticatedErrors(message: e.toString()));
     }
@@ -281,7 +379,8 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
 
   // view Password...!
 
-  FutureOr<void> togglePasswordVisibility(TogglePasswordVisibility event, Emitter<ManageState> emit) {
+  FutureOr<void> togglePasswordVisibility(
+      TogglePasswordVisibility event, Emitter<ManageState> emit) {
     isPasswordVisible = !isPasswordVisible;
     emit(PasswordVisibilityToggled(isPasswordVisible));
   }
