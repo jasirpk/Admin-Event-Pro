@@ -1,4 +1,5 @@
 import 'package:admineventpro/bussiness_layer/repos/delete_showdilog.dart';
+import 'package:admineventpro/bussiness_layer/repos/submit_vendor_dialog.dart';
 import 'package:admineventpro/common/style.dart';
 import 'package:admineventpro/data_layer/generated_bloc/generated_bloc.dart';
 import 'package:admineventpro/data_layer/services/category.dart';
@@ -265,9 +266,15 @@ class TabBarViewTwo extends StatelessWidget {
                                           budget: vendorBudget(
                                               subDetailData['budget'])));
                                     } else if (value == 'submit') {
-                                      await generatedVendor.updateIsValidField(
-                                          uid, documentId,
-                                          isSumbit: true);
+                                      // Reads the profile fresh and submits
+                                      // only if it is complete; an
+                                      // incomplete one gets the dialog and
+                                      // no write at all.
+                                      await submitGeneratedVendor(
+                                        uid: uid,
+                                        documentId: documentId,
+                                        generatedVendor: generatedVendor,
+                                      );
                                     }
                                   },
                                   itemBuilder: (context) {

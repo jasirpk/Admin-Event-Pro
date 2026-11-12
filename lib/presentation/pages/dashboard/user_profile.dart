@@ -238,12 +238,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
     // if the user removed everything, which is a legitimate edit.
     final hasAvatar = image != null || (widget.imagePath ?? '').isNotEmpty;
 
-    if (companyName.isEmpty ||
-        about.isEmpty ||
-        phoneNumber.length != 10 ||
-        !emailAddress.contains('@') ||
-        website.isEmpty ||
-        !hasAvatar) {
+    // The same predicate the vendor-submission gate uses, so a profile this
+    // screen accepts is one the admin can act on, and vice versa.
+    if (missingProfileFields(
+      companyName: companyName,
+      description: about,
+      phoneNumber: phoneNumber,
+      emailAddress: emailAddress,
+      website: website,
+      hasAvatar: hasAvatar,
+    ).isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.red,
           content: Text('Please fill all the required fields')));

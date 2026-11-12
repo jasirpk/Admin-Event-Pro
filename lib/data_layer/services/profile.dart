@@ -86,6 +86,22 @@ class UserProfile {
     }
   }
 
+  /// The stored profile, or null when the user has never saved one.
+  ///
+  /// [getUserProfile] throws for a missing document, which a caller cannot
+  /// tell apart from a failed read. A caller that has to make that
+  /// distinction — "no profile yet" is a normal state to handle, "could not
+  /// check" is not — needs this instead: a missing document is null, and
+  /// only a genuine failure throws.
+  Future<Map<String, dynamic>?> getProfileData(String uid) async {
+    final snapshot = await FirebaseFirestore.instance
+        .collection('entrepreneurs')
+        .doc(uid)
+        .get();
+
+    return snapshot.data();
+  }
+
   Future<DocumentSnapshot> getUserProfile(String uid) async {
     try {
       final documentRef =
