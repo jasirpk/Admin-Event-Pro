@@ -20,13 +20,16 @@ class MoreDataWidget extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ExpansionTile(
-      tilePadding: EdgeInsets.only(left: 6, right: 260),
+      tilePadding: const EdgeInsets.symmetric(horizontal: 6),
+      childrenPadding: const EdgeInsets.symmetric(horizontal: 12),
       leading: Icon(
         Icons.add,
         color: Colors.white,
       ),
       title: Text(
         'More',
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
         style: TextStyle(color: Colors.white, fontSize: screenHeight * 0.014),
       ),
       backgroundColor: Colors.black,

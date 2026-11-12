@@ -1,7 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 import 'package:admineventpro/bussiness_layer/entities/admin_auth.dart';
+import 'package:admineventpro/data_layer/services/app_update_service.dart';
 import 'package:admineventpro/presentation/pages/dashboard/home.dart';
+import 'package:admineventpro/presentation/pages/onboarding_pages/update_available_screen.dart';
 import 'package:admineventpro/presentation/pages/onboarding_pages/welcome_admin.dart';
 import 'package:bloc/bloc.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -10,7 +12,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_facebook_auth/flutter_facebook_auth.dart';
 import 'package:get/get.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:meta/meta.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 part 'manage_event.dart';
@@ -115,31 +116,57 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
       // dwell instead of after it, so the check is free in wall-clock terms.
       final minimumSplash = Future<void>.delayed(const Duration(seconds: 2));
 
+      // Started beside the auth work for the same reason: the verdict is not
+      // read until both have finished, so an available update still takes
+      // priority over the authentication destination — it just does not cost
+      // a second wait. The service swallows every failure and reports "no
+      // update", so an unreachable Remote Config cannot block startup.
+      final updateCheck = AppUpdateService().check();
+
       final user = await _restoredUser();
+
+      // Resolved first, acted on last. Collapsing the three outcomes into one
+      // state plus one destination keeps the single-navigation guarantee the
+      // handler is built around, now that the update gate sits in front of it.
+      final ManageState outcome;
+      final Widget Function() destination;
 
       if (user == null) {
         // Nothing to honour, so remove the mirror before it is read again.
         await clearAuthState();
-        await minimumSplash;
-        emit(UnAthenticated());
-        Get.offAll(() => WelcomeAdmin());
-        return;
-      }
-
-      if (!await _hasUsableCredential(user)) {
+        outcome = UnAthenticated();
+        destination = () => WelcomeAdmin();
+      } else if (!await _hasUsableCredential(user)) {
         await auth.signOut();
         await clearAuthState();
-        await minimumSplash;
-        emit(UnAthenticated());
-        Get.offAll(() => WelcomeAdmin());
+        outcome = UnAthenticated();
+        destination = () => WelcomeAdmin();
+      } else {
+        outcome = Authenticated(
+          UserModel(uid: user.uid, email: user.email, password: ''),
+        );
+        destination = () => HomeScreen();
+      }
+
+      final update = await updateCheck;
+
+      await minimumSplash;
+      emit(outcome);
+
+      if (!update.shouldPrompt) {
+        Get.offAll(destination);
         return;
       }
 
-      await minimumSplash;
-      emit(Authenticated(
-        UserModel(uid: user.uid, email: user.email, password: ''),
-      ));
-      Get.offAll(() => HomeScreen());
+      // offAll, so the update screen owns the stack: a mandatory update has
+      // no authenticated screen behind it to be dismissed into, and the
+      // screen can never surface on top of an already-loaded Home.
+      Get.offAll(
+        () => UpdateAvailableScreen(
+          info: update,
+          onLater: update.isBlocking ? null : () => Get.offAll(destination),
+        ),
+      );
     });
 
     // // Handle logout

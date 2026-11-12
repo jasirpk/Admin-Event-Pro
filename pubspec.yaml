@@ -16,7 +16,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
 # In Windows, build-name is used as the major, minor, and patch parts
 # of the product and file versions while build-number is used as the build suffix.
-version: 2.0.6+6
+version: 2.0.8+8
 
 environment:
   sdk: '>=3.3.4 <4.0.0'
@@ -40,7 +40,14 @@ dependencies:
   lottie: ^3.1.2
   pushable_button: ^0.0.4
   carousel_slider: ^5.1.2
-  firebase_core: ^4.11.0
+  # Upper-bounded on purpose. Every firebase_* plugin pins one exact
+  # firebase-ios-sdk version in its Package.swift, and they only agree
+  # within a release train: 4.14.x pins 12.18.0, which is what the
+  # storage, auth, firestore, messaging and app_check versions locked
+  # here also pin. Letting core float to 4.15.x pulls in 12.19.3 and
+  # Xcode then fails to resolve the package graph. Lift this bound only
+  # together with the other firebase_* packages.
+  firebase_core: '>=4.11.0 <4.15.0'
   firebase_auth: ^6.5.4
   cloud_firestore: ^6.6.0
   shared_preferences: ^2.2.3
@@ -65,6 +72,12 @@ dependencies:
   cached_network_image: ^3.4.0
   transparent_image: ^2.0.1
   flutter_dotenv: ^5.2.1
+  # Exact, for the same reason as the firebase_core bound above: 6.6.0 is
+  # the newest release that pins firebase-ios-sdk 12.18.0 (6.7.0 moves to
+  # 12.19.0, 6.7.1 to 12.19.3). Bump it with the rest of the firebase_*
+  # set, not on its own.
+  firebase_remote_config: 6.6.0
+  package_info_plus: ^10.2.2
 
 
 
