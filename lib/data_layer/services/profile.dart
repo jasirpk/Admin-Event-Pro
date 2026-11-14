@@ -6,6 +6,10 @@ import 'package:admineventpro/data_layer/services/profile_api_service.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class UserProfile {
+  UserProfile({ProfileApiService? api}) : _api = api ?? ProfileApiService.instance;
+
+  final ProfileApiService _api;
+
   /// Saves the profile through the API.
   ///
   /// Previously this wrote `entrepreneurs/{uid}` directly and uploaded every
@@ -33,7 +37,7 @@ class UserProfile {
     File? newProfileImage,
   }) async {
     try {
-      final api = ProfileApiService.instance;
+      final api = _api;
 
       // Only a freshly picked avatar is uploaded. An unchanged one is left
       // out of the request entirely, so the stored value — R2 key or legacy
@@ -68,7 +72,11 @@ class UserProfile {
       final updatedAt = await api.updateProfile(
         companyName: companyName,
         description: about,
-        website: website,
+        // Always supplied, never omitted. The editor knows what the user
+        // meant: a blank field is an instruction to clear the stored
+        // website, not an absence of opinion about it. The API reads '' as
+        // a clear and a missing key as "leave it alone".
+        website: website.trim(),
         phoneNumber: phoneNumber,
         emailAddress: emailAddress,
         profileImage: profileImage,

@@ -1,5 +1,7 @@
 import 'dart:io';
 
+import 'package:get/get_utils/get_utils.dart';
+
 /// Reading and editing an `entrepreneurs/{uid}` profile document.
 
 /// One portfolio row in the editor.
@@ -60,12 +62,17 @@ String profileText(dynamic raw) => raw is String ? raw : '';
 
 /// The required fields a profile is still missing, in the editor's own order.
 ///
-/// These are exactly the conditions the profile editor refuses to save on
+/// Four fields make a profile registered: a company name, an about-us, a
+/// phone number and an email address — everything the admin needs to
+/// recognise a submission and get back to whoever sent it. A profile image,
+/// a website, social links and the portfolio are all optional, and their
+/// absence never blocks a submission.
+///
+/// These are the conditions the profile editor refuses to save on
 /// (`ProfileScreen._save`). They live here, in one place, so that
-/// "complete enough for the editor to save"
-/// and "complete enough for the admin to act on" can never drift apart: a
-/// profile the editor would reject must not count as registered anywhere
-/// else in the app.
+/// "complete enough for the editor to save" and "complete enough for the
+/// admin to act on" can never drift apart: a profile the editor would
+/// reject must not count as registered anywhere else in the app.
 ///
 /// An empty result means the profile is complete.
 List<String> missingProfileFields({
@@ -73,18 +80,31 @@ List<String> missingProfileFields({
   required String description,
   required String phoneNumber,
   required String emailAddress,
-  required String website,
-  required bool hasAvatar,
 }) {
   return [
     if (companyName.trim().isEmpty) 'Company name',
-    if (description.trim().isEmpty) 'About',
-    if (phoneNumber.trim().length != 10) 'Phone number',
-    if (!emailAddress.contains('@')) 'Email address',
-    if (website.trim().isEmpty) 'Website',
-    if (!hasAvatar) 'Profile photo',
+    if (description.trim().isEmpty) 'About us',
+    if (!isValidProfilePhoneNumber(phoneNumber)) 'Phone number',
+    if (!isValidProfileEmail(emailAddress)) 'Email address',
   ];
 }
+
+/// The phone-number format this app has always used: ten characters.
+///
+/// Deliberately unchanged. The profile field is numeric-only
+/// (`TextInputType.number`), and tightening this to digits-only here would
+/// retroactively invalidate stored numbers that the editor once accepted.
+bool isValidProfilePhoneNumber(String phoneNumber) =>
+    phoneNumber.trim().length == 10;
+
+/// A syntactically valid email address.
+///
+/// [GetUtils.isEmail] rather than a hand-rolled pattern: `get` is already a
+/// direct dependency, and its regex is the ordinary one. The sign-in screen's
+/// `contains('@gmail.com')` is not reused on purpose — a business contact
+/// address is usually not a Gmail one.
+bool isValidProfileEmail(String emailAddress) =>
+    GetUtils.isEmail(emailAddress.trim());
 
 /// The same check, against a stored `entrepreneurs/{uid}` document.
 ///
@@ -96,12 +116,13 @@ List<String> missingStoredProfileFields(Map<String, dynamic>? data) {
     description: profileText(data?['description']),
     phoneNumber: profileText(data?['phoneNumber']),
     emailAddress: profileText(data?['emailAddress']),
-    website: profileText(data?['website']),
-    hasAvatar: profileText(data?['profileImage']).trim().isNotEmpty,
   );
 }
 
 /// Whether the stored profile identifies its owner well enough for the admin
 /// to recognise and contact them.
+///
+/// `profileImage`, `website`, `links` and the portfolio are not consulted:
+/// they are optional, and a profile without them still submits.
 bool isStoredProfileComplete(Map<String, dynamic>? data) =>
     missingStoredProfileFields(data).isEmpty;

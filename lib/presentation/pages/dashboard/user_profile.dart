@@ -234,19 +234,15 @@ class _ProfileScreenState extends State<ProfileScreen> {
         .where((link) => link.isNotEmpty)
         .toList();
 
-    // The avatar may come from the stored value; the portfolio may be empty
-    // if the user removed everything, which is a legitimate edit.
-    final hasAvatar = image != null || (widget.imagePath ?? '').isNotEmpty;
-
     // The same predicate the vendor-submission gate uses, so a profile this
-    // screen accepts is one the admin can act on, and vice versa.
+    // screen accepts is one the admin can act on, and vice versa. The
+    // website, the avatar and the portfolio are not required: a profile
+    // may legitimately have none of them.
     if (missingProfileFields(
       companyName: companyName,
       description: about,
       phoneNumber: phoneNumber,
       emailAddress: emailAddress,
-      website: website,
-      hasAvatar: hasAvatar,
     ).isNotEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(SnackBar(
           backgroundColor: Colors.red,

@@ -147,6 +147,14 @@ class ProfileApiService {
   /// A partial update: only the arguments given are sent, so anything left
   /// out keeps its stored value. Passing [images] replaces the portfolio
   /// array wholesale, which is how a removal is expressed.
+  ///
+  /// [website] has three states, and null is not the same as '':
+  ///
+  ///  * a non-empty string — store it;
+  ///  * `''` — remove the stored website;
+  ///  * null — omit the key, leaving whatever is stored alone.
+  ///
+  /// No other text field accepts '': the API refuses an empty one.
   Future<String> updateProfile({
     String? companyName,
     String? description,
