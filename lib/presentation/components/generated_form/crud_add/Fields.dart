@@ -187,9 +187,8 @@ class ComponentsFieldsWidget extends StatelessWidget {
         ),
         const SizedBox(height: 30),
 
-        PushableButton_widget(
-          buttonText: 'Submit',
-          onpressed: () async {
+        _SubmitButton(
+          onSubmit: () async {
             // No VendorSaveLoading here. That event emits SaveVendorLoading,
             // a state carrying none of the form's data, and every picked
             // image, the main image and the item count live on
@@ -306,5 +305,64 @@ class ComponentsFieldsWidget extends StatelessWidget {
       'from': double.parse(FromBudgetController.text),
       'to': double.parse(ToBudgetController.text),
     };
+  }
+}
+
+/// The Vendor Preview Submit button, and the only thing that knows whether a
+/// submission is under way.
+///
+/// It exists because [ComponentsFieldsWidget] is stateless and a spinner needs
+/// somewhere to live. Keeping the flag here rather than making the whole form
+/// stateful also means nothing else on the page rebuilds while a submission
+/// runs.
+///
+/// Deliberately *not* the `GeneratedBloc`: `VendorSaveLoading` emits
+/// `SaveVendorLoading`, a state carrying none of the form's data, and every
+/// picked image, the main image and the item count live on `GeneratedInitial`
+/// — dispatching it erased the component list the moment Submit was pressed.
+/// That is the bug the comment in the handler above records; this widget is
+/// how a spinner is shown without re-introducing it.
+class _SubmitButton extends StatefulWidget {
+  const _SubmitButton({required this.onSubmit});
+
+  /// Everything a submission does: validation, uploads, the API call and the
+  /// snackbars. Run exactly as it was before — this widget only brackets it.
+  final Future<void> Function() onSubmit;
+
+  @override
+  State<_SubmitButton> createState() => _SubmitButtonState();
+}
+
+class _SubmitButtonState extends State<_SubmitButton> {
+  bool _submitting = false;
+
+  Future<void> _run() async {
+    // The button is already disabled while loading, so this is the belt to
+    // that braces: a tap landing in the same frame as the state change, or a
+    // synthetic one, cannot start a second submission.
+    if (_submitting) return;
+
+    // Before the first await, so the spinner is on screen for the whole
+    // operation — including the synchronous validation, which runs first and
+    // can itself end the attempt.
+    setState(() => _submitting = true);
+
+    try {
+      await widget.onSubmit();
+    } finally {
+      // finally, not after the await: a failure anywhere in there must still
+      // give the user their button back. `mounted` because a successful
+      // submission pops this screen, disposing the State before we get here.
+      if (mounted) setState(() => _submitting = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return PushableButton_widget(
+      buttonText: 'Submit',
+      isLoading: _submitting,
+      onpressed: _run,
+    );
   }
 }

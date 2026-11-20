@@ -17,6 +17,40 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 part 'manage_event.dart';
 part 'manage_state.dart';
 
+/// The account fields a sign-in should add to `entrepreneurs/{uid}`, given
+/// what the document already holds. [existing] is null when there is no
+/// document yet, in which case all three are initialised.
+///
+/// These three were written only by the email/password `SignUp` handler, so an
+/// account created with Google or Facebook never received them. A missing
+/// `isActive` is what hid such an entrepreneur from the web console, whose
+/// Entrepreneurs query filters on `isActive == true` — and Firestore does not
+/// match a document whose field is absent.
+///
+/// Presence is tested with `containsKey`, deliberately, rather than by reading
+/// the value: an explicitly stored `isActive: false` is a decision someone
+/// made, and asserting `true` over it would silently reactivate a deactivated
+/// account on its owner's next sign-in. The same reasoning keeps an existing
+/// `platform` or `createdAt` untouched, whatever it says.
+///
+/// [createdAt] is injected rather than taken as `FieldValue.serverTimestamp()`
+/// here so this stays a pure function: the choice of *which* fields to write
+/// is the part carrying the rules, and it is tested without Firestore.
+@visibleForTesting
+Map<String, Object?> accountInitialisers(
+  Map<String, dynamic>? existing, {
+  required Object createdAt,
+}) {
+  bool missing(String field) =>
+      existing == null || !existing.containsKey(field);
+
+  return {
+    if (missing('isActive')) 'isActive': true,
+    if (missing('platform')) 'platform': 'mobile',
+    if (missing('createdAt')) 'createdAt': createdAt,
+  };
+}
+
 class ManageBloc extends Bloc<ManageEvent, ManageState> {
   final FirebaseAuth auth = FirebaseAuth.instance;
   bool isPasswordVisible = false;
@@ -351,14 +385,40 @@ class ManageBloc extends Bloc<ManageEvent, ManageState> {
     final prefs = await SharedPreferences.getInstance();
     await prefs.setString('uid', uid);
     await prefs.setString('email', email);
-    // Merge, never replace: this runs on every sign-in, and a replacing set()
-    // wiped companyName, isValid, images, links and the server-owned rating
-    // aggregate each time. Merging also keeps the write within what the
-    // security rules allow, since it no longer removes guarded fields.
-    await FirebaseFirestore.instance.collection('entrepreneurs').doc(uid).set({
-      'uid': uid,
-      'email': email,
-    }, SetOptions(merge: true));
+
+    final document =
+        FirebaseFirestore.instance.collection('entrepreneurs').doc(uid);
+
+    // A transaction, not a bare set(): deciding whether a field is missing
+    // requires reading first, and a read followed by an unrelated write is
+    // exactly the race two concurrent sign-ins would lose. Firestore replays
+    // the whole block against fresh data if the document changed underneath,
+    // so "absent" is still true at the instant of the write.
+    await FirebaseFirestore.instance.runTransaction((transaction) async {
+      final snapshot = await transaction.get(document);
+
+      // Merge, never replace: this runs on every sign-in, and a replacing
+      // set() wiped companyName, isValid, images, links and the server-owned
+      // rating aggregate each time. Merging also keeps the write within what
+      // the security rules allow, since it no longer removes guarded fields.
+      //
+      // uid and email are re-asserted every time, as before. The account
+      // fields are added only where the document has none — see
+      // [accountInitialisers].
+      transaction.set(
+        document,
+        {
+          'uid': uid,
+          'email': email,
+          ...accountInitialisers(
+            snapshot.data(),
+            createdAt: FieldValue.serverTimestamp(),
+          ),
+        },
+        SetOptions(merge: true),
+      );
+    });
+
     log('Saved UID: $uid');
     log('Saved Email: $email');
   }
